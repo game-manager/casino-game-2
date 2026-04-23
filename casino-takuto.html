@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body.dark {
+            background-color: #202020;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .yellow {
+            color: #c0c000;
+            font-family: sans-serif;
+            margin-bottom: 20px;
+        }
+
+        .reel-area {
+            display: flex;
+            gap: 20px;
+        }
+
+        .reel-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reel-window {
+            width: 150px;
+            height: 120px;
+            border: 5px solid #444;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+            position: relative;
+        }
+
+        .reel-strip {
+            display: flex;
+            flex-direction: column;
+            animation: spin 0.75s linear infinite;
+        }
+
+        .reel-strip img {
+            width: 150px;
+            height: 120px;
+            object-fit: contain;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-840px); }
+        }
+
+        .stop-btn {
+            width: 80px;
+            height: 40px;
+            background-color: #c00000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px #800000;
+        }
+
+        .stop-btn:active:not(:disabled) {
+            box-shadow: none;
+            transform: translateY(4px);
+        }
+
+        .stop-btn:disabled {
+            background-color: #555;
+            box-shadow: none;
+            transform: translateY(4px);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="dark">
+
+    <h1 class="yellow">Coin : <span id="coinshow"></span></h1>
+
+    <div class="reel-area">
+        <div class="reel-column">
+            <div class="reel-window"><div class="reel-strip" id="reel1"></div></div>
+            <button class="stop-btn" onclick="stopReel('reel1', this)">STOP</button>
+        </div>
+        <div class="reel-column">
+            <div class="reel-window"><div class="reel-strip" id="reel2"></div></div>
+            <button class="stop-btn" onclick="stopReel('reel2', this)">STOP</button>
+        </div>
+        <div class="reel-column">
+            <div class="reel-window"><div class="reel-strip" id="reel3"></div></div>
+            <button class="stop-btn" onclick="stopReel('reel3', this)">STOP</button>
+        </div>
+    </div>
+
+    <script>
+        const IMG_DATA = [
+            "gyanb/gyanb1_transparent.png",
+            "gyanb/gyanb2_transparent.png",
+            "gyanb/gyanb3_transparent.png",
+            "gyanb/gyanb4_tr.png",
+            "gyanb/gyanb5_transparent.png",
+            "gyanb/gyanb6_transparent.png",
+            "gyanb/gyanb7n-transparent.png"
+        ];
+
+        let stoppedCount = 0;
+        let firstResultIndex = null; // 1回目に引いた図柄のインデックスを保存
+
+        function init() {
+            document.getElementById("coinshow").innerText = 10000;
+            [1, 2, 3].forEach(num => {
+                const strip = document.getElementById(`reel${num}`);
+                const content = [...IMG_DATA, ...IMG_DATA, ...IMG_DATA, ...IMG_DATA].map(src => `<img src="${src}">`).join('');
+                strip.innerHTML = content;
+            });
+        }
+
+        function stopReel(reelId, btn) {
+            const reel = document.getElementById(reelId);
+            btn.disabled = true;
+            stoppedCount++;
+
+            const style = window.getComputedStyle(reel);
+            const matrix = new WebKitCSSMatrix(style.transform);
+            const currentY = matrix.m42;
+            const currentIndex = Math.abs(Math.round(currentY / 120)) % 7;
+           
+            let baseIndex = (currentIndex + 1) % 7;
+            let targetIndex = baseIndex;
+
+            const evens = [1, 3, 5]; // 図柄 2, 4, 6
+            const odds = [0, 2, 4];  // 図柄 1, 3, 5
+
+            if (stoppedCount === 1) {
+                // --- 1回目 ---
+                const rand = Math.random() * 100;
+                if (rand < 60) {
+                    targetIndex = evens.find(idx => idx >= baseIndex) ?? evens[0];
+                } else if (rand < 90) {
+                    targetIndex = odds.find(idx => idx >= baseIndex) ?? odds[0];
+                } else {
+                    targetIndex = (currentIndex + 1 >= 4 && currentIndex + 1 <= 7) ? 6 : (evens.find(idx => idx >= baseIndex) ?? evens[0]);
+                }
+                firstResultIndex = targetIndex; // 結果を保存
+
+            } else if (stoppedCount === 2) {
+                // --- 2回目 (1回目の結果に応じて確率を逆転) ---
+                const rand = Math.random() * 100;
+               
+                // 1回目が 1, 3, 5 (index 0, 2, 4) だったか判定
+                const isFirstOdd = odds.includes(firstResultIndex);
+
+                if (isFirstOdd) {
+                    // 確率逆転：1,3,5が60% / 2,4,6が30%
+                    if (rand < 60) {
+                        targetIndex = odds.find(idx => idx >= baseIndex) ?? odds[0];
+                    } else if (rand < 90) {
+                        targetIndex = evens.find(idx => idx >= baseIndex) ?? evens[0];
+                    } else {
+                        targetIndex = (currentIndex + 1 >= 4 && currentIndex + 1 <= 7) ? 6 : (evens.find(idx => idx >= baseIndex) ?? evens[0]);
+                    }
+                } else {
+                    // 通常確率：2,4,6が60% / 1,3,5が30%
+                    if (rand < 60) {
+                        targetIndex = evens.find(idx => idx >= baseIndex) ?? evens[0];
+                    } else if (rand < 90) {
+                        targetIndex = odds.find(idx => idx >= baseIndex) ?? odds[0];
+                    } else {
+                        targetIndex = (currentIndex + 1 >= 4 && currentIndex + 1 <= 7) ? 6 : (evens.find(idx => idx >= baseIndex) ?? evens[0]);
+                    }
+                }
+            } else {
+                // --- 3回目 ---
+                targetIndex = baseIndex;
+            }
+
+            // スムーズな停止計算
+            let diff = targetIndex - currentIndex;
+            if (diff <= 0) diff += 7;
+            const finalY = (Math.round(currentY / 120) - diff) * 120;
+
+            reel.style.animation = 'none';
+            reel.style.transform = `translateY(${currentY}px)`;
+
+            setTimeout(() => {
+                reel.style.transition = 'transform 0.4s ease-out';
+                reel.style.transform = `translateY(${finalY}px)`;
+            }, 10);
+        }
+
+        init();
+    </script>
+</body>
+</html>
