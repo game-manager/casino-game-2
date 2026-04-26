@@ -155,6 +155,8 @@
             <div class="payout-item"><span>2・4・6 揃い</span>×5</div>
             <div class="payout-item"><span>1・3・5 揃い</span>×10</div>
             <div class="payout-item"><span>7 揃い</span>×15</div>
+            <div class="payout-item"><span>1・2・3 順不同</span>×8</div>
+            <div class="payout-item"><span>4・5・6 順不同</span>×6</div>
         </div>
     </div>
 
@@ -448,18 +450,18 @@ const IMG_7_KAKUHEN= "gyanb/gyanb7_transparent.png";
 const ODD_SET=[0,2,4], EVEN_SET=[1,3,5], SEVEN=6;
 
 let coins=10000, currentBet=0;
-let stoppedCount=0, firstResultIndex=null, secondResultIndex=null;
+let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIndex=null;
 let Atsu=0, gameRunning=false, totalStartCount=0;
 
 // --- リーチ率管理 ---
-let earlyReachUsed  = false; // Aルール: 最初3回以内に1回リーチが来たか
-let consecutiveLose = 0;     // Bルール: リーチなし連続外れ数（リーチ来たらリセット）
+let earlyReachUsed = false; // 最初3回以内に1回リーチが来たか
 
 // --- 確変管理 ---
-let consecutiveAnyLose = 0;  // 5連続外れカウント（リーチ外れ含む）
-let kakuhenActive      = false; // 確変中か
-let kakuhen7ReachDone  = false; // 確変中に7リーチが済んだか
-let lastWinCoins       = 10000; // 最後に当たった時点の所持金（初期値=開始時所持金）
+let consecutiveAnyLose = 0;
+let kakuhenActive      = false;
+let kakuhenWinRound    = 0;   // 確変中に何回目のリーチで当たるか(1〜4)
+let kakuhenReachCount  = 0;   // 確変中のリーチ回数カウント
+const initialCoins     = 10000; // 初期所持金（固定）
 
 // --- 虹ループ音 (確変中ずっと鳴り続ける) ---
 let _rainbowLoopInterval = null;
@@ -522,8 +524,16 @@ function setKakuhenMode(on){
     IMG_DATA_CURRENT[SEVEN] = on ? IMG_7_KAKUHEN : IMG_7_NORMAL;
 }
 
+// コンボ役判定: 1/2/3(index 0,1,2)順不同=×3、4/5/6(index 3,4,5)順不同=×2
+function getComboMultiplier(r1, r2, r3){
+    const s = new Set([r1,r2,r3]);
+    if(s.size===3 && [0,1,2].every(v=>s.has(v))) return 8;
+    if(s.size===3 && [3,4,5].every(v=>s.has(v))) return 6;
+    return 0;
+}
+
 function getMultiplier(idx){
-    if(idx===SEVEN) return 15;   // 777 = ×15
+    if(idx===SEVEN) return 15;
     if(ODD_SET.includes(idx)) return 10;
     if(EVEN_SET.includes(idx)) return 5;
     return 0;
@@ -595,23 +605,47 @@ function triggerReachEffect(){
     setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
 }
 
+// --- 掛け金ロック ---
+function setBetLocked(locked){
+    document.querySelectorAll('.bet-btn').forEach(b=>b.disabled=locked);
+    document.getElementById('custom-bet').disabled=locked;
+    // ロック中はボタンを視覚的に暗くする
+    const op = locked ? '0.4' : '1';
+    document.querySelectorAll('.bet-btn').forEach(b=>b.style.opacity=op);
+    document.getElementById('custom-bet').style.opacity=op;
+}
+
+let noOddReach = false;
+
 function startGame(){
     if(currentBet<=0) return;
     if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
     ensureCtx();
-    coins-=currentBet; updateCoinDisplay(); totalStartCount++;
-    gameRunning=true; stoppedCount=0; firstResultIndex=null; secondResultIndex=null; Atsu=0;
-    document.getElementById('start-btn').disabled=true;
-    document.getElementById('result-banner').innerText=''; document.getElementById('result-banner').className='';
-    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
 
-    // 確変中は虹を常時継続点灯・音量0.8
-    if(kakuhenActive){
-        setRainbow(true);
-    } else {
-        setRainbow(false);
+    // ---- 確変トリガー判定: START押下時 ----
+    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5;
+    if(shouldKakuhen){
+        // 非同期で確変演出→ゲーム開始
+        (async()=>{
+            await triggerKakuhen();
+            _doStartGame();
+        })();
+        return;
     }
+    _doStartGame();
+}
 
+function _doStartGame(){
+    coins-=currentBet; updateCoinDisplay(); totalStartCount++;
+    gameRunning=true; stoppedCount=0;
+    firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
+    noOddReach = (coins >= initialCoins * 2.5);
+    setBetLocked(true); // ゲーム中は掛け金変更不可
+    document.getElementById('start-btn').disabled=true;
+    document.getElementById('result-banner').innerText='';
+    document.getElementById('result-banner').className='';
+    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
+    if(kakuhenActive){ setRainbow(true); } else { setRainbow(false); }
     rebuildReels();
     [1,2,3].forEach(n=>{
         const s=document.getElementById(`reel${n}`);
@@ -627,25 +661,19 @@ function startGame(){
 //  2リール目を止めた時のリーチ判定
 // -------------------------------------------------------
 function decideReach(currentIndex){
-    // 確変フェーズ1: 7リーチ未済
-    // → 1リール目がSEVENなら2リールもSEVEN(リーチ確定)
-    //   1リール目がSEVENでなければ7以外でランダム(リーチなし)
-    if(kakuhenActive && !kakuhen7ReachDone){
-        if(firstResultIndex===SEVEN) return SEVEN;
-        return pickNonSevenRandom(currentIndex);
-    }
-
-    // 確変フェーズ2: 7リーチ済み → 1リール目と同じ絵柄(7以外)で必ずリーチ
-    if(kakuhenActive && kakuhen7ReachDone){
+    // 確変中: 必ず1リール目と同じ絵柄でリーチ
+    if(kakuhenActive){
         return firstResultIndex;
     }
 
-    // --- 通常時リーチ率判定 ---
-    const ruleA = (totalStartCount<=3 && !earlyReachUsed);
-    const ruleB = (consecutiveLose>=5);
+    // 富裕制限: 所持金>=初期×2.5 かつ 1リール目がODD → リーチなし
+    if(noOddReach && ODD_SET.includes(firstResultIndex)){
+        return pickNonMatchRandom(currentIndex, firstResultIndex);
+    }
 
+    // Aルール: 最初3回以内 & まだリーチ来ていない → 70%
+    const ruleA = (totalStartCount<=3 && !earlyReachUsed);
     if(ruleA && Math.random()<0.70) return firstResultIndex;
-    if(ruleB && Math.random()<0.80) return firstResultIndex;
 
     // 条件なし: 完全ランダム
     return pickRandom(currentIndex);
@@ -658,30 +686,37 @@ function pickRandom(currentIndex){
     else            return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
 }
 
-function pickNonSevenRandom(currentIndex){
-    const r=Math.random();
-    if(r<0.55) return getNextFromSet(currentIndex,EVEN_SET);
-    else        return getNextFromSet(currentIndex,ODD_SET);
+// 1リール目と絶対に一致しない絵柄を返す
+function pickNonMatchRandom(currentIndex, exclude){
+    let idx;
+    let tries=0;
+    do {
+        idx = pickRandom(currentIndex);
+        tries++;
+    } while(idx===exclude && tries<20);
+    return idx;
 }
 
 // -------------------------------------------------------
-//  5連続外れ時の確変トリガー演出
+//  確変トリガー演出
 // -------------------------------------------------------
 async function triggerKakuhen(){
-    // ① 虹サイドバーON + 音量0.8（CSSアニメそのまま）
+    setBetLocked(true); // 確変中は掛け金変更不可
     setRainbow(true);
-    // 効果音だけ鳴らす（ループ待ちなし）
     sfxFlash(); sfxFlash();
     await sleep(400);
-    // ② 確変画像表示（表示中も gain 0.8 を維持するため表示後に再セット）
     await showEffectImage("gyanb/kakuhen_transparent.png", 1800, "chance-large");
-    // 画像表示が終わった後も必ず gain を 0.8 に戻す
     setRainbow(true);
-    // ③ 確変モード ON (7画像を金色に切り替え) + リール帯を更新
     setKakuhenMode(true);
     rebuildReels();
-    kakuhen7ReachDone=false;
-    consecutiveAnyLose=0;
+    // 当たりラウンドを所持金で分岐して内部抽選
+    if(coins <= initialCoins * 0.5){
+        kakuhenWinRound = Math.floor(Math.random()*2)+1; // 1〜2
+    } else {
+        kakuhenWinRound = Math.floor(Math.random()*4)+1; // 1〜4
+    }
+    kakuhenReachCount = 0;
+    consecutiveAnyLose = 0;
 }
 
 async function stopReel(reelId,btn){
@@ -703,46 +738,94 @@ async function stopReel(reelId,btn){
     let targetIndex;
 
     if(stoppedCount===1){
-        // 確変フェーズ1中: 70%で7を選ぶ
-        if(kakuhenActive && !kakuhen7ReachDone && Math.random()<0.70){
-            targetIndex=SEVEN;
+        // ---- 1リール目 ----
+        if(kakuhenActive){
+            // 所持金 ≤ initial×0.5 → 777固定
+            if(coins <= initialCoins*0.5){
+                targetIndex = SEVEN;
+            } else {
+                // 50% SEVEN / 50% ODD
+                targetIndex = Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
+            }
         } else {
-            targetIndex=pickRandom(currentIndex);
+            targetIndex = pickRandom(currentIndex);
         }
-        firstResultIndex=targetIndex;
+        firstResultIndex = targetIndex;
 
     } else if(stoppedCount===2){
-        targetIndex=decideReach(currentIndex);
-        secondResultIndex=targetIndex;
+        // ---- 2リール目 ----
+        targetIndex = decideReach(currentIndex);
+        secondResultIndex = targetIndex;
 
         if(firstResultIndex===secondResultIndex){
             // リーチ発生
             if(!earlyReachUsed) earlyReachUsed=true;
-            consecutiveLose=0;
-
-            if(kakuhenActive && !kakuhen7ReachDone && firstResultIndex===SEVEN){
-                kakuhen7ReachDone=true;
+            if(kakuhenActive){
+                kakuhenReachCount++;
             }
-            setTimeout(()=>triggerReachEffect(),350);
+            setTimeout(()=>triggerReachEffect(), 350);
         }
 
-    } else { // stoppedCount===3
+    } else {
+        // ---- 3リール目 ----
         if(firstResultIndex===secondResultIndex){
             // ======== リーチあり ========
             Atsu=0;
 
             if(kakuhenActive){
-                // 確変中: 必ずbig_chance、ループ虹のflashSides、egg2固定
-                sfxChance(true);
-                await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
-                Atsu+=70;
-                await flashSides(2); Atsu+=80;
-                Atsu+=70;
-                sfxEgg(0);await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
-                sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
-                sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
+                // 当たりラウンド判定
+                const isWinRound = (kakuhenReachCount === kakuhenWinRound);
+
+                if(isWinRound){
+                    // 当たり演出: big_chance + egg_2
+                    sfxChance(true);
+                    await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
+                    Atsu+=70; await flashSides(2); Atsu+=80; Atsu+=70;
+                    sfxEgg(0);await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
+                    sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
+                    sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
+                } else {
+                    // 外れ演出: normal_chance + egg_1
+                    sfxChance(false);
+                    await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
+                    Atsu+=30;
+                    sfxEgg(0);await showEffectImage("gyanb/egg_1_transparent.png",1400,"egg-size-1");
+                    sfxEgg(1);await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
+                    sfxEgg(2);await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
+                }
+
+                if(isWinRound){
+                    // 当たり確定
+                    // 富裕制限: coins>=initial×3.5 かつ EVEN_SETリーチ → 当たり無効
+                    const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
+                    if(richBlock){
+                        // 強制外れ
+                        targetIndex=(firstResultIndex+1)%7;
+                        consecutiveAnyLose++;
+                        setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    } else {
+                        await showKiraEffect(20);
+                        targetIndex=firstResultIndex;
+                        setKakuhenMode(false);
+                        setRainbow(false);
+                        setBetLocked(false); // 確変終了 → 掛け金解放
+                        kakuhenWinRound=0; kakuhenReachCount=0;
+                        consecutiveAnyLose=0;
+                        setTimeout(()=>{
+                            const mult=getMultiplier(targetIndex), payout=currentBet*mult;
+                            coins+=payout; updateCoinDisplay(); sfxWin(mult);
+                            showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
+                        },500);
+                    }
+                } else {
+                    // 外れ確定
+                    targetIndex=(firstResultIndex+1)%7;
+                    consecutiveAnyLose++;
+                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                }
+
             } else {
-                // 通常時
+                // ======== 通常時リーチ ========
                 const isBig=Math.random()>=0.7;
                 sfxChance(isBig);
                 await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
@@ -755,49 +838,44 @@ async function stopReel(reelId,btn){
                 sfxEgg(0);await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
                 sfxEgg(1);await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
                 sfxEgg(2);await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-            }
 
-            // --- 当落判定 ---
-            let isWin;
-            if(kakuhenActive && firstResultIndex===SEVEN){
-                // 確変7リーチ → 100%当たり(777で揃う)
-                isWin=true;
-            } else if(kakuhenActive && kakuhen7ReachDone && firstResultIndex!==SEVEN){
-                // 確変フェーズ2: 7以外リーチ → 100%当たり
-                isWin=true;
-            } else {
                 let winProb=Atsu*0.454; if(winProb<30)winProb=0;
-                isWin=Math.random()*100<winProb;
+                let isWin=Math.random()*100<winProb;
+                // 富裕制限: coins>=initial×3.5 かつ EVEN_SETリーチ → 当たり無効
+                if(isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
+
+                if(isWin){
+                    await showKiraEffect(20);
+                    targetIndex=firstResultIndex;
+                    consecutiveAnyLose=0;
+                    setTimeout(()=>{
+                        const mult=getMultiplier(targetIndex), payout=currentBet*mult;
+                        coins+=payout; updateCoinDisplay(); sfxWin(mult);
+                        showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
+                    },500);
+                } else {
+                    targetIndex=(firstResultIndex+1)%7;
+                    consecutiveAnyLose++;
+                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                }
             }
 
-            if(isWin){
-                await showKiraEffect(20);
-                targetIndex=firstResultIndex;
-                // 確変中に当たり → 確変終了
-                if(kakuhenActive){
-                    setKakuhenMode(false);
-                    setRainbow(false);
-                    kakuhen7ReachDone=false;
-                }
-                consecutiveAnyLose=0;
-                setTimeout(()=>{
-                    const mult=getMultiplier(targetIndex),payout=currentBet*mult;
-                    coins+=payout; updateCoinDisplay(); sfxWin(mult);
-                    lastWinCoins=coins; // 当たり後の残高を記録
-                    showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                },500);
-            } else {
-                // リーチ外れ
-                targetIndex=(firstResultIndex+1)%7;
-                consecutiveAnyLose++;
-                setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-            }
         } else {
             // ======== リーチなしハズレ ========
-            consecutiveLose++;
-            consecutiveAnyLose++;
-            targetIndex=(currentIndex+1)%7;
-            setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+            // コンボ役チェック (1/2/3 or 4/5/6 順不同)
+            thirdResultIndex = currentIndex;
+            const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
+            if(combo > 0){
+                targetIndex = currentIndex;
+                const payout = currentBet * combo;
+                coins += payout; updateCoinDisplay(); sfxWin(combo);
+                consecutiveAnyLose=0;
+                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+            } else {
+                consecutiveAnyLose++;
+                targetIndex=(currentIndex+1)%7;
+                setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+            }
         }
     }
 
@@ -807,14 +885,11 @@ async function stopReel(reelId,btn){
     setTimeout(()=>{reel.style.transition='transform 0.4s ease-out';reel.style.transform=`translateY(${finalY}px)`;},10);
 
     if(stoppedCount===3){
-        // 確変トリガーチェック: 5連続外れ & 未確変 & 所持金が前回当たり時の半分以下
-        const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins <= lastWinCoins/2;
-        setTimeout(async ()=>{
+        setTimeout(()=>{
             stoppedCount=0; Atsu=0; gameRunning=false;
             [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            if(shouldKakuhen){
-                await triggerKakuhen();
-            }
+            // 確変中でなければ掛け金変更を解放
+            if(!kakuhenActive) setBetLocked(false);
             if(currentBet>0&&coins>0) document.getElementById('start-btn').disabled=false;
         },3000);
     }
