@@ -14,22 +14,18 @@
         }
         .side-bar { position: fixed; top: 0; width: 50px; height: 100%; background-color: #000; transition: background 0.2s; z-index: 1; }
         #left-bar { left: 0; } #right-bar { right: 0; }
-
         @keyframes rainbowSlide {
             0%   { background-position: 0% 0%; }
             100% { background-position: 0% 200%; }
         }
         .side-bar.rainbow {
             background: linear-gradient(to bottom,
-                #ff0000, #ff7700, #ffff00, #00ff00,
-                #00ffff, #0000ff, #ff00ff, #ff0000,
-                #ff7700, #ffff00, #00ff00, #00ffff,
-                #0000ff, #ff00ff, #ff0000);
+                #ff0000,#ff7700,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000,
+                #ff7700,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);
             background-size: 100% 200%;
             animation: rainbowSlide 0.6s linear infinite;
             transition: none;
         }
-
         #coin-display {
             margin-top: 10px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
             border: 2px solid #c0a000; border-radius: 12px; padding: 10px 30px;
@@ -39,7 +35,6 @@
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
         #player-id-display { color:#555; font-size:10px; letter-spacing:1px; margin-top:3px; }
-
         #bet-panel {
             margin-top: 12px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
             border: 2px solid #444; border-radius: 12px; padding: 14px 20px;
@@ -67,7 +62,6 @@
         .payout-hint { margin-top:8px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
         .payout-item { font-size:10px; color:#666; text-align:center; }
         .payout-item span { display:block; color:#aaa; font-weight:bold; }
-
         #start-btn {
             margin-top:14px; width:100%; max-width:480px; padding:14px;
             background:linear-gradient(135deg,#c00000,#800000); color:#fff; border:none;
@@ -77,7 +71,6 @@
         #start-btn:hover:not(:disabled) { background:linear-gradient(135deg,#e00000,#a00000); }
         #start-btn:active:not(:disabled) { transform:translateY(4px); box-shadow:none; }
         #start-btn:disabled { background:#444; box-shadow:none; cursor:not-allowed; color:#888; }
-
         .reel-area { display:flex; gap:14px; margin-top:16px; z-index:10; }
         .reel-column { display:flex; flex-direction:column; align-items:center; gap:12px; }
         .reel-window {
@@ -87,13 +80,11 @@
         .reel-strip { display:flex; flex-direction:column; animation:spin 0.75s linear infinite; }
         .reel-strip img { width:130px; height:110px; object-fit:contain; padding:8px; box-sizing:border-box; }
         @keyframes spin { 0%{transform:translateY(0);} 100%{transform:translateY(-770px);} }
-
         @keyframes reachPulse {
             0%,100% { border-color:#444; box-shadow:none; }
             50% { border-color:#ffdd00; box-shadow:0 0 22px #ffdd0099; }
         }
         .reel-window.reach-flash { animation:reachPulse 0.45s ease-in-out infinite; }
-
         .stop-btn {
             width:80px; height:38px; background-color:#c00000; color:white; border:none;
             border-radius:5px; font-weight:bold; font-family:'Courier New',monospace;
@@ -101,20 +92,17 @@
         }
         .stop-btn:active:not(:disabled) { box-shadow:none; transform:translateY(4px); }
         .stop-btn:disabled { background-color:#555; box-shadow:none; transform:translateY(4px); cursor:not-allowed; }
-
         #result-banner {
             margin-top:10px; min-height:36px; text-align:center; font-size:14px;
             font-weight:bold; color:#ffd700; letter-spacing:1px;
         }
         #result-banner.win { color:#00ff88; text-shadow:0 0 10px #00ff8866; }
         #result-banner.lose { color:#ff4444; }
-
         #effect-overlay {
             position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
             z-index:100; pointer-events:none; display:none; text-align:center;
         }
         #effect-img { max-width:400px; transition:transform 0.3s ease-out; }
-
         .kira-particle {
             position:fixed; width:90px; height:90px; z-index:150;
             pointer-events:none; animation:kira-fade 1s ease-out forwards;
@@ -127,28 +115,19 @@
         .egg-size-1{transform:scale(1.2);} .egg-size-2{transform:scale(1.5);}
         .egg-size-3{transform:scale(2.0);} .chance-large{transform:scale(1.8);}
         .spacer{height:20px;}
-
         @keyframes adminFlash {
             0%,100%{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);}
             50%{background:linear-gradient(135deg,#1a3a1a,#2a4a2a);}
         }
         .admin-updated { animation: adminFlash 0.5s ease-in-out 3; }
 
-        /* =============================================
-           管理者パネル — オーバーレイ全画面
-           Ctrl+Shift+A で開閉
-           ログインしていない場合はログイン画面を表示
-        ============================================= */
+        /* ===== 管理者パネル ===== */
         #admin-overlay {
-            display: none;
-            position: fixed; inset: 0; z-index: 9000;
-            background: rgba(0,0,0,0.92);
-            overflow-y: auto;
+            display: none; position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0.93); overflow-y: auto;
             font-family: 'Courier New', Courier, monospace;
         }
         #admin-overlay.open { display: block; }
-
-        /* 閉じるボタン */
         #admin-close-btn {
             position: fixed; top: 14px; right: 18px; z-index: 9100;
             background: #2a2a2a; color: #888; border: 1px solid #555;
@@ -158,194 +137,195 @@
         }
         #admin-close-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
 
-        /* ---- ログイン画面 ---- */
+        /* ログイン */
         #admin-login-screen {
             max-width: 380px; margin: 80px auto;
             background: #1a1a1a; border: 2px solid #444;
             border-radius: 14px; padding: 36px 32px;
         }
-        #admin-login-screen h2 {
-            color: #ffd700; text-align: center;
-            margin-bottom: 22px; letter-spacing: 4px; font-size: 18px;
-        }
+        #admin-login-screen h2 { color:#ffd700; text-align:center; margin-bottom:22px; letter-spacing:4px; font-size:18px; }
         .adm-form-group { margin-bottom: 14px; }
-        .adm-form-group label {
-            display: block; color: #888;
-            font-size: 11px; letter-spacing: 2px; margin-bottom: 5px;
-        }
+        .adm-form-group label { display:block; color:#888; font-size:11px; letter-spacing:2px; margin-bottom:5px; }
         .adm-form-group input {
-            width: 100%; padding: 10px 12px;
-            background: #111; color: #ffd700;
-            border: 1px solid #444; border-radius: 7px;
-            font-family: 'Courier New', monospace; font-size: 14px;
+            width:100%; padding:10px 12px; background:#111; color:#ffd700;
+            border:1px solid #444; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:14px;
         }
-        .adm-form-group input:focus { outline: none; border-color: #ffd700; }
+        .adm-form-group input:focus { outline:none; border-color:#ffd700; }
         #adm-login-btn {
-            width: 100%; padding: 11px; margin-top: 6px;
-            background: linear-gradient(135deg,#c0a000,#806800);
-            color: #000; border: none; border-radius: 8px;
-            font-family: 'Courier New', monospace; font-size: 14px;
-            font-weight: bold; letter-spacing: 3px; cursor: pointer;
+            width:100%; padding:11px; margin-top:6px;
+            background:linear-gradient(135deg,#c0a000,#806800);
+            color:#000; border:none; border-radius:8px;
+            font-family:'Courier New',monospace; font-size:14px;
+            font-weight:bold; letter-spacing:3px; cursor:pointer;
         }
-        #adm-login-btn:hover { background: linear-gradient(135deg,#ffd700,#c0a000); }
-        #adm-login-error { color: #ff5555; font-size: 11px; text-align: center; margin-top: 8px; min-height: 16px; }
+        #adm-login-btn:hover { background:linear-gradient(135deg,#ffd700,#c0a000); }
+        #adm-login-error { color:#ff5555; font-size:11px; text-align:center; margin-top:8px; min-height:16px; }
 
-        /* ---- メイン管理画面 ---- */
-        #admin-main-screen { display: none; max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
-
+        /* メイン管理画面 */
+        #admin-main-screen { display:none; max-width:960px; margin:0 auto; padding:24px 16px 50px; }
         .adm-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 26px; flex-wrap: wrap; gap: 10px;
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:26px; flex-wrap:wrap; gap:10px;
         }
-        .adm-header h1 {
-            color: #ffd700; font-size: 20px; letter-spacing: 4px;
-            text-shadow: 0 0 10px #ffd70033; margin: 0;
-        }
-        .adm-header-right { display: flex; align-items: center; gap: 12px; }
+        .adm-header h1 { color:#ffd700; font-size:20px; letter-spacing:4px; text-shadow:0 0 10px #ffd70033; margin:0; }
+        .adm-header-right { display:flex; align-items:center; gap:12px; }
         .adm-live-badge {
-            display: inline-flex; align-items: center; gap: 5px;
-            background: #0a1a0a; border: 1px solid #44ff88;
-            border-radius: 20px; padding: 3px 10px;
-            font-size: 10px; color: #44ff88; letter-spacing: 1px;
+            display:inline-flex; align-items:center; gap:5px;
+            background:#0a1a0a; border:1px solid #44ff88;
+            border-radius:20px; padding:3px 10px;
+            font-size:10px; color:#44ff88; letter-spacing:1px;
         }
-        .adm-live-dot {
-            width: 6px; height: 6px; background: #44ff88;
-            border-radius: 50%; animation: adm-pulse 1.2s ease-in-out infinite;
-        }
+        .adm-live-dot { width:6px; height:6px; background:#44ff88; border-radius:50%; animation:adm-pulse 1.2s ease-in-out infinite; }
         @keyframes adm-pulse { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
         #adm-logout-btn {
-            padding: 6px 14px; background: #2a2a2a;
-            color: #888; border: 1px solid #444; border-radius: 6px;
-            font-family: 'Courier New', monospace; font-size: 11px;
-            cursor: pointer; letter-spacing: 1px; transition: all 0.15s;
+            padding:6px 14px; background:#2a2a2a; color:#888; border:1px solid #444;
+            border-radius:6px; font-family:'Courier New',monospace; font-size:11px;
+            cursor:pointer; letter-spacing:1px; transition:all 0.15s;
         }
-        #adm-logout-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
-
+        #adm-logout-btn:hover { background:#3a1a1a; color:#ff5555; border-color:#ff5555; }
         .adm-section-title {
-            color: #888; font-size: 10px; letter-spacing: 3px;
-            text-transform: uppercase; padding-bottom: 8px;
-            border-bottom: 1px solid #2a2a2a; margin-bottom: 14px;
+            color:#888; font-size:10px; letter-spacing:3px; text-transform:uppercase;
+            padding-bottom:8px; border-bottom:1px solid #2a2a2a; margin-bottom:14px;
+        }
+        .adm-section-title .adm-count-badge {
+            display:inline-block; background:#2a2a2a; color:#aaa;
+            border-radius:10px; padding:1px 8px; font-size:10px;
+            margin-left:8px; letter-spacing:0; font-weight:normal;
         }
 
-        /* ---- プレイヤーテーブル ---- */
-        #adm-players-section { margin-bottom: 30px; }
-        #adm-players-table { width: 100%; border-collapse: collapse; }
+        /* プレイヤーテーブル */
+        #adm-players-section { margin-bottom:30px; }
+        #adm-players-table { width:100%; border-collapse:collapse; }
         #adm-players-table th {
-            background: #161616; color: #666;
-            font-size: 10px; letter-spacing: 2px;
-            padding: 9px 12px; text-align: left;
-            border-bottom: 2px solid #2a2a2a;
+            background:#161616; color:#666; font-size:10px; letter-spacing:2px;
+            padding:9px 10px; text-align:left; border-bottom:2px solid #2a2a2a;
         }
         #adm-players-table td {
-            padding: 10px 12px; border-bottom: 1px solid #1e1e1e;
-            font-size: 13px; vertical-align: middle;
+            padding:9px 10px; border-bottom:1px solid #1e1e1e;
+            font-size:12px; vertical-align:middle;
         }
-        #adm-players-table tr:hover td { background: #161616; }
-        .adm-badge-on  { display:inline-block; width:7px; height:7px; background:#44ff88; border-radius:50%; margin-right:7px; box-shadow:0 0 5px #44ff88; }
-        .adm-badge-off { display:inline-block; width:7px; height:7px; background:#444;    border-radius:50%; margin-right:7px; }
-        .adm-coins-val { color: #ffd700; font-weight: bold; }
-        .adm-pid       { color: #888; font-size: 11px; }
-        .adm-edit-btn {
-            padding: 4px 11px; background: #1a2a1a;
-            color: #44ff88; border: 1px solid #44ff88;
-            border-radius: 5px; cursor: pointer;
-            font-family: 'Courier New', monospace; font-size: 11px;
-            transition: all 0.15s;
+        #adm-players-table tr:hover td { background:#161616; }
+        .adm-badge-on  { display:inline-block; width:7px; height:7px; background:#44ff88; border-radius:50%; margin-right:6px; box-shadow:0 0 5px #44ff88; }
+        .adm-badge-off { display:inline-block; width:7px; height:7px; background:#444;    border-radius:50%; margin-right:6px; }
+        .adm-coins-val { color:#ffd700; font-weight:bold; }
+        .adm-pid       { color:#888; font-size:11px; font-family:'Courier New',monospace; }
+        /* ボタン共通 */
+        .adm-btn {
+            padding:4px 10px; border-radius:5px; cursor:pointer;
+            font-family:'Courier New',monospace; font-size:11px;
+            font-weight:bold; transition:all 0.15s; border:1px solid;
+            margin-left:3px;
         }
-        .adm-edit-btn:hover { background: #44ff88; color: #000; }
-        .adm-reset-btn {
-            padding: 4px 11px; background: #2a1a1a;
-            color: #ff5555; border: 1px solid #ff5555;
-            border-radius: 5px; cursor: pointer; margin-left: 5px;
-            font-family: 'Courier New', monospace; font-size: 11px;
-            transition: all 0.15s;
-        }
-        .adm-reset-btn:hover { background: #ff5555; color: #fff; }
-        #adm-no-players { color: #444; text-align: center; padding: 26px; font-size: 12px; }
+        .adm-btn-green  { background:#1a2a1a; color:#44ff88; border-color:#44ff88; }
+        .adm-btn-green:hover  { background:#44ff88; color:#000; }
+        .adm-btn-orange { background:#2a1e0a; color:#ffaa44; border-color:#ffaa44; }
+        .adm-btn-orange:hover { background:#ffaa44; color:#000; }
+        .adm-btn-red    { background:#2a1010; color:#ff5555; border-color:#ff5555; }
+        .adm-btn-red:hover    { background:#ff5555; color:#fff; }
+        #adm-no-players { color:#444; text-align:center; padding:26px; font-size:12px; }
 
-        /* ---- 残高編集モーダル ---- */
+        /* 残高編集モーダル */
         #adm-edit-modal {
-            display: none; position: fixed; inset: 0; z-index: 9500;
-            background: rgba(0,0,0,0.85);
-            align-items: center; justify-content: center;
+            display:none; position:fixed; inset:0; z-index:9500;
+            background:rgba(0,0,0,0.85); align-items:center; justify-content:center;
         }
-        #adm-edit-modal.open { display: flex; }
+        #adm-edit-modal.open { display:flex; }
         .adm-modal-box {
-            background: #1a1a1a; border: 2px solid #c0a000;
-            border-radius: 14px; padding: 28px 26px; width: 320px;
+            background:#1a1a1a; border:2px solid #c0a000;
+            border-radius:14px; padding:28px 26px; width:320px;
         }
-        .adm-modal-box h3 { color: #ffd700; margin-bottom: 16px; letter-spacing: 2px; font-size: 15px; }
-        .adm-modal-box label { color: #888; font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 5px; }
-        #adm-modal-pid { color: #666; font-size: 11px; margin-bottom: 14px; }
+        .adm-modal-box h3 { color:#ffd700; margin-bottom:16px; letter-spacing:2px; font-size:15px; }
+        .adm-modal-box label { color:#888; font-size:10px; letter-spacing:2px; display:block; margin-bottom:5px; }
+        #adm-modal-pid { color:#666; font-size:11px; margin-bottom:14px; font-family:'Courier New',monospace; }
         #adm-modal-coins-input {
-            width: 100%; padding: 10px 12px;
-            background: #111; color: #ffd700;
-            border: 1px solid #444; border-radius: 7px;
-            font-family: 'Courier New', monospace; font-size: 20px;
-            margin-bottom: 16px;
+            width:100%; padding:10px 12px; background:#111; color:#ffd700;
+            border:1px solid #444; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:20px; margin-bottom:16px;
         }
-        #adm-modal-coins-input:focus { outline: none; border-color: #ffd700; }
-        .adm-modal-actions { display: flex; gap: 8px; }
+        #adm-modal-coins-input:focus { outline:none; border-color:#ffd700; }
+        .adm-modal-actions { display:flex; gap:8px; }
         .adm-modal-save {
-            flex: 1; padding: 10px;
-            background: linear-gradient(135deg,#c0a000,#806800);
-            color: #000; border: none; border-radius: 7px;
-            font-family: 'Courier New', monospace; font-size: 13px;
-            font-weight: bold; cursor: pointer; letter-spacing: 2px;
+            flex:1; padding:10px; background:linear-gradient(135deg,#c0a000,#806800);
+            color:#000; border:none; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px;
+            font-weight:bold; cursor:pointer; letter-spacing:2px;
         }
-        .adm-modal-save:hover { background: linear-gradient(135deg,#ffd700,#c0a000); }
+        .adm-modal-save:hover { background:linear-gradient(135deg,#ffd700,#c0a000); }
         .adm-modal-cancel {
-            flex: 1; padding: 10px; background: #222;
-            color: #888; border: 1px solid #444; border-radius: 7px;
-            font-family: 'Courier New', monospace; font-size: 13px; cursor: pointer;
+            flex:1; padding:10px; background:#222; color:#888;
+            border:1px solid #444; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px; cursor:pointer;
         }
-        .adm-modal-cancel:hover { background: #333; color: #ccc; }
+        .adm-modal-cancel:hover { background:#333; color:#ccc; }
 
-        /* ---- プレイ履歴 ---- */
-        #adm-history-section { margin-bottom: 28px; }
-        .adm-history-filter { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-        .adm-history-filter label { color: #888; font-size: 11px; }
+        /* プレイ履歴 */
+        #adm-history-section { margin-bottom:28px; }
+        .adm-history-toolbar {
+            display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;
+            justify-content:space-between;
+        }
+        .adm-history-toolbar-left { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .adm-history-toolbar label { color:#888; font-size:11px; white-space:nowrap; }
         #adm-history-sel {
-            padding: 6px 10px; background: #111; color: #ffd700;
-            border: 1px solid #444; border-radius: 6px;
-            font-family: 'Courier New', monospace; font-size: 12px; min-width: 160px;
+            padding:6px 10px; background:#111; color:#ffd700;
+            border:1px solid #444; border-radius:6px;
+            font-family:'Courier New',monospace; font-size:12px; min-width:160px;
         }
-        #adm-history-sel:focus { outline: none; border-color: #ffd700; }
-        #adm-history-list { max-height: 280px; overflow-y: auto; }
-        .adm-hist-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; border-bottom: 1px solid #1a1a1a; font-size: 11px;
+        #adm-history-sel:focus { outline:none; border-color:#ffd700; }
+        #adm-history-refresh {
+            padding:5px 12px; background:#1a1a2a; color:#88aaff;
+            border:1px solid #88aaff; border-radius:6px;
+            font-family:'Courier New',monospace; font-size:11px; cursor:pointer;
+            transition:all 0.15s;
         }
-        .adm-hist-item:hover { background: #141414; }
-        .adm-hist-win   { color: #44ff88; font-weight: bold; }
-        .adm-hist-lose  { color: #ff5555; font-weight: bold; }
-        .adm-hist-combo { color: #44ddff; font-weight: bold; }
-        .adm-hist-time  { color: #444; }
-        .adm-hist-change-pos { color: #44ff88; }
-        .adm-hist-change-neg { color: #ff5555; }
-        #adm-no-history { color: #444; text-align: center; padding: 20px; font-size: 12px; }
+        #adm-history-refresh:hover { background:#88aaff; color:#000; }
+        #adm-history-count { color:#555; font-size:11px; }
 
-        /* ---- 全体リセット ---- */
+        /* 履歴テーブル */
+        #adm-history-table-wrap {
+            max-height:320px; overflow-y:auto;
+            border:1px solid #222; border-radius:8px;
+        }
+        #adm-history-table { width:100%; border-collapse:collapse; }
+        #adm-history-table th {
+            background:#111; color:#555; font-size:10px; letter-spacing:2px;
+            padding:8px 10px; text-align:left; position:sticky; top:0; z-index:1;
+            border-bottom:1px solid #2a2a2a;
+        }
+        #adm-history-table td {
+            padding:8px 10px; border-bottom:1px solid #181818;
+            font-size:11px; font-family:'Courier New',monospace;
+        }
+        #adm-history-table tr:hover td { background:#141414; }
+        .hist-result-win   { color:#44ff88; font-weight:bold; }
+        .hist-result-lose  { color:#ff5555; font-weight:bold; }
+        .hist-result-combo { color:#44ddff; font-weight:bold; }
+        .hist-change-pos   { color:#44ff88; }
+        .hist-change-neg   { color:#ff5555; }
+        .hist-pid          { color:#888; font-size:10px; }
+        .hist-time         { color:#444; font-size:10px; }
+        #adm-no-history    { color:#444; text-align:center; padding:24px; font-size:12px; }
+
+        /* 全体リセット */
         #adm-reset-section {
-            background: #160808; border: 1px solid #3a1a1a;
-            border-radius: 10px; padding: 18px 22px;
-            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+            background:#160808; border:1px solid #3a1a1a;
+            border-radius:10px; padding:18px 22px;
+            display:flex; justify-content:space-between; align-items:center; gap:16px;
         }
-        .adm-reset-desc { color: #888; font-size: 11px; line-height: 1.7; }
-        .adm-reset-desc strong { color: #ff5555; }
+        .adm-reset-desc { color:#888; font-size:11px; line-height:1.7; }
+        .adm-reset-desc strong { color:#ff5555; }
         #adm-global-reset-btn {
-            padding: 9px 20px; background: #3a0000;
-            color: #ff5555; border: 1px solid #ff5555;
-            border-radius: 7px; cursor: pointer; white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            font-size: 12px; font-weight: bold; letter-spacing: 2px;
-            transition: all 0.15s;
+            padding:9px 20px; background:#3a0000; color:#ff5555;
+            border:1px solid #ff5555; border-radius:7px; cursor:pointer; white-space:nowrap;
+            font-family:'Courier New',monospace; font-size:12px;
+            font-weight:bold; letter-spacing:2px; transition:all 0.15s;
         }
-        #adm-global-reset-btn:hover { background: #ff5555; color: #fff; }
+        #adm-global-reset-btn:hover { background:#ff5555; color:#fff; }
 
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:#111; }
+        ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
     </style>
 </head>
 <body class="dark">
@@ -403,13 +383,11 @@
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
     <div class="spacer"></div>
 
-    <!-- =============================================
-         管理者パネル (Ctrl+Shift+A で開閉)
-    ============================================= -->
+    <!-- 管理者パネル (Ctrl+Shift+A) -->
     <div id="admin-overlay">
         <button id="admin-close-btn" onclick="closeAdminPanel()">✕ 閉じる</button>
 
-        <!-- ログイン画面 -->
+        <!-- ログイン -->
         <div id="admin-login-screen">
             <h2>🔐 ADMIN LOGIN</h2>
             <div class="adm-form-group">
@@ -437,7 +415,10 @@
 
             <!-- プレイヤー一覧 -->
             <div id="adm-players-section">
-                <div class="adm-section-title">👥 プレイヤー一覧 — 残高管理</div>
+                <div class="adm-section-title">
+                    👥 プレイヤー一覧
+                    <span class="adm-count-badge" id="adm-player-count">0人</span>
+                </div>
                 <table id="adm-players-table">
                     <thead>
                         <tr>
@@ -456,12 +437,34 @@
 
             <!-- プレイ履歴 -->
             <div id="adm-history-section">
-                <div class="adm-section-title">📋 プレイ履歴</div>
-                <div class="adm-history-filter">
-                    <label>プレイヤー:</label>
-                    <select id="adm-history-sel" onchange="admLoadHistory()"><option value="all">全員</option></select>
+                <div class="adm-section-title">
+                    📋 プレイ履歴
+                    <span class="adm-count-badge" id="adm-history-count">0件</span>
                 </div>
-                <div id="adm-history-list"><div id="adm-no-history">履歴なし</div></div>
+                <div class="adm-history-toolbar">
+                    <div class="adm-history-toolbar-left">
+                        <label>プレイヤー:</label>
+                        <select id="adm-history-sel" onchange="admLoadHistory()"><option value="all">全員</option></select>
+                        <button id="adm-history-refresh" onclick="admLoadHistory()">↻ 更新</button>
+                    </div>
+                </div>
+                <div id="adm-history-table-wrap">
+                    <table id="adm-history-table">
+                        <thead>
+                            <tr>
+                                <th>プレイヤーID</th>
+                                <th>結果</th>
+                                <th>倍率</th>
+                                <th>掛け金</th>
+                                <th>収支</th>
+                                <th>日時</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-history-tbody">
+                            <tr><td colspan="6" id="adm-no-history">履歴なし</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- 全体リセット -->
@@ -501,7 +504,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 // ============================================================
-//  🔧 Firebase 設定 — 自分のプロジェクトの値に書き換えてください
+//  🔧 Firebase 設定
 // ============================================================
 const firebaseConfig = {
     apiKey:            "AIzaSyB5qi2mA-a2RylE2mc-_ChMgLyMZttEvH8",
@@ -512,14 +515,12 @@ const firebaseConfig = {
     messagingSenderId: "610664056062",
     appId:             "1:610664056062:web:25135b37a8c7ca565b91af"
 };
-// ============================================================
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getDatabase(app);
 
-// ========== プレイヤー側 Firebase ==========
-
+// ===== プレイヤー側 =====
 let playerId = localStorage.getItem('casino_player_id');
 if (!playerId) {
     playerId = 'player_' + Math.random().toString(36).slice(2, 9);
@@ -555,7 +556,7 @@ onValue(dbRef(db, `players/${playerId}/coins`), snap => {
 
 onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
 
-window.fbSaveCoins = (c) => {
+window.fbSaveCoins = c => {
     set(dbRef(db, `players/${playerId}/coins`), c);
     set(dbRef(db, `players/${playerId}/lastPlayAt`), Date.now());
 };
@@ -563,52 +564,37 @@ window.fbLogHistory = (result, bet, mult) => {
     push(historyRef, { result, bet, mult: mult || 0, at: Date.now() });
 };
 
-// ========== 管理者パネル Firebase ==========
-
+// ===== 管理者パネル =====
 let _admPlayersData = {};
 let _admEditingId   = null;
-let _admPlayersUnsubscribe = null;
+let _admPlayersUnsub = null;
 
-// 管理者パネル 開閉
 window.openAdminPanel = () => {
     document.getElementById('admin-overlay').classList.add('open');
-    // すでにログイン済みなら直接メイン画面
-    if (auth.currentUser) {
-        showAdmMain(auth.currentUser);
-    }
+    if (auth.currentUser) showAdmMain(auth.currentUser);
 };
 window.closeAdminPanel = () => {
     document.getElementById('admin-overlay').classList.remove('open');
 };
 
-// ログイン
 window.admDoLogin = async () => {
     const email = document.getElementById('adm-email').value.trim();
     const pass  = document.getElementById('adm-password').value;
     document.getElementById('adm-login-error').textContent = '';
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-    } catch(e) {
-        document.getElementById('adm-login-error').textContent = 'ログイン失敗: ' + e.message;
-    }
+    try { await signInWithEmailAndPassword(auth, email, pass); }
+    catch(e) { document.getElementById('adm-login-error').textContent = 'ログイン失敗: ' + e.message; }
 };
+window.admDoLogout = async () => { await signOut(auth); };
 
-// ログアウト
-window.admDoLogout = async () => {
-    await signOut(auth);
-};
-
-// Enterキー対応
 document.getElementById('adm-password').addEventListener('keydown', e => {
     if (e.key === 'Enter') window.admDoLogin();
 });
 
 onAuthStateChanged(auth, user => {
-    if (user) {
-        showAdmMain(user);
-    } else {
+    if (user) { showAdmMain(user); }
+    else {
         showAdmLogin();
-        if (_admPlayersUnsubscribe) { _admPlayersUnsubscribe(); _admPlayersUnsubscribe = null; }
+        if (_admPlayersUnsub) { _admPlayersUnsub(); _admPlayersUnsub = null; }
     }
 });
 
@@ -616,7 +602,6 @@ function showAdmLogin() {
     document.getElementById('admin-login-screen').style.display = 'block';
     document.getElementById('admin-main-screen').style.display  = 'none';
 }
-
 function showAdmMain(user) {
     document.getElementById('admin-login-screen').style.display = 'none';
     document.getElementById('admin-main-screen').style.display  = 'block';
@@ -624,11 +609,9 @@ function showAdmMain(user) {
     startAdmListeners();
 }
 
-// リアルタイムリスナー
 function startAdmListeners() {
-    if (_admPlayersUnsubscribe) return; // 二重登録防止
-    const ref = dbRef(db, 'players');
-    _admPlayersUnsubscribe = onValue(ref, snap => {
+    if (_admPlayersUnsub) return;
+    _admPlayersUnsub = onValue(dbRef(db, 'players'), snap => {
         _admPlayersData = snap.val() || {};
         admRenderPlayers();
         admRebuildHistoryFilter();
@@ -636,18 +619,19 @@ function startAdmListeners() {
     });
 }
 
-// プレイヤー一覧レンダリング
+// ---- プレイヤー一覧 ----
 function admRenderPlayers() {
     const tbody = document.getElementById('adm-players-tbody');
-    const ids = Object.keys(_admPlayersData);
+    const ids   = Object.keys(_admPlayersData);
+    document.getElementById('adm-player-count').textContent = ids.length + '人';
     if (!ids.length) {
         tbody.innerHTML = '<tr><td colspan="5" id="adm-no-players">プレイヤーがいません</td></tr>';
         return;
     }
     tbody.innerHTML = ids.map(id => {
         const p = _admPlayersData[id];
-        const coins   = (p.coins ?? 10000).toLocaleString();
-        const online  = p.online
+        const coinsVal = (p.coins ?? 10000).toLocaleString();
+        const online   = p.online
             ? '<span class="adm-badge-on"></span>オンライン'
             : '<span class="adm-badge-off"></span>オフライン';
         const lastPlay = p.lastPlayAt
@@ -657,17 +641,18 @@ function admRenderPlayers() {
         return `<tr>
             <td>${online}</td>
             <td class="adm-pid">${eid}</td>
-            <td class="adm-coins-val">${coins} G</td>
+            <td class="adm-coins-val">${coinsVal} G</td>
             <td style="color:#555;font-size:11px">${lastPlay}</td>
             <td>
-                <button class="adm-edit-btn" onclick="admOpenEdit('${eid}')">✏ 変更</button>
-                <button class="adm-reset-btn" onclick="admResetPlayer('${eid}')">↩ リセット</button>
+                <button class="adm-btn adm-btn-green"  onclick="admOpenEdit('${eid}')">✏ 変更</button>
+                <button class="adm-btn adm-btn-orange" onclick="admResetPlayer('${eid}')">↩ リセット</button>
+                <button class="adm-btn adm-btn-red"    onclick="admDeletePlayer('${eid}')">🗑 削除</button>
             </td>
         </tr>`;
     }).join('');
 }
 
-// 残高変更モーダル
+// ---- 残高変更 ----
 window.admOpenEdit = id => {
     _admEditingId = id;
     document.getElementById('adm-modal-pid').textContent = id;
@@ -691,7 +676,7 @@ document.getElementById('adm-modal-coins-input').addEventListener('keydown', e =
     if (e.key === 'Enter') window.admSaveCoins();
 });
 
-// 個別リセット
+// ---- 個別リセット ----
 window.admResetPlayer = async id => {
     if (!confirm(`「${id}」の残高を 10,000G にリセットし、履歴を削除しますか？`)) return;
     await set(dbRef(db, `players/${id}/coins`), 10000);
@@ -699,18 +684,25 @@ window.admResetPlayer = async id => {
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'resetPlayer', playerId:id, at:Date.now() });
 };
 
-// 全体リセット
+// ---- プレイヤー削除 ----
+window.admDeletePlayer = async id => {
+    if (!confirm(`「${id}」を完全に削除しますか？\n残高データと全プレイ履歴が消去されます。この操作は取り消せません。`)) return;
+    await remove(dbRef(db, `players/${id}`));
+    await remove(dbRef(db, `history/${id}`));
+    await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'deletePlayer', playerId:id, at:Date.now() });
+};
+
+// ---- 全体リセット ----
 window.admGlobalReset = async () => {
     if (!confirm('全プレイヤーの残高を 10,000G にリセットし、全履歴を消去しますか？\nこの操作は取り消せません。')) return;
-    for (const id of Object.keys(_admPlayersData)) {
+    for (const id of Object.keys(_admPlayersData))
         await set(dbRef(db, `players/${id}/coins`), 10000);
-    }
     await remove(dbRef(db, 'history'));
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'globalReset', at:Date.now() });
     alert('リセット完了しました。');
 };
 
-// 履歴フィルター再構築
+// ---- 履歴フィルター ----
 function admRebuildHistoryFilter() {
     const sel = document.getElementById('adm-history-sel');
     const cur = sel.value;
@@ -722,44 +714,63 @@ function admRebuildHistoryFilter() {
     if (cur) sel.value = cur;
 }
 
-// 履歴読み込み
+// ---- 履歴表示 ----
 window.admLoadHistory = () => {
     const sel  = document.getElementById('adm-history-sel').value;
     const hRef = sel === 'all' ? dbRef(db,'history') : dbRef(db,`history/${sel}`);
     get(hRef).then(snap => {
-        const container = document.getElementById('adm-history-list');
-        const raw = snap.val();
-        if (!raw) { container.innerHTML = '<div id="adm-no-history">履歴なし</div>'; return; }
+        const tbody = document.getElementById('adm-history-tbody');
+        const raw   = snap.val();
+        if (!raw) {
+            tbody.innerHTML = '<tr><td colspan="6" id="adm-no-history">履歴なし</td></tr>';
+            document.getElementById('adm-history-count').textContent = '0件';
+            return;
+        }
         let items = [];
         if (sel === 'all') {
-            Object.entries(raw).forEach(([pid, entries]) =>
-                Object.values(entries).forEach(e => items.push({...e, pid})));
+            Object.entries(raw).forEach(([pid, entries]) => {
+                if (typeof entries !== 'object') return;
+                Object.values(entries).forEach(e => items.push({ ...e, pid }));
+            });
         } else {
-            Object.values(raw).forEach(e => items.push({...e, pid:sel}));
+            Object.values(raw).forEach(e => items.push({ ...e, pid: sel }));
         }
-        items.sort((a,b) => b.at - a.at);
-        items = items.slice(0, 100);
-        container.innerHTML = items.map(e => {
-            const time   = new Date(e.at).toLocaleString('ja-JP');
-            const rCls   = e.result==='win' ? 'adm-hist-win' : e.result==='combo' ? 'adm-hist-combo' : 'adm-hist-lose';
-            const rLabel = e.result==='win'   ? `🎉 当たり ×${e.mult}` :
-                           e.result==='combo' ? `🎊 コンボ ×${e.mult}` : '💔 ハズレ';
+        items.sort((a, b) => b.at - a.at);
+        const total = items.length;
+        items = items.slice(0, 200);
+        document.getElementById('adm-history-count').textContent =
+            total > 200 ? `最新200件 / 全${total}件` : `${total}件`;
+
+        tbody.innerHTML = items.map(e => {
+            const rCls   = e.result === 'win'   ? 'hist-result-win'
+                         : e.result === 'combo' ? 'hist-result-combo'
+                         :                        'hist-result-lose';
+            const rLabel = e.result === 'win'   ? '🎉 当たり'
+                         : e.result === 'combo' ? '🎊 コンボ'
+                         :                        '💔 ハズレ';
+            const mult   = e.result !== 'lose' ? `×${e.mult}` : '—';
             const diff   = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
-            const chCls  = diff >= 0 ? 'adm-hist-change-pos' : 'adm-hist-change-neg';
-            const chTxt  = diff >= 0 ? `+${diff.toLocaleString()}G` : `${diff.toLocaleString()}G`;
-            return `<div class="adm-hist-item">
-                <span class="adm-pid">${escH(e.pid)}</span>
-                <span class="${rCls}">${rLabel}</span>
-                <span style="color:#666">Bet:${e.bet?.toLocaleString()}G</span>
-                <span class="${chCls}">${chTxt}</span>
-                <span class="adm-hist-time">${time}</span>
-            </div>`;
+            const chCls  = diff >= 0 ? 'hist-change-pos' : 'hist-change-neg';
+            const chTxt  = diff >= 0 ? `+${diff.toLocaleString()} G` : `${diff.toLocaleString()} G`;
+            const time   = new Date(e.at).toLocaleString('ja-JP', {
+                month:'2-digit', day:'2-digit',
+                hour:'2-digit', minute:'2-digit', second:'2-digit'
+            });
+            return `<tr>
+                <td class="hist-pid">${escH(e.pid)}</td>
+                <td class="${rCls}">${rLabel}</td>
+                <td style="color:#aaa;text-align:center">${mult}</td>
+                <td style="color:#888;text-align:right">${(e.bet ?? 0).toLocaleString()} G</td>
+                <td class="${chCls}" style="text-align:right;font-weight:bold">${chTxt}</td>
+                <td class="hist-time">${time}</td>
+            </tr>`;
         }).join('');
     });
 };
 
 function escH(s) {
-    return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+    return String(s).replace(/[&<>"']/g,
+        m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 }
 </script>
 
@@ -769,7 +780,6 @@ function escH(s) {
 // ============================================================
 const ACtxClass = window.AudioContext || window.webkitAudioContext;
 let _ctx=null, _master=null, _comp=null, _rainbowGain=null;
-
 function ensureCtx() {
     if (_ctx) { if (_ctx.state==='suspended') _ctx.resume(); return; }
     _ctx = new ACtxClass();
@@ -783,12 +793,11 @@ function ensureCtx() {
 const VOL=4.5;
 function out(){return _master;}
 function now(){return _ctx.currentTime+0.001;}
-
 function tone(freq,type,dur,vol,off=0){
-    const t=now()+off, osc=_ctx.createOscillator(), g=_ctx.createGain();
-    osc.connect(g); g.connect(out()); osc.type=type; osc.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol*VOL,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    osc.start(t); osc.stop(t+dur+0.01);
+    const t=now()+off,osc=_ctx.createOscillator(),g=_ctx.createGain();
+    osc.connect(g);g.connect(out());osc.type=type;osc.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    osc.start(t);osc.stop(t+dur+0.01);
 }
 function noise(dur,vol=0.1,off=0){
     const t=now()+off,sr=_ctx.sampleRate,n=Math.floor(sr*dur);
@@ -806,13 +815,11 @@ function glide(f0,f1,type,dur,vol,off=0){
     g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.02);
     osc.start(t);osc.stop(t+dur+0.05);
 }
-
 let _reelNodes=[],_reelAlertInterval=null;
 const ALERT_PITCHES=[[1047,784],[880,659],[1047,784],[1175,880]];
 let _alertStep=0;
-
 function sfxReelStart(){
-    sfxReelStop(); ensureCtx(); _alertStep=0;
+    sfxReelStop();ensureCtx();_alertStep=0;
     function fireAlert(){
         if(!_ctx||!_reelNodes.length)return;
         const ctx=_ctx,t=ctx.currentTime+0.001,pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length];
@@ -866,12 +873,10 @@ function sfxReelFade(level){
     }
     _reelAlertInterval=setInterval(fireF,interval);
 }
-
 function sfxStart(){tone(880,'sine',0.07,0.28);tone(1100,'sine',0.09,0.28,0.08);}
 function sfxStop(){noise(0.05,0.22);tone(180,'square',0.07,0.14);}
 function sfxReach(){
-    const s=[330,392,494,587,698,880];
-    s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
+    [330,392,494,587,698,880].forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
     [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
 }
 function sfxChance(isBig){
@@ -923,7 +928,6 @@ let IMG_DATA_CURRENT=[
 const IMG_7_NORMAL="gyanb/gyanb7n-transparent.png";
 const IMG_7_KAKUHEN="gyanb/gyanb7_transparent.png";
 const ODD_SET=[0,2,4],EVEN_SET=[1,3,5],SEVEN=6;
-
 let coins=10000,currentBet=0;
 let stoppedCount=0,firstResultIndex=null,secondResultIndex=null,thirdResultIndex=null;
 let Atsu=0,gameRunning=false,totalStartCount=0;
@@ -931,7 +935,6 @@ let earlyReachUsed=false;
 let consecutiveAnyLose=0,kakuhenActive=false,kakuhenWinRound=0,kakuhenReachCount=0;
 const initialCoins=10000;
 let _rainbowLoopInterval=null;
-
 function startRainbowSound(){
     stopRainbowSound();
     function f(){
@@ -939,7 +942,7 @@ function startRainbowSound(){
         [330,392,494,587,698,880].forEach((fr,i)=>tone(fr,'sine',0.13,0.26,i*0.10));
         [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
     }
-    f(); _rainbowLoopInterval=setInterval(f,1400);
+    f();_rainbowLoopInterval=setInterval(f,1400);
 }
 function stopRainbowSound(){
     if(_rainbowLoopInterval!==null){clearInterval(_rainbowLoopInterval);_rainbowLoopInterval=null;}
@@ -1237,22 +1240,16 @@ async function stopReel(reelId,btn){
     }
 }
 
-// ============================================================
-//  Ctrl+Shift+A で管理者パネル開閉
-// ============================================================
+// Ctrl+Shift+A で管理者パネル開閉
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
         const ov = document.getElementById('admin-overlay');
-        if (ov.classList.contains('open')) {
-            closeAdminPanel();
-        } else {
-            openAdminPanel();
-        }
+        ov.classList.contains('open') ? closeAdminPanel() : openAdminPanel();
     }
 });
 
-window.onload=init;
+window.onload = init;
 </script>
 </body>
 </html>
