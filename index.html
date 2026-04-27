@@ -38,6 +38,7 @@
         #coin-display .label { color:#888; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
+        #player-id-display { color:#555; font-size:10px; letter-spacing:1px; margin-top:3px; }
 
         #bet-panel {
             margin-top: 12px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
@@ -126,6 +127,13 @@
         .egg-size-1{transform:scale(1.2);} .egg-size-2{transform:scale(1.5);}
         .egg-size-3{transform:scale(2.0);} .chance-large{transform:scale(1.8);}
         .spacer{height:20px;}
+
+        /* 管理者から強制更新された時のフラッシュ */
+        @keyframes adminFlash {
+            0%,100%{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);}
+            50%{background:linear-gradient(135deg,#1a2a1a,#2a3a2a);}
+        }
+        .admin-updated { animation: adminFlash 0.6s ease-in-out 3; }
     </style>
 </head>
 <body class="dark">
@@ -135,6 +143,7 @@
     <div id="coin-display">
         <div class="label">所持コイン</div>
         <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
+        <div id="player-id-display">接続中…</div>
     </div>
 
     <div id="bet-panel">
@@ -181,6 +190,92 @@
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
     <div class="spacer"></div>
 
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref as dbRef, set, onValue, push }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ============================================================
+//  🔧 Firebase 設定 — admin.html と同じ値に書き換えてください
+// ============================================================
+const firebaseConfig = {
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT.firebaseapp.com",
+    databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId:         "YOUR_PROJECT",
+    storageBucket:     "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId:             "YOUR_APP_ID"
+};
+// ============================================================
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+
+// ---- プレイヤーID生成 (localStorage で永続化) ----
+let playerId = localStorage.getItem('casino_player_id');
+if (!playerId) {
+    playerId = 'player_' + Math.random().toString(36).slice(2, 9);
+    localStorage.setItem('casino_player_id', playerId);
+}
+document.getElementById('player-id-display').textContent = 'ID: ' + playerId;
+
+const playerRef = dbRef(db, `players/${playerId}`);
+const historyRef = dbRef(db, `history/${playerId}`);
+
+// ---- 初期データが存在しなければ作成 ----
+import { get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+get(playerRef).then(snap => {
+    if (!snap.exists()) {
+        set(playerRef, { coins: 10000, online: true, lastPlayAt: null });
+    } else {
+        // オンライン状態を更新
+        set(dbRef(db, `players/${playerId}/online`), true);
+        // Firebase から残高を読み込んで同期
+        const saved = snap.val().coins;
+        if (typeof saved === 'number') {
+            window._fbCoins = saved;
+            coins = saved;
+            updateCoinDisplay();
+        }
+    }
+});
+
+// ---- 管理者からの残高変更をリアルタイム監視 ----
+let _prevCoins = null;
+onValue(dbRef(db, `players/${playerId}/coins`), snap => {
+    const val = snap.val();
+    if (typeof val !== 'number') return;
+    if (_prevCoins !== null && val !== coins) {
+        // 管理者による変更を検知
+        coins = val;
+        updateCoinDisplay();
+        // コイン表示をフラッシュ
+        const cd = document.getElementById('coin-display');
+        cd.classList.remove('admin-updated');
+        void cd.offsetWidth; // reflow
+        cd.classList.add('admin-updated');
+    }
+    _prevCoins = val;
+});
+
+// ---- オフライン時に online フラグを false に ----
+import { onDisconnect } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
+
+// ---- Firebase に残高を保存する関数 (ゲームロジックから呼び出す) ----
+window.fbSaveCoins = (c) => {
+    set(dbRef(db, `players/${playerId}/coins`), c);
+    set(dbRef(db, `players/${playerId}/lastPlayAt`), Date.now());
+};
+
+// ---- プレイ履歴を記録する関数 ----
+window.fbLogHistory = (result, bet, mult) => {
+    push(historyRef, { result, bet, mult: mult || 0, at: Date.now() });
+};
+</script>
+
 <script>
 // ============================================================
 //  AUDIO ENGINE — 即時発音 / コンプレッサー / VOL×4.5
@@ -194,9 +289,7 @@ function ensureCtx() {
     _comp = _ctx.createDynamicsCompressor();
     _comp.threshold.value=-3; _comp.knee.value=6;
     _comp.ratio.value=6; _comp.attack.value=0.001; _comp.release.value=0.08;
-    // _master: 通常音用 (gain=1.0固定)
     _master = _ctx.createGain(); _master.gain.value=1.0;
-    // _rainbowGain: 確変中に0.8に下げる専用ノード
     _rainbowGain = _ctx.createGain(); _rainbowGain.gain.value=1.0;
     _master.connect(_rainbowGain);
     _rainbowGain.connect(_comp);
@@ -240,22 +333,16 @@ function glide(f0,f1,type,dur,vol,off=0) {
 }
 
 // ============================================================
-//  リール回転音 — 楽しい緊急地震速報風
-//  本家: ピッ↑ポッ↓ ピッ↑ポッ↓ が交互に鳴る独特のパターン
-//  → それを明るくポップにアレンジ
-//    ① 高め2音 (ピッポッ) を一定リズムでループ
-//    ② 裏に軽い和音 (ぷわぷわ感)
-//    ③ 底に短いリバーブ風テール
+//  リール回転音
 // ============================================================
 let _reelNodes = [];
 let _reelAlertInterval = null;
 
-// ピッポッの音程パターン (緊急速報風 → 楽しくC→E→G→Eで跳ねる)
 const ALERT_PITCHES = [
-    [1047, 784],   // C6→G5
-    [880,  659],   // A5→E5
-    [1047, 784],   // C6→G5
-    [1175, 880],   // D6→A5  ← たまに高いやつ
+    [1047, 784],
+    [880,  659],
+    [1047, 784],
+    [1175, 880],
 ];
 let _alertStep = 0;
 
@@ -271,7 +358,6 @@ function sfxReelStart() {
         const pair = ALERT_PITCHES[_alertStep % ALERT_PITCHES.length];
         _alertStep++;
 
-        // --- 音① 高い方 (ピッ) ---
         const o1 = ctx.createOscillator(), g1 = ctx.createGain();
         o1.connect(g1); g1.connect(out());
         o1.type = 'square';
@@ -281,7 +367,6 @@ function sfxReelStart() {
         g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
         o1.start(t); o1.stop(t + 0.12);
 
-        // --- 音② 低い方 (ポッ) 少し遅れて ---
         const o2 = ctx.createOscillator(), g2 = ctx.createGain();
         o2.connect(g2); g2.connect(out());
         o2.type = 'square';
@@ -291,21 +376,18 @@ function sfxReelStart() {
         g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
         o2.start(t + 0.13); o2.stop(t + 0.26);
 
-        // --- 裏に短いぷわ音 (和音感) ---
         const o3 = ctx.createOscillator(), g3 = ctx.createGain();
         o3.connect(g3); g3.connect(out());
         o3.type = 'sine';
-        o3.frequency.setValueAtTime(pair[0] * 1.26, t); // 長三度上
+        o3.frequency.setValueAtTime(pair[0] * 1.26, t);
         g3.gain.setValueAtTime(0.012 * VOL, t);
         g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
         o3.start(t); o3.stop(t + 0.10);
     }
 
-    // 1セット = 約0.32秒 → 3.125Hz のリズム (緊急速報に近い体感)
-    fireAlert(); // 即時1発目
+    fireAlert();
     _reelAlertInterval = setInterval(fireAlert, 320);
 
-    // ノードリストに番兵として何か入れてアクティブ判定に使う
     const sentinel = { isInterval: false, stop: ()=>{}, disconnect: ()=>{} };
     _reelNodes = [sentinel];
 }
@@ -326,14 +408,10 @@ function sfxReelStop() {
     _reelNodes = [];
 }
 
-// アラート音は音量をリアルタイムに変えられないので
-// インターバル速度を落として「静かになった」感を出す
 let _reelFadeLevel = 1.0;
 function sfxReelFade(level) {
-    // level: 0〜1 の相対値
-    // インターバルを伸ばすことで発音頻度を下げ、聴覚的に小さく聞こえさせる
     _stopAlertInterval();
-    if (_reelNodes.length === 0) return; // すでに停止済み
+    if (_reelNodes.length === 0) return;
     const interval = level > 0.5 ? 320 : level > 0.1 ? 600 : 900;
     function fireAlertFaded() {
         if (!_ctx || !_reelNodes.length) return;
@@ -362,32 +440,25 @@ function sfxReelFade(level) {
 //  その他効果音
 // ============================================================
 function sfxStart() { tone(880,'sine',0.07,0.28); tone(1100,'sine',0.09,0.28,0.08); }
-
 function sfxStop() { noise(0.05,0.22); tone(180,'square',0.07,0.14); }
-
 function sfxReach() {
     const s=[330,392,494,587,698,880];
     s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
     [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
 }
-
 function sfxChance(isBig) {
     if(isBig){[523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.33,i*0.08));tone(1568,'sine',0.45,0.38,0.48);}
     else{[440,554,659].forEach((f,i)=>tone(f,'sine',0.15,0.26,i*0.12));tone(880,'sine',0.28,0.28,0.42);}
 }
-
 function sfxFlash() { tone(700,'square',0.04,0.20); tone(900,'square',0.04,0.20,0.05); tone(1100,'square',0.04,0.20,0.10); }
-
 function sfxEgg(stage) {
     const ff=[[300,450],[400,600],[550,820]];
     tone(ff[stage][0],'sine',0.20,0.28); tone(ff[stage][1],'sine',0.16,0.18,0.10);
 }
-
 function sfxKira() {
     [1047,1319,1568,2093,1568,2093,2637].forEach((f,i)=>tone(f,'sine',0.20,0.36,i*0.09));
     setTimeout(()=>{ensureCtx();[1568,1976,2637].forEach((f,i)=>tone(f,'triangle',0.14,0.26,i*0.06));},720);
 }
-
 function sfxWin(mult) {
     if(mult>=50){
         [523,523,659,784,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'square',0.15,0.42,i*0.08));
@@ -401,12 +472,10 @@ function sfxWin(mult) {
         tone(1047,'sine',0.23,0.28,0.40);
     }
 }
-
 function sfxLose() {
     tone(220,'sawtooth',0.24,0.28); tone(165,'sawtooth',0.28,0.22,0.18);
     tone(110,'sawtooth',0.24,0.18,0.42); noise(0.10,0.08);
 }
-
 function sfxReachMiss() {
     [523,659,784].forEach((f,i)=>tone(f,'square',0.09,0.50,i*0.07));
     glide(400,40,'sawtooth',0.75,0.70,0.24);
@@ -419,30 +488,11 @@ function sfxReachMiss() {
 //  GAME LOGIC
 // ============================================================
 
-// -------------------------------------------------------
-//  確変(kakuhen)状態 と リーチ管理変数
-//
-//  【リーチ率ルール】
-//  A) totalStartCount <= 3 かつ まだ一度もリーチが来ていない
-//     → リーチ率 70%（リーチが1回来たら条件A終了）
-//  B) 5連続外れ(リーチなし)が続いている間
-//     → リーチ率 80%（リーチが来たらリセット）
-//  C) 上記どちらにも該当しない → リーチ率なし（完全ランダム）
-//
-//  【確変(kakuhen)ルール】
-//  ① 5連続外れ(リーチ含む全結果) → 確変トリガー演出
-//  ② 確変中: 7のリーチ確率70%
-//     → 7リーチが来るまで両端虹グラデ継続(音量0.8)
-//     → 7リーチが来たら虹消灯、100%当たり(777) → 確変終了
-//  ③ 確変中に7リーチが来た後: 次に7以外でリーチが来たら100%当たり → 確変終了
-// -------------------------------------------------------
-
-// IMG は通常7n / 確変中は7（金）に切り替え
 let IMG_DATA_CURRENT = [
     "gyanb/gyanb1_transparent.png","gyanb/gyanb2_transparent.png",
     "gyanb/gyanb3_transparent.png","gyanb/gyanb4_tr.png",
     "gyanb/gyanb5_transparent.png","gyanb/gyanb6_transparent.png",
-    "gyanb/gyanb7n-transparent.png"   // index6 = 7
+    "gyanb/gyanb7n-transparent.png"
 ];
 const IMG_7_NORMAL = "gyanb/gyanb7n-transparent.png";
 const IMG_7_KAKUHEN= "gyanb/gyanb7_transparent.png";
@@ -453,30 +503,25 @@ let coins=10000, currentBet=0;
 let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIndex=null;
 let Atsu=0, gameRunning=false, totalStartCount=0;
 
-// --- リーチ率管理 ---
-let earlyReachUsed = false; // 最初3回以内に1回リーチが来たか
+let earlyReachUsed = false;
 
-// --- 確変管理 ---
 let consecutiveAnyLose = 0;
 let kakuhenActive      = false;
-let kakuhenWinRound    = 0;   // 確変中に何回目のリーチで当たるか(1〜4)
-let kakuhenReachCount  = 0;   // 確変中のリーチ回数カウント
-const initialCoins     = 10000; // 初期所持金（固定）
+let kakuhenWinRound    = 0;
+let kakuhenReachCount  = 0;
+const initialCoins     = 10000;
 
-// --- 虹ループ音 (確変中ずっと鳴り続ける) ---
 let _rainbowLoopInterval = null;
 
 function startRainbowSound() {
     stopRainbowSound();
     function fireRainbow() {
         if (!_ctx) return;
-        // sfxReach と同じ音
         const s=[330,392,494,587,698,880];
         s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
         [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
     }
     fireRainbow();
-    // リーチ音の長さ(約1秒)に合わせてループ間隔を設定
     _rainbowLoopInterval = setInterval(fireRainbow, 1400);
 }
 
@@ -487,7 +532,6 @@ function stopRainbowSound() {
     }
 }
 
-// --- 虹サイドバー ON/OFF ---
 function setRainbow(on) {
     const L=document.getElementById("left-bar"), R=document.getElementById("right-bar");
     if(on){
@@ -496,7 +540,6 @@ function setRainbow(on) {
             _rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);
             _rainbowGain.gain.setValueAtTime(0.8, _ctx.currentTime);
         }
-        // 虹ループ音がまだ鳴っていなければ開始
         if(_rainbowLoopInterval === null) startRainbowSound();
     } else {
         L.classList.remove('rainbow'); R.classList.remove('rainbow');
@@ -524,10 +567,6 @@ function setKakuhenMode(on){
     IMG_DATA_CURRENT[SEVEN] = on ? IMG_7_KAKUHEN : IMG_7_NORMAL;
 }
 
-// コンボ役判定: 完全順不同
-// index: 0=1, 1=2, 2=3, 3=4, 4=5, 5=6
-// 1・2・3(index 0,1,2)が3リールに1枚ずつ → ×8
-// 4・5・6(index 3,4,5)が3リールに1枚ずつ → ×6
 function getComboMultiplier(r1, r2, r3){
     const vals = [r1, r2, r3].sort((a,b)=>a-b);
     if(vals[0]===0 && vals[1]===1 && vals[2]===2) return 8;
@@ -547,7 +586,10 @@ function init(){
     rebuildReels();
 }
 
-function updateCoinDisplay(){ document.getElementById("coinshow").innerText=coins.toLocaleString(); }
+function updateCoinDisplay(){
+    document.getElementById("coinshow").innerText=coins.toLocaleString();
+    // Firebase に同期 (fbSaveCoins はゲーム終了時のみ呼ぶので、ここでは coins 変数だけ更新)
+}
 
 function selectBet(amount,btn){
     document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
@@ -608,11 +650,9 @@ function triggerReachEffect(){
     setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
 }
 
-// --- 掛け金ロック ---
 function setBetLocked(locked){
     document.querySelectorAll('.bet-btn').forEach(b=>b.disabled=locked);
     document.getElementById('custom-bet').disabled=locked;
-    // ロック中はボタンを視覚的に暗くする
     const op = locked ? '0.4' : '1';
     document.querySelectorAll('.bet-btn').forEach(b=>b.style.opacity=op);
     document.getElementById('custom-bet').style.opacity=op;
@@ -625,10 +665,8 @@ function startGame(){
     if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
     ensureCtx();
 
-    // ---- 確変トリガー判定: START押下時 ----
     const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5;
     if(shouldKakuhen){
-        // 非同期で確変演出→ゲーム開始
         (async()=>{
             await triggerKakuhen();
             _doStartGame();
@@ -643,7 +681,7 @@ function _doStartGame(){
     gameRunning=true; stoppedCount=0;
     firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
     noOddReach = (coins >= initialCoins * 2.5);
-    setBetLocked(true); // ゲーム中は掛け金変更不可
+    setBetLocked(true);
     document.getElementById('start-btn').disabled=true;
     document.getElementById('result-banner').innerText='';
     document.getElementById('result-banner').className='';
@@ -660,25 +698,13 @@ function _doStartGame(){
     setTimeout(()=>{ensureCtx();sfxReelStart();},150);
 }
 
-// -------------------------------------------------------
-//  2リール目を止めた時のリーチ判定
-// -------------------------------------------------------
 function decideReach(currentIndex){
-    // 確変中: 必ず1リール目と同じ絵柄でリーチ
-    if(kakuhenActive){
-        return firstResultIndex;
-    }
-
-    // 富裕制限: 所持金>=初期×2.5 かつ 1リール目がODD → リーチなし
+    if(kakuhenActive){ return firstResultIndex; }
     if(noOddReach && ODD_SET.includes(firstResultIndex)){
         return pickNonMatchRandom(currentIndex, firstResultIndex);
     }
-
-    // Aルール: 最初3回以内 & まだリーチ来ていない → 70%
     const ruleA = (totalStartCount<=3 && !earlyReachUsed);
     if(ruleA && Math.random()<0.70) return firstResultIndex;
-
-    // 条件なし: 完全ランダム
     return pickRandom(currentIndex);
 }
 
@@ -689,7 +715,6 @@ function pickRandom(currentIndex){
     else            return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
 }
 
-// 1リール目と絶対に一致しない絵柄を返す
 function pickNonMatchRandom(currentIndex, exclude){
     let idx;
     let tries=0;
@@ -700,11 +725,8 @@ function pickNonMatchRandom(currentIndex, exclude){
     return idx;
 }
 
-// -------------------------------------------------------
-//  確変トリガー演出
-// -------------------------------------------------------
 async function triggerKakuhen(){
-    setBetLocked(true); // 確変中は掛け金変更不可
+    setBetLocked(true);
     setRainbow(true);
     sfxFlash(); sfxFlash();
     await sleep(400);
@@ -712,11 +734,10 @@ async function triggerKakuhen(){
     setRainbow(true);
     setKakuhenMode(true);
     rebuildReels();
-    // 当たりラウンドを所持金で分岐して内部抽選
     if(coins <= initialCoins * 0.5){
-        kakuhenWinRound = Math.floor(Math.random()*2)+1; // 1〜2
+        kakuhenWinRound = Math.floor(Math.random()*2)+1;
     } else {
-        kakuhenWinRound = Math.floor(Math.random()*4)+1; // 1〜4
+        kakuhenWinRound = Math.floor(Math.random()*4)+1;
     }
     kakuhenReachCount = 0;
     consecutiveAnyLose = 0;
@@ -741,13 +762,10 @@ async function stopReel(reelId,btn){
     let targetIndex;
 
     if(stoppedCount===1){
-        // ---- 1リール目 ----
         if(kakuhenActive){
-            // 所持金 ≤ initial×0.5 → 777固定
             if(coins <= initialCoins*0.5){
                 targetIndex = SEVEN;
             } else {
-                // 50% SEVEN / 50% ODD
                 targetIndex = Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
             }
         } else {
@@ -756,31 +774,23 @@ async function stopReel(reelId,btn){
         firstResultIndex = targetIndex;
 
     } else if(stoppedCount===2){
-        // ---- 2リール目 ----
         targetIndex = decideReach(currentIndex);
         secondResultIndex = targetIndex;
 
         if(firstResultIndex===secondResultIndex){
-            // リーチ発生
             if(!earlyReachUsed) earlyReachUsed=true;
-            if(kakuhenActive){
-                kakuhenReachCount++;
-            }
+            if(kakuhenActive){ kakuhenReachCount++; }
             setTimeout(()=>triggerReachEffect(), 350);
         }
 
     } else {
-        // ---- 3リール目 ----
         if(firstResultIndex===secondResultIndex){
-            // ======== リーチあり ========
             Atsu=0;
 
             if(kakuhenActive){
-                // 当たりラウンド判定
                 const isWinRound = (kakuhenReachCount === kakuhenWinRound);
 
                 if(isWinRound){
-                    // 当たり演出: big_chance + egg_2
                     sfxChance(true);
                     await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
                     Atsu+=70; await flashSides(2); Atsu+=80; Atsu+=70;
@@ -788,7 +798,6 @@ async function stopReel(reelId,btn){
                     sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
                     sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
                 } else {
-                    // 外れ演出: normal_chance + egg_1
                     sfxChance(false);
                     await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
                     Atsu+=30;
@@ -798,37 +807,38 @@ async function stopReel(reelId,btn){
                 }
 
                 if(isWinRound){
-                    // 当たり確定
-                    // 富裕制限: coins>=initial×3.5 かつ EVEN_SETリーチ → 当たり無効
                     const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
                     if(richBlock){
-                        // 強制外れ
                         targetIndex=(firstResultIndex+1)%7;
                         consecutiveAnyLose++;
                         setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                        if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                        if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
                     } else {
                         await showKiraEffect(20);
                         targetIndex=firstResultIndex;
                         setKakuhenMode(false);
                         setRainbow(false);
-                        setBetLocked(false); // 確変終了 → 掛け金解放
+                        setBetLocked(false);
                         kakuhenWinRound=0; kakuhenReachCount=0;
                         consecutiveAnyLose=0;
                         setTimeout(()=>{
                             const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                             coins+=payout; updateCoinDisplay(); sfxWin(mult);
                             showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
+                            if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                            if(window.fbLogHistory) window.fbLogHistory('win', currentBet, mult);
                         },500);
                     }
                 } else {
-                    // 外れ確定
                     targetIndex=(firstResultIndex+1)%7;
                     consecutiveAnyLose++;
                     setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
                 }
 
             } else {
-                // ======== 通常時リーチ ========
                 const isBig=Math.random()>=0.7;
                 sfxChance(isBig);
                 await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
@@ -844,7 +854,6 @@ async function stopReel(reelId,btn){
 
                 let winProb=Atsu*0.454; if(winProb<30)winProb=0;
                 let isWin=Math.random()*100<winProb;
-                // 富裕制限: coins>=initial×3.5 かつ EVEN_SETリーチ → 当たり無効
                 if(isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
 
                 if(isWin){
@@ -855,39 +864,46 @@ async function stopReel(reelId,btn){
                         const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                         coins+=payout; updateCoinDisplay(); sfxWin(mult);
                         showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
+                        if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                        if(window.fbLogHistory) window.fbLogHistory('win', currentBet, mult);
                     },500);
                 } else {
                     targetIndex=(firstResultIndex+1)%7;
                     consecutiveAnyLose++;
                     setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
                 }
             }
 
         } else {
-            // ======== リーチなしハズレ ========
-            // 3リール目の生のインデックスを記録（targetIndex上書き前）
             thirdResultIndex = currentIndex;
-            // コンボ役チェック (1/2/3 or 4/5/6 完全順不同)
-            // index: 0=画像1, 1=画像2, 2=画像3, 3=画像4, 4=画像5, 5=画像6
             const r1=firstResultIndex, r2=secondResultIndex, r3=thirdResultIndex;
             const combo = getComboMultiplier(r1, r2, r3);
             if(combo > 0){
-                targetIndex = currentIndex; // コンボ成立: 3リール目はそのまま表示
+                targetIndex = currentIndex;
                 const payout = currentBet * combo;
                 coins += payout; updateCoinDisplay(); sfxWin(combo);
                 consecutiveAnyLose=0;
-                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                setTimeout(()=>{
+                    showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win");
+                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                    if(window.fbLogHistory) window.fbLogHistory('combo', currentBet, combo);
+                },500);
             } else {
                 consecutiveAnyLose++;
                 targetIndex=(currentIndex+1)%7;
-                setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                setTimeout(()=>{
+                    sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");
+                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
+                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
+                },500);
             }
         }
     }
 
     let diff=targetIndex-currentIndex;
     if(diff===0){
-        // コンボ成立など: そのままの位置で止める
         reel.style.animation='none'; reel.style.transform=`translateY(${currentY}px)`;
     } else {
         if(diff<0) diff+=7;
@@ -900,7 +916,6 @@ async function stopReel(reelId,btn){
         setTimeout(()=>{
             stoppedCount=0; Atsu=0; gameRunning=false;
             [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            // 確変中でなければ掛け金変更を解放
             if(!kakuhenActive) setBetLocked(false);
             if(currentBet>0&&coins>0) document.getElementById('start-btn').disabled=false;
         },3000);
