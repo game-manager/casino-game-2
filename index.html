@@ -136,8 +136,6 @@
             letter-spacing: 1px; transition: all 0.15s;
         }
         #admin-close-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
-
-        /* ログイン */
         #admin-login-screen {
             max-width: 380px; margin: 80px auto;
             background: #1a1a1a; border: 2px solid #444;
@@ -161,8 +159,6 @@
         }
         #adm-login-btn:hover { background:linear-gradient(135deg,#ffd700,#c0a000); }
         #adm-login-error { color:#ff5555; font-size:11px; text-align:center; margin-top:8px; min-height:16px; }
-
-        /* メイン管理画面 */
         #admin-main-screen { display:none; max-width:960px; margin:0 auto; padding:24px 16px 50px; }
         .adm-header {
             display:flex; justify-content:space-between; align-items:center;
@@ -192,9 +188,8 @@
             display:inline-block; background:#2a2a2a; color:#aaa;
             border-radius:10px; padding:1px 8px; font-size:10px;
             margin-left:8px; letter-spacing:0; font-weight:normal;
+            text-transform:none;
         }
-
-        /* プレイヤーテーブル */
         #adm-players-section { margin-bottom:30px; }
         #adm-players-table { width:100%; border-collapse:collapse; }
         #adm-players-table th {
@@ -207,10 +202,9 @@
         }
         #adm-players-table tr:hover td { background:#161616; }
         .adm-badge-on  { display:inline-block; width:7px; height:7px; background:#44ff88; border-radius:50%; margin-right:6px; box-shadow:0 0 5px #44ff88; }
-        .adm-badge-off { display:inline-block; width:7px; height:7px; background:#444;    border-radius:50%; margin-right:6px; }
+        .adm-badge-off { display:inline-block; width:7px; height:7px; background:#444; border-radius:50%; margin-right:6px; }
         .adm-coins-val { color:#ffd700; font-weight:bold; }
-        .adm-pid       { color:#888; font-size:11px; font-family:'Courier New',monospace; }
-        /* ボタン共通 */
+        .adm-pid { color:#888; font-size:11px; font-family:'Courier New',monospace; }
         .adm-btn {
             padding:4px 10px; border-radius:5px; cursor:pointer;
             font-family:'Courier New',monospace; font-size:11px;
@@ -224,8 +218,6 @@
         .adm-btn-red    { background:#2a1010; color:#ff5555; border-color:#ff5555; }
         .adm-btn-red:hover    { background:#ff5555; color:#fff; }
         #adm-no-players { color:#444; text-align:center; padding:26px; font-size:12px; }
-
-        /* 残高編集モーダル */
         #adm-edit-modal {
             display:none; position:fixed; inset:0; z-index:9500;
             background:rgba(0,0,0,0.85); align-items:center; justify-content:center;
@@ -258,12 +250,10 @@
             font-family:'Courier New',monospace; font-size:13px; cursor:pointer;
         }
         .adm-modal-cancel:hover { background:#333; color:#ccc; }
-
-        /* プレイ履歴 */
         #adm-history-section { margin-bottom:28px; }
         .adm-history-toolbar {
-            display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;
-            justify-content:space-between;
+            display:flex; gap:10px; align-items:center; margin-bottom:12px;
+            flex-wrap:wrap; justify-content:space-between;
         }
         .adm-history-toolbar-left { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
         .adm-history-toolbar label { color:#888; font-size:11px; white-space:nowrap; }
@@ -280,9 +270,6 @@
             transition:all 0.15s;
         }
         #adm-history-refresh:hover { background:#88aaff; color:#000; }
-        #adm-history-count { color:#555; font-size:11px; }
-
-        /* 履歴テーブル */
         #adm-history-table-wrap {
             max-height:320px; overflow-y:auto;
             border:1px solid #222; border-radius:8px;
@@ -306,8 +293,6 @@
         .hist-pid          { color:#888; font-size:10px; }
         .hist-time         { color:#444; font-size:10px; }
         #adm-no-history    { color:#444; text-align:center; padding:24px; font-size:12px; }
-
-        /* 全体リセット */
         #adm-reset-section {
             background:#160808; border:1px solid #3a1a1a;
             border-radius:10px; padding:18px 22px;
@@ -322,7 +307,6 @@
             font-weight:bold; letter-spacing:2px; transition:all 0.15s;
         }
         #adm-global-reset-btn:hover { background:#ff5555; color:#fff; }
-
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-track { background:#111; }
         ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
@@ -332,7 +316,6 @@
     <div id="left-bar" class="side-bar"></div>
     <div id="right-bar" class="side-bar"></div>
 
-    <!-- ゲーム本体 -->
     <div id="coin-display">
         <div class="label">所持コイン</div>
         <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
@@ -387,7 +370,6 @@
     <div id="admin-overlay">
         <button id="admin-close-btn" onclick="closeAdminPanel()">✕ 閉じる</button>
 
-        <!-- ログイン -->
         <div id="admin-login-screen">
             <h2>🔐 ADMIN LOGIN</h2>
             <div class="adm-form-group">
@@ -402,7 +384,6 @@
             <div id="adm-login-error"></div>
         </div>
 
-        <!-- メイン管理画面 -->
         <div id="admin-main-screen">
             <div class="adm-header">
                 <h1>⚙ CASINO ADMIN</h1>
@@ -413,7 +394,6 @@
                 </div>
             </div>
 
-            <!-- プレイヤー一覧 -->
             <div id="adm-players-section">
                 <div class="adm-section-title">
                     👥 プレイヤー一覧
@@ -435,7 +415,6 @@
                 </table>
             </div>
 
-            <!-- プレイ履歴 -->
             <div id="adm-history-section">
                 <div class="adm-section-title">
                     📋 プレイ履歴
@@ -444,8 +423,8 @@
                 <div class="adm-history-toolbar">
                     <div class="adm-history-toolbar-left">
                         <label>プレイヤー:</label>
-                        <select id="adm-history-sel" onchange="admLoadHistory()"><option value="all">全員</option></select>
-                        <button id="adm-history-refresh" onclick="admLoadHistory()">↻ 更新</button>
+                        <select id="adm-history-sel" onchange="admResubscribeHistory()"><option value="all">全員</option></select>
+                        <button id="adm-history-refresh" onclick="admResubscribeHistory()">↻ 更新</button>
                     </div>
                 </div>
                 <div id="adm-history-table-wrap">
@@ -467,7 +446,6 @@
                 </div>
             </div>
 
-            <!-- 全体リセット -->
             <div id="adm-reset-section">
                 <div class="adm-reset-desc">
                     <strong>⚠ 全体リセット</strong><br>
@@ -478,7 +456,6 @@
         </div>
     </div>
 
-    <!-- 残高編集モーダル -->
     <div id="adm-edit-modal">
         <div class="adm-modal-box">
             <h3>✏ 残高を変更</h3>
@@ -493,7 +470,6 @@
         </div>
     </div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
@@ -503,9 +479,6 @@ import {
     getDatabase, ref as dbRef, set, get, push, onValue, remove, onDisconnect
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-// ============================================================
-//  🔧 Firebase 設定
-// ============================================================
 const firebaseConfig = {
     apiKey:            "AIzaSyB5qi2mA-a2RylE2mc-_ChMgLyMZttEvH8",
     authDomain:        "casino-game-2.firebaseapp.com",
@@ -565,9 +538,10 @@ window.fbLogHistory = (result, bet, mult) => {
 };
 
 // ===== 管理者パネル =====
-let _admPlayersData = {};
-let _admEditingId   = null;
-let _admPlayersUnsub = null;
+let _admPlayersData  = {};
+let _admEditingId    = null;
+let _admPlayersUnsub = null;  // players/ リスナー
+let _admHistoryUnsub = null;  // history/ リスナー（★追加）
 
 window.openAdminPanel = () => {
     document.getElementById('admin-overlay').classList.add('open');
@@ -595,6 +569,7 @@ onAuthStateChanged(auth, user => {
     else {
         showAdmLogin();
         if (_admPlayersUnsub) { _admPlayersUnsub(); _admPlayersUnsub = null; }
+        if (_admHistoryUnsub) { _admHistoryUnsub(); _admHistoryUnsub = null; }
     }
 });
 
@@ -610,14 +585,27 @@ function showAdmMain(user) {
 }
 
 function startAdmListeners() {
-    if (_admPlayersUnsub) return;
-    _admPlayersUnsub = onValue(dbRef(db, 'players'), snap => {
-        _admPlayersData = snap.val() || {};
-        admRenderPlayers();
-        admRebuildHistoryFilter();
-        admLoadHistory();
-    });
+    // players/ リスナー（プレイヤー一覧 + フィルター更新のみ）
+    if (!_admPlayersUnsub) {
+        _admPlayersUnsub = onValue(dbRef(db, 'players'), snap => {
+            _admPlayersData = snap.val() || {};
+            admRenderPlayers();
+            admRebuildHistoryFilter();
+        });
+    }
+    // history/ リスナー（履歴表示をリアルタイムで自動更新）
+    admResubscribeHistory();
 }
+
+// ★ 履歴リスナーを張り直す（フィルター変更時・初回起動時に呼ぶ）
+window.admResubscribeHistory = () => {
+    if (_admHistoryUnsub) { _admHistoryUnsub(); _admHistoryUnsub = null; }
+    const sel  = document.getElementById('adm-history-sel').value;
+    const hRef = sel === 'all' ? dbRef(db, 'history') : dbRef(db, `history/${sel}`);
+    _admHistoryUnsub = onValue(hRef, snap => {
+        admRenderHistory(snap.val(), sel);
+    });
+};
 
 // ---- プレイヤー一覧 ----
 function admRenderPlayers() {
@@ -648,6 +636,55 @@ function admRenderPlayers() {
                 <button class="adm-btn adm-btn-orange" onclick="admResetPlayer('${eid}')">↩ リセット</button>
                 <button class="adm-btn adm-btn-red"    onclick="admDeletePlayer('${eid}')">🗑 削除</button>
             </td>
+        </tr>`;
+    }).join('');
+}
+
+// ---- 履歴描画（onValue コールバックから呼ばれる）----
+function admRenderHistory(raw, sel) {
+    const tbody = document.getElementById('adm-history-tbody');
+    if (!raw) {
+        tbody.innerHTML = '<tr><td colspan="6" id="adm-no-history">履歴なし</td></tr>';
+        document.getElementById('adm-history-count').textContent = '0件';
+        return;
+    }
+    let items = [];
+    if (sel === 'all') {
+        Object.entries(raw).forEach(([pid, entries]) => {
+            if (!entries || typeof entries !== 'object') return;
+            Object.values(entries).forEach(e => items.push({ ...e, pid }));
+        });
+    } else {
+        Object.values(raw).forEach(e => items.push({ ...e, pid: sel }));
+    }
+    items.sort((a, b) => b.at - a.at);
+    const total = items.length;
+    items = items.slice(0, 200);
+    document.getElementById('adm-history-count').textContent =
+        total > 200 ? `最新200件 / 全${total}件` : `${total}件`;
+
+    tbody.innerHTML = items.map(e => {
+        const rCls   = e.result === 'win'   ? 'hist-result-win'
+                     : e.result === 'combo' ? 'hist-result-combo'
+                     :                        'hist-result-lose';
+        const rLabel = e.result === 'win'   ? '🎉 当たり'
+                     : e.result === 'combo' ? '🎊 コンボ'
+                     :                        '💔 ハズレ';
+        const mult  = e.result !== 'lose' ? `×${e.mult}` : '—';
+        const diff  = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
+        const chCls = diff >= 0 ? 'hist-change-pos' : 'hist-change-neg';
+        const chTxt = diff >= 0 ? `+${diff.toLocaleString()} G` : `${diff.toLocaleString()} G`;
+        const time  = new Date(e.at).toLocaleString('ja-JP', {
+            month:'2-digit', day:'2-digit',
+            hour:'2-digit', minute:'2-digit', second:'2-digit'
+        });
+        return `<tr>
+            <td class="hist-pid">${escH(e.pid)}</td>
+            <td class="${rCls}">${rLabel}</td>
+            <td style="color:#aaa;text-align:center">${mult}</td>
+            <td style="color:#888;text-align:right">${(e.bet ?? 0).toLocaleString()} G</td>
+            <td class="${chCls}" style="text-align:right;font-weight:bold">${chTxt}</td>
+            <td class="hist-time">${time}</td>
         </tr>`;
     }).join('');
 }
@@ -702,7 +739,7 @@ window.admGlobalReset = async () => {
     alert('リセット完了しました。');
 };
 
-// ---- 履歴フィルター ----
+// ---- 履歴フィルター再構築 ----
 function admRebuildHistoryFilter() {
     const sel = document.getElementById('adm-history-sel');
     const cur = sel.value;
@@ -711,62 +748,12 @@ function admRebuildHistoryFilter() {
         const opt = document.createElement('option');
         opt.value = id; opt.textContent = id; sel.appendChild(opt);
     });
-    if (cur) sel.value = cur;
+    // 選択が変わっていたらリスナー張り直し
+    if (cur && sel.value !== cur) {
+        sel.value = cur;
+        admResubscribeHistory();
+    }
 }
-
-// ---- 履歴表示 ----
-window.admLoadHistory = () => {
-    const sel  = document.getElementById('adm-history-sel').value;
-    const hRef = sel === 'all' ? dbRef(db,'history') : dbRef(db,`history/${sel}`);
-    get(hRef).then(snap => {
-        const tbody = document.getElementById('adm-history-tbody');
-        const raw   = snap.val();
-        if (!raw) {
-            tbody.innerHTML = '<tr><td colspan="6" id="adm-no-history">履歴なし</td></tr>';
-            document.getElementById('adm-history-count').textContent = '0件';
-            return;
-        }
-        let items = [];
-        if (sel === 'all') {
-            Object.entries(raw).forEach(([pid, entries]) => {
-                if (typeof entries !== 'object') return;
-                Object.values(entries).forEach(e => items.push({ ...e, pid }));
-            });
-        } else {
-            Object.values(raw).forEach(e => items.push({ ...e, pid: sel }));
-        }
-        items.sort((a, b) => b.at - a.at);
-        const total = items.length;
-        items = items.slice(0, 200);
-        document.getElementById('adm-history-count').textContent =
-            total > 200 ? `最新200件 / 全${total}件` : `${total}件`;
-
-        tbody.innerHTML = items.map(e => {
-            const rCls   = e.result === 'win'   ? 'hist-result-win'
-                         : e.result === 'combo' ? 'hist-result-combo'
-                         :                        'hist-result-lose';
-            const rLabel = e.result === 'win'   ? '🎉 当たり'
-                         : e.result === 'combo' ? '🎊 コンボ'
-                         :                        '💔 ハズレ';
-            const mult   = e.result !== 'lose' ? `×${e.mult}` : '—';
-            const diff   = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
-            const chCls  = diff >= 0 ? 'hist-change-pos' : 'hist-change-neg';
-            const chTxt  = diff >= 0 ? `+${diff.toLocaleString()} G` : `${diff.toLocaleString()} G`;
-            const time   = new Date(e.at).toLocaleString('ja-JP', {
-                month:'2-digit', day:'2-digit',
-                hour:'2-digit', minute:'2-digit', second:'2-digit'
-            });
-            return `<tr>
-                <td class="hist-pid">${escH(e.pid)}</td>
-                <td class="${rCls}">${rLabel}</td>
-                <td style="color:#aaa;text-align:center">${mult}</td>
-                <td style="color:#888;text-align:right">${(e.bet ?? 0).toLocaleString()} G</td>
-                <td class="${chCls}" style="text-align:right;font-weight:bold">${chTxt}</td>
-                <td class="hist-time">${time}</td>
-            </tr>`;
-        }).join('');
-    });
-};
 
 function escH(s) {
     return String(s).replace(/[&<>"']/g,
@@ -1240,7 +1227,6 @@ async function stopReel(reelId,btn){
     }
 }
 
-// Ctrl+Shift+A で管理者パネル開閉
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
