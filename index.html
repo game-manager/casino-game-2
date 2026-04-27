@@ -128,18 +128,231 @@
         .egg-size-3{transform:scale(2.0);} .chance-large{transform:scale(1.8);}
         .spacer{height:20px;}
 
-        /* 管理者から強制更新された時のフラッシュ */
         @keyframes adminFlash {
             0%,100%{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);}
-            50%{background:linear-gradient(135deg,#1a2a1a,#2a3a2a);}
+            50%{background:linear-gradient(135deg,#1a3a1a,#2a4a2a);}
         }
-        .admin-updated { animation: adminFlash 0.6s ease-in-out 3; }
+        .admin-updated { animation: adminFlash 0.5s ease-in-out 3; }
+
+        /* =============================================
+           管理者パネル — オーバーレイ全画面
+           Ctrl+Shift+A で開閉
+           ログインしていない場合はログイン画面を表示
+        ============================================= */
+        #admin-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0.92);
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #admin-overlay.open { display: block; }
+
+        /* 閉じるボタン */
+        #admin-close-btn {
+            position: fixed; top: 14px; right: 18px; z-index: 9100;
+            background: #2a2a2a; color: #888; border: 1px solid #555;
+            border-radius: 6px; padding: 6px 14px; font-size: 13px;
+            font-family: 'Courier New', monospace; cursor: pointer;
+            letter-spacing: 1px; transition: all 0.15s;
+        }
+        #admin-close-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
+
+        /* ---- ログイン画面 ---- */
+        #admin-login-screen {
+            max-width: 380px; margin: 80px auto;
+            background: #1a1a1a; border: 2px solid #444;
+            border-radius: 14px; padding: 36px 32px;
+        }
+        #admin-login-screen h2 {
+            color: #ffd700; text-align: center;
+            margin-bottom: 22px; letter-spacing: 4px; font-size: 18px;
+        }
+        .adm-form-group { margin-bottom: 14px; }
+        .adm-form-group label {
+            display: block; color: #888;
+            font-size: 11px; letter-spacing: 2px; margin-bottom: 5px;
+        }
+        .adm-form-group input {
+            width: 100%; padding: 10px 12px;
+            background: #111; color: #ffd700;
+            border: 1px solid #444; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 14px;
+        }
+        .adm-form-group input:focus { outline: none; border-color: #ffd700; }
+        #adm-login-btn {
+            width: 100%; padding: 11px; margin-top: 6px;
+            background: linear-gradient(135deg,#c0a000,#806800);
+            color: #000; border: none; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 14px;
+            font-weight: bold; letter-spacing: 3px; cursor: pointer;
+        }
+        #adm-login-btn:hover { background: linear-gradient(135deg,#ffd700,#c0a000); }
+        #adm-login-error { color: #ff5555; font-size: 11px; text-align: center; margin-top: 8px; min-height: 16px; }
+
+        /* ---- メイン管理画面 ---- */
+        #admin-main-screen { display: none; max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+        .adm-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 26px; flex-wrap: wrap; gap: 10px;
+        }
+        .adm-header h1 {
+            color: #ffd700; font-size: 20px; letter-spacing: 4px;
+            text-shadow: 0 0 10px #ffd70033; margin: 0;
+        }
+        .adm-header-right { display: flex; align-items: center; gap: 12px; }
+        .adm-live-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #0a1a0a; border: 1px solid #44ff88;
+            border-radius: 20px; padding: 3px 10px;
+            font-size: 10px; color: #44ff88; letter-spacing: 1px;
+        }
+        .adm-live-dot {
+            width: 6px; height: 6px; background: #44ff88;
+            border-radius: 50%; animation: adm-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes adm-pulse { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+        #adm-logout-btn {
+            padding: 6px 14px; background: #2a2a2a;
+            color: #888; border: 1px solid #444; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 11px;
+            cursor: pointer; letter-spacing: 1px; transition: all 0.15s;
+        }
+        #adm-logout-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
+
+        .adm-section-title {
+            color: #888; font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase; padding-bottom: 8px;
+            border-bottom: 1px solid #2a2a2a; margin-bottom: 14px;
+        }
+
+        /* ---- プレイヤーテーブル ---- */
+        #adm-players-section { margin-bottom: 30px; }
+        #adm-players-table { width: 100%; border-collapse: collapse; }
+        #adm-players-table th {
+            background: #161616; color: #666;
+            font-size: 10px; letter-spacing: 2px;
+            padding: 9px 12px; text-align: left;
+            border-bottom: 2px solid #2a2a2a;
+        }
+        #adm-players-table td {
+            padding: 10px 12px; border-bottom: 1px solid #1e1e1e;
+            font-size: 13px; vertical-align: middle;
+        }
+        #adm-players-table tr:hover td { background: #161616; }
+        .adm-badge-on  { display:inline-block; width:7px; height:7px; background:#44ff88; border-radius:50%; margin-right:7px; box-shadow:0 0 5px #44ff88; }
+        .adm-badge-off { display:inline-block; width:7px; height:7px; background:#444;    border-radius:50%; margin-right:7px; }
+        .adm-coins-val { color: #ffd700; font-weight: bold; }
+        .adm-pid       { color: #888; font-size: 11px; }
+        .adm-edit-btn {
+            padding: 4px 11px; background: #1a2a1a;
+            color: #44ff88; border: 1px solid #44ff88;
+            border-radius: 5px; cursor: pointer;
+            font-family: 'Courier New', monospace; font-size: 11px;
+            transition: all 0.15s;
+        }
+        .adm-edit-btn:hover { background: #44ff88; color: #000; }
+        .adm-reset-btn {
+            padding: 4px 11px; background: #2a1a1a;
+            color: #ff5555; border: 1px solid #ff5555;
+            border-radius: 5px; cursor: pointer; margin-left: 5px;
+            font-family: 'Courier New', monospace; font-size: 11px;
+            transition: all 0.15s;
+        }
+        .adm-reset-btn:hover { background: #ff5555; color: #fff; }
+        #adm-no-players { color: #444; text-align: center; padding: 26px; font-size: 12px; }
+
+        /* ---- 残高編集モーダル ---- */
+        #adm-edit-modal {
+            display: none; position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,0.85);
+            align-items: center; justify-content: center;
+        }
+        #adm-edit-modal.open { display: flex; }
+        .adm-modal-box {
+            background: #1a1a1a; border: 2px solid #c0a000;
+            border-radius: 14px; padding: 28px 26px; width: 320px;
+        }
+        .adm-modal-box h3 { color: #ffd700; margin-bottom: 16px; letter-spacing: 2px; font-size: 15px; }
+        .adm-modal-box label { color: #888; font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 5px; }
+        #adm-modal-pid { color: #666; font-size: 11px; margin-bottom: 14px; }
+        #adm-modal-coins-input {
+            width: 100%; padding: 10px 12px;
+            background: #111; color: #ffd700;
+            border: 1px solid #444; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 20px;
+            margin-bottom: 16px;
+        }
+        #adm-modal-coins-input:focus { outline: none; border-color: #ffd700; }
+        .adm-modal-actions { display: flex; gap: 8px; }
+        .adm-modal-save {
+            flex: 1; padding: 10px;
+            background: linear-gradient(135deg,#c0a000,#806800);
+            color: #000; border: none; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 13px;
+            font-weight: bold; cursor: pointer; letter-spacing: 2px;
+        }
+        .adm-modal-save:hover { background: linear-gradient(135deg,#ffd700,#c0a000); }
+        .adm-modal-cancel {
+            flex: 1; padding: 10px; background: #222;
+            color: #888; border: 1px solid #444; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 13px; cursor: pointer;
+        }
+        .adm-modal-cancel:hover { background: #333; color: #ccc; }
+
+        /* ---- プレイ履歴 ---- */
+        #adm-history-section { margin-bottom: 28px; }
+        .adm-history-filter { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .adm-history-filter label { color: #888; font-size: 11px; }
+        #adm-history-sel {
+            padding: 6px 10px; background: #111; color: #ffd700;
+            border: 1px solid #444; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 12px; min-width: 160px;
+        }
+        #adm-history-sel:focus { outline: none; border-color: #ffd700; }
+        #adm-history-list { max-height: 280px; overflow-y: auto; }
+        .adm-hist-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid #1a1a1a; font-size: 11px;
+        }
+        .adm-hist-item:hover { background: #141414; }
+        .adm-hist-win   { color: #44ff88; font-weight: bold; }
+        .adm-hist-lose  { color: #ff5555; font-weight: bold; }
+        .adm-hist-combo { color: #44ddff; font-weight: bold; }
+        .adm-hist-time  { color: #444; }
+        .adm-hist-change-pos { color: #44ff88; }
+        .adm-hist-change-neg { color: #ff5555; }
+        #adm-no-history { color: #444; text-align: center; padding: 20px; font-size: 12px; }
+
+        /* ---- 全体リセット ---- */
+        #adm-reset-section {
+            background: #160808; border: 1px solid #3a1a1a;
+            border-radius: 10px; padding: 18px 22px;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        }
+        .adm-reset-desc { color: #888; font-size: 11px; line-height: 1.7; }
+        .adm-reset-desc strong { color: #ff5555; }
+        #adm-global-reset-btn {
+            padding: 9px 20px; background: #3a0000;
+            color: #ff5555; border: 1px solid #ff5555;
+            border-radius: 7px; cursor: pointer; white-space: nowrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px; font-weight: bold; letter-spacing: 2px;
+            transition: all 0.15s;
+        }
+        #adm-global-reset-btn:hover { background: #ff5555; color: #fff; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
 <body class="dark">
     <div id="left-bar" class="side-bar"></div>
     <div id="right-bar" class="side-bar"></div>
 
+    <!-- ゲーム本体 -->
     <div id="coin-display">
         <div class="label">所持コイン</div>
         <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
@@ -190,14 +403,105 @@
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
     <div class="spacer"></div>
 
+    <!-- =============================================
+         管理者パネル (Ctrl+Shift+A で開閉)
+    ============================================= -->
+    <div id="admin-overlay">
+        <button id="admin-close-btn" onclick="closeAdminPanel()">✕ 閉じる</button>
+
+        <!-- ログイン画面 -->
+        <div id="admin-login-screen">
+            <h2>🔐 ADMIN LOGIN</h2>
+            <div class="adm-form-group">
+                <label>EMAIL</label>
+                <input type="email" id="adm-email" placeholder="admin@example.com">
+            </div>
+            <div class="adm-form-group">
+                <label>PASSWORD</label>
+                <input type="password" id="adm-password" placeholder="••••••••">
+            </div>
+            <button id="adm-login-btn" onclick="admDoLogin()">LOGIN</button>
+            <div id="adm-login-error"></div>
+        </div>
+
+        <!-- メイン管理画面 -->
+        <div id="admin-main-screen">
+            <div class="adm-header">
+                <h1>⚙ CASINO ADMIN</h1>
+                <div class="adm-header-right">
+                    <span class="adm-live-badge"><span class="adm-live-dot"></span>LIVE</span>
+                    <span id="adm-logged-email" style="color:#666;font-size:11px;"></span>
+                    <button id="adm-logout-btn" onclick="admDoLogout()">LOGOUT</button>
+                </div>
+            </div>
+
+            <!-- プレイヤー一覧 -->
+            <div id="adm-players-section">
+                <div class="adm-section-title">👥 プレイヤー一覧 — 残高管理</div>
+                <table id="adm-players-table">
+                    <thead>
+                        <tr>
+                            <th>STATUS</th>
+                            <th>プレイヤーID</th>
+                            <th>残高 (G)</th>
+                            <th>最終プレイ</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adm-players-tbody">
+                        <tr><td colspan="5" id="adm-no-players">読み込み中…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- プレイ履歴 -->
+            <div id="adm-history-section">
+                <div class="adm-section-title">📋 プレイ履歴</div>
+                <div class="adm-history-filter">
+                    <label>プレイヤー:</label>
+                    <select id="adm-history-sel" onchange="admLoadHistory()"><option value="all">全員</option></select>
+                </div>
+                <div id="adm-history-list"><div id="adm-no-history">履歴なし</div></div>
+            </div>
+
+            <!-- 全体リセット -->
+            <div id="adm-reset-section">
+                <div class="adm-reset-desc">
+                    <strong>⚠ 全体リセット</strong><br>
+                    全プレイヤーの残高を 10,000G に戻し、プレイ履歴を消去します。
+                </div>
+                <button id="adm-global-reset-btn" onclick="admGlobalReset()">🔄 全員リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 残高編集モーダル -->
+    <div id="adm-edit-modal">
+        <div class="adm-modal-box">
+            <h3>✏ 残高を変更</h3>
+            <label>プレイヤーID</label>
+            <div id="adm-modal-pid"></div>
+            <label>新しい残高 (G)</label>
+            <input type="number" id="adm-modal-coins-input" min="0" placeholder="10000">
+            <div class="adm-modal-actions">
+                <button class="adm-modal-save" onclick="admSaveCoins()">保存</button>
+                <button class="adm-modal-cancel" onclick="admCloseModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref as dbRef, set, onValue, push }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+    getDatabase, ref as dbRef, set, get, push, onValue, remove, onDisconnect
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 // ============================================================
-//  🔧 Firebase 設定 — admin.html と同じ値に書き換えてください
+//  🔧 Firebase 設定 — 自分のプロジェクトの値に書き換えてください
 // ============================================================
 const firebaseConfig = {
     apiKey:            "YOUR_API_KEY",
@@ -210,10 +514,12 @@ const firebaseConfig = {
 };
 // ============================================================
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getDatabase(fbApp);
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getDatabase(app);
 
-// ---- プレイヤーID生成 (localStorage で永続化) ----
+// ========== プレイヤー側 Firebase ==========
+
 let playerId = localStorage.getItem('casino_player_id');
 if (!playerId) {
     playerId = 'player_' + Math.random().toString(36).slice(2, 9);
@@ -221,64 +527,245 @@ if (!playerId) {
 }
 document.getElementById('player-id-display').textContent = 'ID: ' + playerId;
 
-const playerRef = dbRef(db, `players/${playerId}`);
+const playerRef  = dbRef(db, `players/${playerId}`);
 const historyRef = dbRef(db, `history/${playerId}`);
 
-// ---- 初期データが存在しなければ作成 ----
-import { get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 get(playerRef).then(snap => {
     if (!snap.exists()) {
         set(playerRef, { coins: 10000, online: true, lastPlayAt: null });
     } else {
-        // オンライン状態を更新
         set(dbRef(db, `players/${playerId}/online`), true);
-        // Firebase から残高を読み込んで同期
         const saved = snap.val().coins;
-        if (typeof saved === 'number') {
-            window._fbCoins = saved;
-            coins = saved;
-            updateCoinDisplay();
-        }
+        if (typeof saved === 'number') { coins = saved; updateCoinDisplay(); }
     }
 });
 
-// ---- 管理者からの残高変更をリアルタイム監視 ----
 let _prevCoins = null;
 onValue(dbRef(db, `players/${playerId}/coins`), snap => {
     const val = snap.val();
     if (typeof val !== 'number') return;
     if (_prevCoins !== null && val !== coins) {
-        // 管理者による変更を検知
-        coins = val;
-        updateCoinDisplay();
-        // コイン表示をフラッシュ
+        coins = val; updateCoinDisplay();
         const cd = document.getElementById('coin-display');
-        cd.classList.remove('admin-updated');
-        void cd.offsetWidth; // reflow
+        cd.classList.remove('admin-updated'); void cd.offsetWidth;
         cd.classList.add('admin-updated');
     }
     _prevCoins = val;
 });
 
-// ---- オフライン時に online フラグを false に ----
-import { onDisconnect } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
 
-// ---- Firebase に残高を保存する関数 (ゲームロジックから呼び出す) ----
 window.fbSaveCoins = (c) => {
     set(dbRef(db, `players/${playerId}/coins`), c);
     set(dbRef(db, `players/${playerId}/lastPlayAt`), Date.now());
 };
-
-// ---- プレイ履歴を記録する関数 ----
 window.fbLogHistory = (result, bet, mult) => {
     push(historyRef, { result, bet, mult: mult || 0, at: Date.now() });
 };
+
+// ========== 管理者パネル Firebase ==========
+
+let _admPlayersData = {};
+let _admEditingId   = null;
+let _admPlayersUnsubscribe = null;
+
+// 管理者パネル 開閉
+window.openAdminPanel = () => {
+    document.getElementById('admin-overlay').classList.add('open');
+    // すでにログイン済みなら直接メイン画面
+    if (auth.currentUser) {
+        showAdmMain(auth.currentUser);
+    }
+};
+window.closeAdminPanel = () => {
+    document.getElementById('admin-overlay').classList.remove('open');
+};
+
+// ログイン
+window.admDoLogin = async () => {
+    const email = document.getElementById('adm-email').value.trim();
+    const pass  = document.getElementById('adm-password').value;
+    document.getElementById('adm-login-error').textContent = '';
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+        document.getElementById('adm-login-error').textContent = 'ログイン失敗: ' + e.message;
+    }
+};
+
+// ログアウト
+window.admDoLogout = async () => {
+    await signOut(auth);
+};
+
+// Enterキー対応
+document.getElementById('adm-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.admDoLogin();
+});
+
+onAuthStateChanged(auth, user => {
+    if (user) {
+        showAdmMain(user);
+    } else {
+        showAdmLogin();
+        if (_admPlayersUnsubscribe) { _admPlayersUnsubscribe(); _admPlayersUnsubscribe = null; }
+    }
+});
+
+function showAdmLogin() {
+    document.getElementById('admin-login-screen').style.display = 'block';
+    document.getElementById('admin-main-screen').style.display  = 'none';
+}
+
+function showAdmMain(user) {
+    document.getElementById('admin-login-screen').style.display = 'none';
+    document.getElementById('admin-main-screen').style.display  = 'block';
+    document.getElementById('adm-logged-email').textContent = user.email;
+    startAdmListeners();
+}
+
+// リアルタイムリスナー
+function startAdmListeners() {
+    if (_admPlayersUnsubscribe) return; // 二重登録防止
+    const ref = dbRef(db, 'players');
+    _admPlayersUnsubscribe = onValue(ref, snap => {
+        _admPlayersData = snap.val() || {};
+        admRenderPlayers();
+        admRebuildHistoryFilter();
+        admLoadHistory();
+    });
+}
+
+// プレイヤー一覧レンダリング
+function admRenderPlayers() {
+    const tbody = document.getElementById('adm-players-tbody');
+    const ids = Object.keys(_admPlayersData);
+    if (!ids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" id="adm-no-players">プレイヤーがいません</td></tr>';
+        return;
+    }
+    tbody.innerHTML = ids.map(id => {
+        const p = _admPlayersData[id];
+        const coins   = (p.coins ?? 10000).toLocaleString();
+        const online  = p.online
+            ? '<span class="adm-badge-on"></span>オンライン'
+            : '<span class="adm-badge-off"></span>オフライン';
+        const lastPlay = p.lastPlayAt
+            ? new Date(p.lastPlayAt).toLocaleString('ja-JP')
+            : '—';
+        const eid = escH(id);
+        return `<tr>
+            <td>${online}</td>
+            <td class="adm-pid">${eid}</td>
+            <td class="adm-coins-val">${coins} G</td>
+            <td style="color:#555;font-size:11px">${lastPlay}</td>
+            <td>
+                <button class="adm-edit-btn" onclick="admOpenEdit('${eid}')">✏ 変更</button>
+                <button class="adm-reset-btn" onclick="admResetPlayer('${eid}')">↩ リセット</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// 残高変更モーダル
+window.admOpenEdit = id => {
+    _admEditingId = id;
+    document.getElementById('adm-modal-pid').textContent = id;
+    document.getElementById('adm-modal-coins-input').value = _admPlayersData[id]?.coins ?? 10000;
+    document.getElementById('adm-edit-modal').classList.add('open');
+    setTimeout(() => document.getElementById('adm-modal-coins-input').focus(), 80);
+};
+window.admCloseModal = () => {
+    document.getElementById('adm-edit-modal').classList.remove('open');
+    _admEditingId = null;
+};
+window.admSaveCoins = async () => {
+    if (!_admEditingId) return;
+    const val = parseInt(document.getElementById('adm-modal-coins-input').value);
+    if (isNaN(val) || val < 0) { alert('正しい数値を入力してください'); return; }
+    await set(dbRef(db, `players/${_admEditingId}/coins`), val);
+    await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'setCoins', playerId:_admEditingId, value:val, at:Date.now() });
+    admCloseModal();
+};
+document.getElementById('adm-modal-coins-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.admSaveCoins();
+});
+
+// 個別リセット
+window.admResetPlayer = async id => {
+    if (!confirm(`「${id}」の残高を 10,000G にリセットし、履歴を削除しますか？`)) return;
+    await set(dbRef(db, `players/${id}/coins`), 10000);
+    await remove(dbRef(db, `history/${id}`));
+    await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'resetPlayer', playerId:id, at:Date.now() });
+};
+
+// 全体リセット
+window.admGlobalReset = async () => {
+    if (!confirm('全プレイヤーの残高を 10,000G にリセットし、全履歴を消去しますか？\nこの操作は取り消せません。')) return;
+    for (const id of Object.keys(_admPlayersData)) {
+        await set(dbRef(db, `players/${id}/coins`), 10000);
+    }
+    await remove(dbRef(db, 'history'));
+    await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'globalReset', at:Date.now() });
+    alert('リセット完了しました。');
+};
+
+// 履歴フィルター再構築
+function admRebuildHistoryFilter() {
+    const sel = document.getElementById('adm-history-sel');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="all">全員</option>';
+    Object.keys(_admPlayersData).forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id; opt.textContent = id; sel.appendChild(opt);
+    });
+    if (cur) sel.value = cur;
+}
+
+// 履歴読み込み
+window.admLoadHistory = () => {
+    const sel  = document.getElementById('adm-history-sel').value;
+    const hRef = sel === 'all' ? dbRef(db,'history') : dbRef(db,`history/${sel}`);
+    get(hRef).then(snap => {
+        const container = document.getElementById('adm-history-list');
+        const raw = snap.val();
+        if (!raw) { container.innerHTML = '<div id="adm-no-history">履歴なし</div>'; return; }
+        let items = [];
+        if (sel === 'all') {
+            Object.entries(raw).forEach(([pid, entries]) =>
+                Object.values(entries).forEach(e => items.push({...e, pid})));
+        } else {
+            Object.values(raw).forEach(e => items.push({...e, pid:sel}));
+        }
+        items.sort((a,b) => b.at - a.at);
+        items = items.slice(0, 100);
+        container.innerHTML = items.map(e => {
+            const time   = new Date(e.at).toLocaleString('ja-JP');
+            const rCls   = e.result==='win' ? 'adm-hist-win' : e.result==='combo' ? 'adm-hist-combo' : 'adm-hist-lose';
+            const rLabel = e.result==='win'   ? `🎉 当たり ×${e.mult}` :
+                           e.result==='combo' ? `🎊 コンボ ×${e.mult}` : '💔 ハズレ';
+            const diff   = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
+            const chCls  = diff >= 0 ? 'adm-hist-change-pos' : 'adm-hist-change-neg';
+            const chTxt  = diff >= 0 ? `+${diff.toLocaleString()}G` : `${diff.toLocaleString()}G`;
+            return `<div class="adm-hist-item">
+                <span class="adm-pid">${escH(e.pid)}</span>
+                <span class="${rCls}">${rLabel}</span>
+                <span style="color:#666">Bet:${e.bet?.toLocaleString()}G</span>
+                <span class="${chCls}">${chTxt}</span>
+                <span class="adm-hist-time">${time}</span>
+            </div>`;
+        }).join('');
+    });
+};
+
+function escH(s) {
+    return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+}
 </script>
 
 <script>
 // ============================================================
-//  AUDIO ENGINE — 即時発音 / コンプレッサー / VOL×4.5
+//  AUDIO ENGINE
 // ============================================================
 const ACtxClass = window.AudioContext || window.webkitAudioContext;
 let _ctx=null, _master=null, _comp=null, _rainbowGain=null;
@@ -291,513 +778,359 @@ function ensureCtx() {
     _comp.ratio.value=6; _comp.attack.value=0.001; _comp.release.value=0.08;
     _master = _ctx.createGain(); _master.gain.value=1.0;
     _rainbowGain = _ctx.createGain(); _rainbowGain.gain.value=1.0;
-    _master.connect(_rainbowGain);
-    _rainbowGain.connect(_comp);
-    _comp.connect(_ctx.destination);
+    _master.connect(_rainbowGain); _rainbowGain.connect(_comp); _comp.connect(_ctx.destination);
 }
-const VOL = 4.5;
-function out() { return _master; }
-function now() { return _ctx.currentTime + 0.001; }
+const VOL=4.5;
+function out(){return _master;}
+function now(){return _ctx.currentTime+0.001;}
 
-function tone(freq, type, dur, vol, off=0) {
-    const t=now()+off;
-    const osc=_ctx.createOscillator(), g=_ctx.createGain();
-    osc.connect(g); g.connect(out());
-    osc.type=type; osc.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol*VOL,t);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+function tone(freq,type,dur,vol,off=0){
+    const t=now()+off, osc=_ctx.createOscillator(), g=_ctx.createGain();
+    osc.connect(g); g.connect(out()); osc.type=type; osc.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol*VOL,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     osc.start(t); osc.stop(t+dur+0.01);
 }
-
-function noise(dur, vol=0.1, off=0) {
-    const t=now()+off, sr=_ctx.sampleRate;
-    const n=Math.floor(sr*dur);
-    const buf=_ctx.createBuffer(1,n,sr), d=buf.getChannelData(0);
-    for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
-    const src=_ctx.createBufferSource(), g=_ctx.createGain();
-    src.buffer=buf; src.connect(g); g.connect(out());
-    g.gain.setValueAtTime(vol*VOL,t);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    src.start(t); src.stop(t+dur+0.01);
+function noise(dur,vol=0.1,off=0){
+    const t=now()+off,sr=_ctx.sampleRate,n=Math.floor(sr*dur);
+    const buf=_ctx.createBuffer(1,n,sr),d=buf.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+    const src=_ctx.createBufferSource(),g=_ctx.createGain();
+    src.buffer=buf;src.connect(g);g.connect(out());
+    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.start(t);src.stop(t+dur+0.01);
+}
+function glide(f0,f1,type,dur,vol,off=0){
+    const t=now()+off,osc=_ctx.createOscillator(),g=_ctx.createGain();
+    osc.connect(g);g.connect(out());osc.type=type;
+    osc.frequency.setValueAtTime(f0,t);osc.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.02);
+    osc.start(t);osc.stop(t+dur+0.05);
 }
 
-function glide(f0,f1,type,dur,vol,off=0) {
-    const t=now()+off;
-    const osc=_ctx.createOscillator(), g=_ctx.createGain();
-    osc.connect(g); g.connect(out()); osc.type=type;
-    osc.frequency.setValueAtTime(f0,t);
-    osc.frequency.exponentialRampToValueAtTime(f1,t+dur);
-    g.gain.setValueAtTime(vol*VOL,t);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.02);
-    osc.start(t); osc.stop(t+dur+0.05);
-}
+let _reelNodes=[],_reelAlertInterval=null;
+const ALERT_PITCHES=[[1047,784],[880,659],[1047,784],[1175,880]];
+let _alertStep=0;
 
-// ============================================================
-//  リール回転音
-// ============================================================
-let _reelNodes = [];
-let _reelAlertInterval = null;
-
-const ALERT_PITCHES = [
-    [1047, 784],
-    [880,  659],
-    [1047, 784],
-    [1175, 880],
-];
-let _alertStep = 0;
-
-function sfxReelStart() {
-    sfxReelStop();
-    ensureCtx();
-    _alertStep = 0;
-
-    function fireAlert() {
-        if (!_ctx || !_reelNodes.length) return;
-        const ctx = _ctx;
-        const t = ctx.currentTime + 0.001;
-        const pair = ALERT_PITCHES[_alertStep % ALERT_PITCHES.length];
+function sfxReelStart(){
+    sfxReelStop(); ensureCtx(); _alertStep=0;
+    function fireAlert(){
+        if(!_ctx||!_reelNodes.length)return;
+        const ctx=_ctx,t=ctx.currentTime+0.001,pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length];
         _alertStep++;
-
-        const o1 = ctx.createOscillator(), g1 = ctx.createGain();
-        o1.connect(g1); g1.connect(out());
-        o1.type = 'square';
-        o1.frequency.setValueAtTime(pair[0], t);
-        g1.gain.setValueAtTime(0.042 * VOL, t);
-        g1.gain.setValueAtTime(0.042 * VOL, t + 0.045);
-        g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
-        o1.start(t); o1.stop(t + 0.12);
-
-        const o2 = ctx.createOscillator(), g2 = ctx.createGain();
-        o2.connect(g2); g2.connect(out());
-        o2.type = 'square';
-        o2.frequency.setValueAtTime(pair[1], t + 0.13);
-        g2.gain.setValueAtTime(0.038 * VOL, t + 0.13);
-        g2.gain.setValueAtTime(0.038 * VOL, t + 0.175);
-        g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
-        o2.start(t + 0.13); o2.stop(t + 0.26);
-
-        const o3 = ctx.createOscillator(), g3 = ctx.createGain();
-        o3.connect(g3); g3.connect(out());
-        o3.type = 'sine';
-        o3.frequency.setValueAtTime(pair[0] * 1.26, t);
-        g3.gain.setValueAtTime(0.012 * VOL, t);
-        g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-        o3.start(t); o3.stop(t + 0.10);
-    }
-
-    fireAlert();
-    _reelAlertInterval = setInterval(fireAlert, 320);
-
-    const sentinel = { isInterval: false, stop: ()=>{}, disconnect: ()=>{} };
-    _reelNodes = [sentinel];
-}
-
-function _stopAlertInterval() {
-    if (_reelAlertInterval !== null) {
-        clearInterval(_reelAlertInterval);
-        _reelAlertInterval = null;
-    }
-}
-
-function sfxReelStop() {
-    _stopAlertInterval();
-    _reelNodes.forEach(n => {
-        try { if (n.stop) n.stop(); } catch(e){}
-        try { n.disconnect(); } catch(e){}
-    });
-    _reelNodes = [];
-}
-
-let _reelFadeLevel = 1.0;
-function sfxReelFade(level) {
-    _stopAlertInterval();
-    if (_reelNodes.length === 0) return;
-    const interval = level > 0.5 ? 320 : level > 0.1 ? 600 : 900;
-    function fireAlertFaded() {
-        if (!_ctx || !_reelNodes.length) return;
-        const ctx = _ctx;
-        const t = ctx.currentTime + 0.001;
-        const pair = ALERT_PITCHES[_alertStep % ALERT_PITCHES.length];
-        _alertStep++;
-        const v = level * 0.042;
-        const o1 = ctx.createOscillator(), g1 = ctx.createGain();
-        o1.connect(g1); g1.connect(out()); o1.type='square';
+        const o1=ctx.createOscillator(),g1=ctx.createGain();
+        o1.connect(g1);g1.connect(out());o1.type='square';
         o1.frequency.setValueAtTime(pair[0],t);
-        g1.gain.setValueAtTime(v*VOL,t);
-        g1.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-        o1.start(t); o1.stop(t+0.10);
-        const o2 = ctx.createOscillator(), g2 = ctx.createGain();
-        o2.connect(g2); g2.connect(out()); o2.type='square';
-        o2.frequency.setValueAtTime(pair[1],t+0.12);
-        g2.gain.setValueAtTime(v*0.85*VOL,t+0.12);
-        g2.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
-        o2.start(t+0.12); o2.stop(t+0.23);
+        g1.gain.setValueAtTime(0.042*VOL,t);g1.gain.setValueAtTime(0.042*VOL,t+0.045);
+        g1.gain.exponentialRampToValueAtTime(0.0001,t+0.10);o1.start(t);o1.stop(t+0.12);
+        const o2=ctx.createOscillator(),g2=ctx.createGain();
+        o2.connect(g2);g2.connect(out());o2.type='square';
+        o2.frequency.setValueAtTime(pair[1],t+0.13);
+        g2.gain.setValueAtTime(0.038*VOL,t+0.13);g2.gain.setValueAtTime(0.038*VOL,t+0.175);
+        g2.gain.exponentialRampToValueAtTime(0.0001,t+0.24);o2.start(t+0.13);o2.stop(t+0.26);
+        const o3=ctx.createOscillator(),g3=ctx.createGain();
+        o3.connect(g3);g3.connect(out());o3.type='sine';
+        o3.frequency.setValueAtTime(pair[0]*1.26,t);
+        g3.gain.setValueAtTime(0.012*VOL,t);g3.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
+        o3.start(t);o3.stop(t+0.10);
     }
-    _reelAlertInterval = setInterval(fireAlertFaded, interval);
+    fireAlert();
+    _reelAlertInterval=setInterval(fireAlert,320);
+    _reelNodes=[{stop:()=>{},disconnect:()=>{}}];
+}
+function _stopAlertInterval(){
+    if(_reelAlertInterval!==null){clearInterval(_reelAlertInterval);_reelAlertInterval=null;}
+}
+function sfxReelStop(){
+    _stopAlertInterval();
+    _reelNodes.forEach(n=>{try{if(n.stop)n.stop();}catch(e){}try{n.disconnect();}catch(e){}});
+    _reelNodes=[];
+}
+function sfxReelFade(level){
+    _stopAlertInterval();
+    if(!_reelNodes.length)return;
+    const interval=level>0.5?320:level>0.1?600:900;
+    function fireF(){
+        if(!_ctx||!_reelNodes.length)return;
+        const ctx=_ctx,t=ctx.currentTime+0.001,pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length];
+        _alertStep++;const v=level*0.042;
+        const o1=ctx.createOscillator(),g1=ctx.createGain();
+        o1.connect(g1);g1.connect(out());o1.type='square';
+        o1.frequency.setValueAtTime(pair[0],t);
+        g1.gain.setValueAtTime(v*VOL,t);g1.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
+        o1.start(t);o1.stop(t+0.10);
+        const o2=ctx.createOscillator(),g2=ctx.createGain();
+        o2.connect(g2);g2.connect(out());o2.type='square';
+        o2.frequency.setValueAtTime(pair[1],t+0.12);
+        g2.gain.setValueAtTime(v*0.85*VOL,t+0.12);g2.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+        o2.start(t+0.12);o2.stop(t+0.23);
+    }
+    _reelAlertInterval=setInterval(fireF,interval);
 }
 
-// ============================================================
-//  その他効果音
-// ============================================================
-function sfxStart() { tone(880,'sine',0.07,0.28); tone(1100,'sine',0.09,0.28,0.08); }
-function sfxStop() { noise(0.05,0.22); tone(180,'square',0.07,0.14); }
-function sfxReach() {
+function sfxStart(){tone(880,'sine',0.07,0.28);tone(1100,'sine',0.09,0.28,0.08);}
+function sfxStop(){noise(0.05,0.22);tone(180,'square',0.07,0.14);}
+function sfxReach(){
     const s=[330,392,494,587,698,880];
     s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
     [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
 }
-function sfxChance(isBig) {
+function sfxChance(isBig){
     if(isBig){[523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.33,i*0.08));tone(1568,'sine',0.45,0.38,0.48);}
     else{[440,554,659].forEach((f,i)=>tone(f,'sine',0.15,0.26,i*0.12));tone(880,'sine',0.28,0.28,0.42);}
 }
-function sfxFlash() { tone(700,'square',0.04,0.20); tone(900,'square',0.04,0.20,0.05); tone(1100,'square',0.04,0.20,0.10); }
-function sfxEgg(stage) {
+function sfxFlash(){tone(700,'square',0.04,0.20);tone(900,'square',0.04,0.20,0.05);tone(1100,'square',0.04,0.20,0.10);}
+function sfxEgg(stage){
     const ff=[[300,450],[400,600],[550,820]];
-    tone(ff[stage][0],'sine',0.20,0.28); tone(ff[stage][1],'sine',0.16,0.18,0.10);
+    tone(ff[stage][0],'sine',0.20,0.28);tone(ff[stage][1],'sine',0.16,0.18,0.10);
 }
-function sfxKira() {
+function sfxKira(){
     [1047,1319,1568,2093,1568,2093,2637].forEach((f,i)=>tone(f,'sine',0.20,0.36,i*0.09));
     setTimeout(()=>{ensureCtx();[1568,1976,2637].forEach((f,i)=>tone(f,'triangle',0.14,0.26,i*0.06));},720);
 }
-function sfxWin(mult) {
+function sfxWin(mult){
     if(mult>=50){
         [523,523,659,784,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'square',0.15,0.42,i*0.08));
         setTimeout(()=>{ensureCtx();[1047,1319,1568,2093].forEach((f,i)=>tone(f,'sine',0.26,0.38,i*0.06));},780);
         setTimeout(()=>{ensureCtx();noise(0.28,0.14);},1100);
-    } else if(mult>=10){
+    }else if(mult>=10){
         [523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.38,i*0.09));
         tone(1568,'sine',0.28,0.33,0.50);
-    } else {
+    }else{
         [523,659,784].forEach((f,i)=>tone(f,'sine',0.13,0.33,i*0.12));
         tone(1047,'sine',0.23,0.28,0.40);
     }
 }
-function sfxLose() {
-    tone(220,'sawtooth',0.24,0.28); tone(165,'sawtooth',0.28,0.22,0.18);
-    tone(110,'sawtooth',0.24,0.18,0.42); noise(0.10,0.08);
+function sfxLose(){
+    tone(220,'sawtooth',0.24,0.28);tone(165,'sawtooth',0.28,0.22,0.18);
+    tone(110,'sawtooth',0.24,0.18,0.42);noise(0.10,0.08);
 }
-function sfxReachMiss() {
+function sfxReachMiss(){
     [523,659,784].forEach((f,i)=>tone(f,'square',0.09,0.50,i*0.07));
-    glide(400,40,'sawtooth',0.75,0.70,0.24);
-    glide(300,50,'square', 0.65,0.52,0.26);
-    noise(0.45,0.55,0.26); noise(0.28,0.38,0.50);
-    tone(80,'sine',0.55,0.44,0.88); tone(60,'sine',0.65,0.38,1.00); noise(0.20,0.28,0.90);
+    glide(400,40,'sawtooth',0.75,0.70,0.24);glide(300,50,'square',0.65,0.52,0.26);
+    noise(0.45,0.55,0.26);noise(0.28,0.38,0.50);
+    tone(80,'sine',0.55,0.44,0.88);tone(60,'sine',0.65,0.38,1.00);noise(0.20,0.28,0.90);
 }
 
 // ============================================================
 //  GAME LOGIC
 // ============================================================
-
-let IMG_DATA_CURRENT = [
+let IMG_DATA_CURRENT=[
     "gyanb/gyanb1_transparent.png","gyanb/gyanb2_transparent.png",
     "gyanb/gyanb3_transparent.png","gyanb/gyanb4_tr.png",
     "gyanb/gyanb5_transparent.png","gyanb/gyanb6_transparent.png",
     "gyanb/gyanb7n-transparent.png"
 ];
-const IMG_7_NORMAL = "gyanb/gyanb7n-transparent.png";
-const IMG_7_KAKUHEN= "gyanb/gyanb7_transparent.png";
+const IMG_7_NORMAL="gyanb/gyanb7n-transparent.png";
+const IMG_7_KAKUHEN="gyanb/gyanb7_transparent.png";
+const ODD_SET=[0,2,4],EVEN_SET=[1,3,5],SEVEN=6;
 
-const ODD_SET=[0,2,4], EVEN_SET=[1,3,5], SEVEN=6;
+let coins=10000,currentBet=0;
+let stoppedCount=0,firstResultIndex=null,secondResultIndex=null,thirdResultIndex=null;
+let Atsu=0,gameRunning=false,totalStartCount=0;
+let earlyReachUsed=false;
+let consecutiveAnyLose=0,kakuhenActive=false,kakuhenWinRound=0,kakuhenReachCount=0;
+const initialCoins=10000;
+let _rainbowLoopInterval=null;
 
-let coins=10000, currentBet=0;
-let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIndex=null;
-let Atsu=0, gameRunning=false, totalStartCount=0;
-
-let earlyReachUsed = false;
-
-let consecutiveAnyLose = 0;
-let kakuhenActive      = false;
-let kakuhenWinRound    = 0;
-let kakuhenReachCount  = 0;
-const initialCoins     = 10000;
-
-let _rainbowLoopInterval = null;
-
-function startRainbowSound() {
+function startRainbowSound(){
     stopRainbowSound();
-    function fireRainbow() {
-        if (!_ctx) return;
-        const s=[330,392,494,587,698,880];
-        s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
+    function f(){
+        if(!_ctx)return;
+        [330,392,494,587,698,880].forEach((fr,i)=>tone(fr,'sine',0.13,0.26,i*0.10));
         [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
     }
-    fireRainbow();
-    _rainbowLoopInterval = setInterval(fireRainbow, 1400);
+    f(); _rainbowLoopInterval=setInterval(f,1400);
 }
-
-function stopRainbowSound() {
-    if (_rainbowLoopInterval !== null) {
-        clearInterval(_rainbowLoopInterval);
-        _rainbowLoopInterval = null;
-    }
+function stopRainbowSound(){
+    if(_rainbowLoopInterval!==null){clearInterval(_rainbowLoopInterval);_rainbowLoopInterval=null;}
 }
-
-function setRainbow(on) {
-    const L=document.getElementById("left-bar"), R=document.getElementById("right-bar");
+function setRainbow(on){
+    const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
     if(on){
-        L.classList.add('rainbow'); R.classList.add('rainbow');
-        if(_rainbowGain){
-            _rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);
-            _rainbowGain.gain.setValueAtTime(0.8, _ctx.currentTime);
-        }
-        if(_rainbowLoopInterval === null) startRainbowSound();
-    } else {
-        L.classList.remove('rainbow'); R.classList.remove('rainbow');
-        L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
-        if(_rainbowGain){
-            _rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);
-            _rainbowGain.gain.setValueAtTime(1.0, _ctx.currentTime);
-        }
+        L.classList.add('rainbow');R.classList.add('rainbow');
+        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(0.8,_ctx.currentTime);}
+        if(_rainbowLoopInterval===null)startRainbowSound();
+    }else{
+        L.classList.remove('rainbow');R.classList.remove('rainbow');
+        L.style.backgroundColor='#000';R.style.backgroundColor='#000';
+        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(1.0,_ctx.currentTime);}
         stopRainbowSound();
     }
 }
-
 function rebuildReels(){
     [1,2,3].forEach(n=>{
         const s=document.getElementById(`reel${n}`);
-        const wasSpinning = s.style.animation && s.style.animation.includes('spin');
+        const wasSpinning=s.style.animation&&s.style.animation.includes('spin');
         s.innerHTML=[...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT]
             .map(src=>`<img src="${src}">`).join('');
-        if(!wasSpinning){ s.style.animation='none'; s.style.transition=''; s.style.transform='translateY(0)'; }
+        if(!wasSpinning){s.style.animation='none';s.style.transition='';s.style.transform='translateY(0)';}
     });
 }
-
-function setKakuhenMode(on){
-    kakuhenActive=on;
-    IMG_DATA_CURRENT[SEVEN] = on ? IMG_7_KAKUHEN : IMG_7_NORMAL;
-}
-
-function getComboMultiplier(r1, r2, r3){
-    const vals = [r1, r2, r3].sort((a,b)=>a-b);
-    if(vals[0]===0 && vals[1]===1 && vals[2]===2) return 8;
-    if(vals[0]===3 && vals[1]===4 && vals[2]===5) return 6;
+function setKakuhenMode(on){kakuhenActive=on;IMG_DATA_CURRENT[SEVEN]=on?IMG_7_KAKUHEN:IMG_7_NORMAL;}
+function getComboMultiplier(r1,r2,r3){
+    const v=[r1,r2,r3].sort((a,b)=>a-b);
+    if(v[0]===0&&v[1]===1&&v[2]===2)return 8;
+    if(v[0]===3&&v[1]===4&&v[2]===5)return 6;
     return 0;
 }
-
 function getMultiplier(idx){
-    if(idx===SEVEN) return 15;
-    if(ODD_SET.includes(idx)) return 10;
-    if(EVEN_SET.includes(idx)) return 5;
+    if(idx===SEVEN)return 15;
+    if(ODD_SET.includes(idx))return 10;
+    if(EVEN_SET.includes(idx))return 5;
     return 0;
 }
-
-function init(){
-    updateCoinDisplay();
-    rebuildReels();
-}
-
-function updateCoinDisplay(){
-    document.getElementById("coinshow").innerText=coins.toLocaleString();
-    // Firebase に同期 (fbSaveCoins はゲーム終了時のみ呼ぶので、ここでは coins 変数だけ更新)
-}
-
+function init(){updateCoinDisplay();rebuildReels();}
+function updateCoinDisplay(){document.getElementById("coinshow").innerText=coins.toLocaleString();}
 function selectBet(amount,btn){
     document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected'); document.getElementById('custom-bet').value='';
-    currentBet=amount; updateBetDisplay();
+    btn.classList.add('selected');document.getElementById('custom-bet').value='';
+    currentBet=amount;updateBetDisplay();
 }
 function onCustomBetInput(input){
     document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
-    const v=parseInt(input.value); currentBet=(!isNaN(v)&&v>0)?v:0; updateBetDisplay();
+    const v=parseInt(input.value);currentBet=(!isNaN(v)&&v>0)?v:0;updateBetDisplay();
 }
 function updateBetDisplay(){
-    const txt=document.getElementById('bet-val-text'), btn=document.getElementById('start-btn');
+    const txt=document.getElementById('bet-val-text'),btn=document.getElementById('start-btn');
     if(currentBet>0){txt.innerText=currentBet.toLocaleString()+' G';btn.disabled=gameRunning;}
     else{txt.innerText='未選択';btn.disabled=true;}
 }
-
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-
 async function showEffectImage(src,duration,cls=''){
-    const ov=document.getElementById("effect-overlay"), im=document.getElementById("effect-img");
-    im.src=src; im.className=cls; ov.style.display="block";
-    await sleep(duration); ov.style.display="none"; im.className='';
+    const ov=document.getElementById("effect-overlay"),im=document.getElementById("effect-img");
+    im.src=src;im.className=cls;ov.style.display="block";
+    await sleep(duration);ov.style.display="none";im.className='';
 }
-
 async function showKiraEffect(count=20){
     sfxKira();
     for(let i=0;i<count;i++){
         const k=document.createElement("img");
-        k.src="gyanb/kira_transparent.png"; k.className="kira-particle";
-        k.style.top=`${30+Math.random()*40}%`; k.style.left=`${30+Math.random()*40}%`;
-        document.body.appendChild(k); await sleep(50); setTimeout(()=>k.remove(),1000);
+        k.src="gyanb/kira_transparent.png";k.className="kira-particle";
+        k.style.top=`${30+Math.random()*40}%`;k.style.left=`${30+Math.random()*40}%`;
+        document.body.appendChild(k);await sleep(50);setTimeout(()=>k.remove(),1000);
     }
     await sleep(1000);
 }
-
 async function flashSides(times){
     const cols=['#ff0000','#ffff00','#00ff00','#0000ff','#ff00ff','#00ffff'];
     const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    for(let i=0;i<times;i++) for(let c of cols){
-        sfxFlash(); L.style.backgroundColor=c; R.style.backgroundColor=c; await sleep(250);
-    }
-    L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
+    for(let i=0;i<times;i++)for(let c of cols){sfxFlash();L.style.backgroundColor=c;R.style.backgroundColor=c;await sleep(250);}
+    L.style.backgroundColor='#000';R.style.backgroundColor='#000';
 }
-
 function getNextFromSet(cur,set){
-    const cn=cur+1; let nx=null;
-    for(let v of set.map(i=>i+1).sort((a,b)=>a-b)) if(v>cn){nx=v;break;}
-    if(nx===null)nx=set[0]+1; return nx-1;
+    const cn=cur+1;let nx=null;
+    for(let v of set.map(i=>i+1).sort((a,b)=>a-b))if(v>cn){nx=v;break;}
+    if(nx===null)nx=set[0]+1;return nx-1;
 }
-
 function showResultBanner(msg,cls){
-    const b=document.getElementById('result-banner'); b.innerText=msg; b.className=cls||'';
+    const b=document.getElementById('result-banner');b.innerText=msg;b.className=cls||'';
 }
-
 function triggerReachEffect(){
     sfxReach();
     [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.add('reach-flash'));
     setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
 }
-
 function setBetLocked(locked){
     document.querySelectorAll('.bet-btn').forEach(b=>b.disabled=locked);
     document.getElementById('custom-bet').disabled=locked;
-    const op = locked ? '0.4' : '1';
+    const op=locked?'0.4':'1';
     document.querySelectorAll('.bet-btn').forEach(b=>b.style.opacity=op);
     document.getElementById('custom-bet').style.opacity=op;
 }
-
-let noOddReach = false;
-
+let noOddReach=false;
 function startGame(){
-    if(currentBet<=0) return;
+    if(currentBet<=0)return;
     if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
     ensureCtx();
-
-    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5;
-    if(shouldKakuhen){
-        (async()=>{
-            await triggerKakuhen();
-            _doStartGame();
-        })();
-        return;
-    }
+    const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
+    if(shouldKakuhen){(async()=>{await triggerKakuhen();_doStartGame();})();return;}
     _doStartGame();
 }
-
 function _doStartGame(){
-    coins-=currentBet; updateCoinDisplay(); totalStartCount++;
-    gameRunning=true; stoppedCount=0;
-    firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
-    noOddReach = (coins >= initialCoins * 2.5);
+    coins-=currentBet;updateCoinDisplay();totalStartCount++;
+    gameRunning=true;stoppedCount=0;
+    firstResultIndex=null;secondResultIndex=null;thirdResultIndex=null;Atsu=0;
+    noOddReach=(coins>=initialCoins*2.5);
     setBetLocked(true);
     document.getElementById('start-btn').disabled=true;
     document.getElementById('result-banner').innerText='';
     document.getElementById('result-banner').className='';
     [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-    if(kakuhenActive){ setRainbow(true); } else { setRainbow(false); }
+    if(kakuhenActive){setRainbow(true);}else{setRainbow(false);}
     rebuildReels();
     [1,2,3].forEach(n=>{
         const s=document.getElementById(`reel${n}`);
-        s.style.transition=''; s.style.transform='translateY(0)';
+        s.style.transition='';s.style.transform='translateY(0)';
         s.style.animation='spin 0.75s linear infinite';
         document.getElementById(`stopbtn${n}`).disabled=false;
     });
     sfxStart();
     setTimeout(()=>{ensureCtx();sfxReelStart();},150);
 }
-
 function decideReach(currentIndex){
-    if(kakuhenActive){ return firstResultIndex; }
-    if(noOddReach && ODD_SET.includes(firstResultIndex)){
-        return pickNonMatchRandom(currentIndex, firstResultIndex);
-    }
-    const ruleA = (totalStartCount<=3 && !earlyReachUsed);
-    if(ruleA && Math.random()<0.70) return firstResultIndex;
+    if(kakuhenActive)return firstResultIndex;
+    if(noOddReach&&ODD_SET.includes(firstResultIndex))return pickNonMatchRandom(currentIndex,firstResultIndex);
+    const ruleA=(totalStartCount<=3&&!earlyReachUsed);
+    if(ruleA&&Math.random()<0.70)return firstResultIndex;
     return pickRandom(currentIndex);
 }
-
 function pickRandom(currentIndex){
     const r=Math.random();
-    if     (r<0.6) return getNextFromSet(currentIndex,EVEN_SET);
-    else if(r<0.9) return getNextFromSet(currentIndex,ODD_SET);
-    else            return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
+    if(r<0.6)return getNextFromSet(currentIndex,EVEN_SET);
+    else if(r<0.9)return getNextFromSet(currentIndex,ODD_SET);
+    else return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
 }
-
-function pickNonMatchRandom(currentIndex, exclude){
-    let idx;
-    let tries=0;
-    do {
-        idx = pickRandom(currentIndex);
-        tries++;
-    } while(idx===exclude && tries<20);
+function pickNonMatchRandom(currentIndex,exclude){
+    let idx,tries=0;
+    do{idx=pickRandom(currentIndex);tries++;}while(idx===exclude&&tries<20);
     return idx;
 }
-
 async function triggerKakuhen(){
-    setBetLocked(true);
-    setRainbow(true);
-    sfxFlash(); sfxFlash();
+    setBetLocked(true);setRainbow(true);sfxFlash();sfxFlash();
     await sleep(400);
-    await showEffectImage("gyanb/kakuhen_transparent.png", 1800, "chance-large");
-    setRainbow(true);
-    setKakuhenMode(true);
-    rebuildReels();
-    if(coins <= initialCoins * 0.5){
-        kakuhenWinRound = Math.floor(Math.random()*2)+1;
-    } else {
-        kakuhenWinRound = Math.floor(Math.random()*4)+1;
-    }
-    kakuhenReachCount = 0;
-    consecutiveAnyLose = 0;
+    await showEffectImage("gyanb/kakuhen_transparent.png",1800,"chance-large");
+    setRainbow(true);setKakuhenMode(true);rebuildReels();
+    kakuhenWinRound=coins<=initialCoins*0.5?Math.floor(Math.random()*2)+1:Math.floor(Math.random()*4)+1;
+    kakuhenReachCount=0;consecutiveAnyLose=0;
 }
-
 async function stopReel(reelId,btn){
     const reel=document.getElementById(reelId);
-    if(btn.disabled) return;
-    btn.disabled=true; stoppedCount++;
-
+    if(btn.disabled)return;
+    btn.disabled=true;stoppedCount++;
     sfxStop();
-
-    if     (stoppedCount===1) sfxReelFade(0.35);
-    else if(stoppedCount===2) sfxReelFade(0.12);
-    else                      sfxReelStop();
-
+    if(stoppedCount===1)sfxReelFade(0.35);
+    else if(stoppedCount===2)sfxReelFade(0.12);
+    else sfxReelStop();
     const st=window.getComputedStyle(reel);
     let currentY=0;
     try{const m=new WebKitCSSMatrix(st.transform);currentY=m.m42;}catch(e){}
     const currentIndex=((Math.abs(Math.round(currentY/110))%7)+7)%7;
-
     let targetIndex;
-
     if(stoppedCount===1){
         if(kakuhenActive){
-            if(coins <= initialCoins*0.5){
-                targetIndex = SEVEN;
-            } else {
-                targetIndex = Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
-            }
-        } else {
-            targetIndex = pickRandom(currentIndex);
-        }
-        firstResultIndex = targetIndex;
-
-    } else if(stoppedCount===2){
-        targetIndex = decideReach(currentIndex);
-        secondResultIndex = targetIndex;
-
+            targetIndex=coins<=initialCoins*0.5?SEVEN:(Math.random()<0.5?SEVEN:ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
+        }else{targetIndex=pickRandom(currentIndex);}
+        firstResultIndex=targetIndex;
+    }else if(stoppedCount===2){
+        targetIndex=decideReach(currentIndex);secondResultIndex=targetIndex;
         if(firstResultIndex===secondResultIndex){
-            if(!earlyReachUsed) earlyReachUsed=true;
-            if(kakuhenActive){ kakuhenReachCount++; }
-            setTimeout(()=>triggerReachEffect(), 350);
+            if(!earlyReachUsed)earlyReachUsed=true;
+            if(kakuhenActive)kakuhenReachCount++;
+            setTimeout(()=>triggerReachEffect(),350);
         }
-
-    } else {
+    }else{
         if(firstResultIndex===secondResultIndex){
             Atsu=0;
-
             if(kakuhenActive){
-                const isWinRound = (kakuhenReachCount === kakuhenWinRound);
-
+                const isWinRound=(kakuhenReachCount===kakuhenWinRound);
                 if(isWinRound){
                     sfxChance(true);
                     await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
-                    Atsu+=70; await flashSides(2); Atsu+=80; Atsu+=70;
+                    Atsu+=70;await flashSides(2);Atsu+=80;Atsu+=70;
                     sfxEgg(0);await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
                     sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
                     sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
-                } else {
+                }else{
                     sfxChance(false);
                     await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
                     Atsu+=30;
@@ -805,122 +1138,119 @@ async function stopReel(reelId,btn){
                     sfxEgg(1);await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
                     sfxEgg(2);await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
                 }
-
                 if(isWinRound){
-                    const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
+                    const richBlock=coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex);
                     if(richBlock){
-                        targetIndex=(firstResultIndex+1)%7;
-                        consecutiveAnyLose++;
-                        setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                        if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                        if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
-                    } else {
-                        await showKiraEffect(20);
-                        targetIndex=firstResultIndex;
-                        setKakuhenMode(false);
-                        setRainbow(false);
-                        setBetLocked(false);
-                        kakuhenWinRound=0; kakuhenReachCount=0;
-                        consecutiveAnyLose=0;
+                        targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
+                        setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                        if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                        if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
+                    }else{
+                        await showKiraEffect(20);targetIndex=firstResultIndex;
+                        setKakuhenMode(false);setRainbow(false);setBetLocked(false);
+                        kakuhenWinRound=0;kakuhenReachCount=0;consecutiveAnyLose=0;
                         setTimeout(()=>{
-                            const mult=getMultiplier(targetIndex), payout=currentBet*mult;
-                            coins+=payout; updateCoinDisplay(); sfxWin(mult);
+                            const mult=getMultiplier(targetIndex),payout=currentBet*mult;
+                            coins+=payout;updateCoinDisplay();sfxWin(mult);
                             showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                            if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                            if(window.fbLogHistory) window.fbLogHistory('win', currentBet, mult);
+                            if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                            if(window.fbLogHistory)window.fbLogHistory('win',currentBet,mult);
                         },500);
                     }
-                } else {
-                    targetIndex=(firstResultIndex+1)%7;
-                    consecutiveAnyLose++;
-                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
+                }else{
+                    targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
+                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
                 }
-
-            } else {
+            }else{
                 const isBig=Math.random()>=0.7;
                 sfxChance(isBig);
                 await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
                 Atsu+=isBig?70:30;
                 const sr2=Math.random();
-                if     (sr2<0.3){await flashSides(1);Atsu+=70;}
+                if(sr2<0.3){await flashSides(1);Atsu+=70;}
                 else if(sr2<0.5){await flashSides(2);Atsu+=80;}
                 const eggType=Math.random()<0.7?"1":"2";
                 Atsu+=(eggType==="1"?30:70);
                 sfxEgg(0);await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
                 sfxEgg(1);await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
                 sfxEgg(2);await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-
-                let winProb=Atsu*0.454; if(winProb<30)winProb=0;
+                let winProb=Atsu*0.454;if(winProb<30)winProb=0;
                 let isWin=Math.random()*100<winProb;
-                if(isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
-
+                if(isWin&&coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex))isWin=false;
                 if(isWin){
-                    await showKiraEffect(20);
-                    targetIndex=firstResultIndex;
-                    consecutiveAnyLose=0;
+                    await showKiraEffect(20);targetIndex=firstResultIndex;consecutiveAnyLose=0;
                     setTimeout(()=>{
-                        const mult=getMultiplier(targetIndex), payout=currentBet*mult;
-                        coins+=payout; updateCoinDisplay(); sfxWin(mult);
+                        const mult=getMultiplier(targetIndex),payout=currentBet*mult;
+                        coins+=payout;updateCoinDisplay();sfxWin(mult);
                         showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                        if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                        if(window.fbLogHistory) window.fbLogHistory('win', currentBet, mult);
+                        if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                        if(window.fbLogHistory)window.fbLogHistory('win',currentBet,mult);
                     },500);
-                } else {
-                    targetIndex=(firstResultIndex+1)%7;
-                    consecutiveAnyLose++;
-                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
+                }else{
+                    targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
+                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
                 }
             }
-
-        } else {
-            thirdResultIndex = currentIndex;
-            const r1=firstResultIndex, r2=secondResultIndex, r3=thirdResultIndex;
-            const combo = getComboMultiplier(r1, r2, r3);
-            if(combo > 0){
-                targetIndex = currentIndex;
-                const payout = currentBet * combo;
-                coins += payout; updateCoinDisplay(); sfxWin(combo);
-                consecutiveAnyLose=0;
+        }else{
+            thirdResultIndex=currentIndex;
+            const r1=firstResultIndex,r2=secondResultIndex,r3=thirdResultIndex;
+            const combo=getComboMultiplier(r1,r2,r3);
+            if(combo>0){
+                targetIndex=currentIndex;
+                const payout=currentBet*combo;
+                coins+=payout;updateCoinDisplay();sfxWin(combo);consecutiveAnyLose=0;
                 setTimeout(()=>{
                     showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win");
-                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                    if(window.fbLogHistory) window.fbLogHistory('combo', currentBet, combo);
+                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                    if(window.fbLogHistory)window.fbLogHistory('combo',currentBet,combo);
                 },500);
-            } else {
-                consecutiveAnyLose++;
-                targetIndex=(currentIndex+1)%7;
+            }else{
+                consecutiveAnyLose++;targetIndex=(currentIndex+1)%7;
                 setTimeout(()=>{
-                    sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");
-                    if(window.fbSaveCoins) window.fbSaveCoins(coins);
-                    if(window.fbLogHistory) window.fbLogHistory('lose', currentBet, 0);
+                    sfxLose();showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");
+                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
+                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
                 },500);
             }
         }
     }
-
     let diff=targetIndex-currentIndex;
     if(diff===0){
-        reel.style.animation='none'; reel.style.transform=`translateY(${currentY}px)`;
-    } else {
-        if(diff<0) diff+=7;
+        reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
+    }else{
+        if(diff<0)diff+=7;
         const finalY=(Math.round(currentY/110)-diff)*110;
-        reel.style.animation='none'; reel.style.transform=`translateY(${currentY}px)`;
+        reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
         setTimeout(()=>{reel.style.transition='transform 0.4s ease-out';reel.style.transform=`translateY(${finalY}px)`;},10);
     }
-
     if(stoppedCount===3){
         setTimeout(()=>{
-            stoppedCount=0; Atsu=0; gameRunning=false;
+            stoppedCount=0;Atsu=0;gameRunning=false;
             [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            if(!kakuhenActive) setBetLocked(false);
-            if(currentBet>0&&coins>0) document.getElementById('start-btn').disabled=false;
+            if(!kakuhenActive)setBetLocked(false);
+            if(currentBet>0&&coins>0)document.getElementById('start-btn').disabled=false;
         },3000);
     }
 }
+
+// ============================================================
+//  Ctrl+Shift+A で管理者パネル開閉
+// ============================================================
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        const ov = document.getElementById('admin-overlay');
+        if (ov.classList.contains('open')) {
+            closeAdminPanel();
+        } else {
+            openAdminPanel();
+        }
+    }
+});
 
 window.onload=init;
 </script>
