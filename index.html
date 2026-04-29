@@ -34,7 +34,7 @@
         #coin-display .label { color:#888; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
-        #player-id-display { color:#555; font-size:10px; letter-spacing:1px; margin-top:3px; }
+        #player-id-display { color:#555; font-size:10px; letter-spacing:1px; margin-top:3px; display:flex; align-items:center; justify-content:center; gap:8px; }
         #bet-panel {
             margin-top: 12px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
             border: 2px solid #444; border-radius: 12px; padding: 14px 20px;
@@ -120,6 +120,53 @@
             50%{background:linear-gradient(135deg,#1a3a1a,#2a4a2a);}
         }
         .admin-updated { animation: adminFlash 0.5s ease-in-out 3; }
+
+        /* ===== ID変更ボタン ===== */
+        #change-id-btn {
+            background:#1a1a2a; color:#88aaff; border:1px solid #88aaff;
+            border-radius:5px; padding:2px 9px; font-size:10px;
+            font-family:'Courier New',monospace; cursor:pointer; letter-spacing:1px;
+            transition:all 0.15s;
+        }
+        #change-id-btn:hover { background:#88aaff; color:#000; }
+
+        /* ===== ID変更モーダル ===== */
+        #change-id-modal {
+            display:none; position:fixed; inset:0; z-index:9800;
+            background:rgba(0,0,0,0.88); align-items:center; justify-content:center;
+            font-family:'Courier New',Courier,monospace;
+        }
+        #change-id-modal.open { display:flex; }
+        .cid-modal-box {
+            background:#1a1a1a; border:2px solid #88aaff;
+            border-radius:14px; padding:28px 26px; width:320px; max-width:90vw;
+        }
+        .cid-modal-box h3 { color:#88aaff; margin-bottom:16px; letter-spacing:2px; font-size:15px; }
+        .cid-modal-box .cid-label { color:#888; font-size:10px; letter-spacing:2px; display:block; margin-bottom:5px; }
+        #cid-current { color:#666; font-size:12px; margin-bottom:14px; font-family:'Courier New',monospace; }
+        #cid-new-input {
+            width:100%; padding:10px 12px; background:#111; color:#ffd700;
+            border:1px solid #444; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:14px; margin-bottom:8px;
+        }
+        #cid-new-input:focus { outline:none; border-color:#88aaff; }
+        #cid-error { color:#ff5555; font-size:11px; min-height:16px; margin-bottom:12px; }
+        .cid-modal-actions { display:flex; gap:8px; }
+        .cid-modal-save {
+            flex:1; padding:10px; background:linear-gradient(135deg,#3060c0,#1a3a80);
+            color:#fff; border:none; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px;
+            font-weight:bold; cursor:pointer; letter-spacing:2px;
+            transition:background 0.15s;
+        }
+        .cid-modal-save:hover { background:linear-gradient(135deg,#4a7ae0,#2a50a0); }
+        .cid-modal-cancel {
+            flex:1; padding:10px; background:#222; color:#888;
+            border:1px solid #444; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px; cursor:pointer;
+            transition:all 0.15s;
+        }
+        .cid-modal-cancel:hover { background:#333; color:#ccc; }
 
         /* ===== 管理者パネル ===== */
         #admin-overlay {
@@ -319,7 +366,10 @@
     <div id="coin-display">
         <div class="label">所持コイン</div>
         <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
-        <div id="player-id-display">接続中…</div>
+        <div id="player-id-display">
+            <span id="player-id-text">接続中…</span>
+            <button id="change-id-btn" onclick="openChangeIdModal()">✏ ID変更</button>
+        </div>
     </div>
 
     <div id="bet-panel">
@@ -365,6 +415,22 @@
     <div id="result-banner"></div>
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
     <div class="spacer"></div>
+
+    <!-- ===== プレイヤーID変更モーダル ===== -->
+    <div id="change-id-modal">
+        <div class="cid-modal-box">
+            <h3>✏ プレイヤーID変更</h3>
+            <span class="cid-label">現在のID</span>
+            <div id="cid-current"></div>
+            <span class="cid-label">新しいID</span>
+            <input type="text" id="cid-new-input" placeholder="新しいIDを入力" maxlength="30">
+            <div id="cid-error"></div>
+            <div class="cid-modal-actions">
+                <button class="cid-modal-save" onclick="doChangeId()">変更</button>
+                <button class="cid-modal-cancel" onclick="closeChangeIdModal()">キャンセル</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 管理者パネル (Ctrl+Shift+A) -->
     <div id="admin-overlay">
@@ -499,7 +565,7 @@ if (!playerId) {
     playerId = 'player_' + Math.random().toString(36).slice(2, 9);
     localStorage.setItem('casino_player_id', playerId);
 }
-document.getElementById('player-id-display').textContent = 'ID: ' + playerId;
+document.getElementById('player-id-text').textContent = 'ID: ' + playerId;
 
 const playerRef  = dbRef(db, `players/${playerId}`);
 const historyRef = dbRef(db, `history/${playerId}`);
@@ -534,14 +600,66 @@ window.fbSaveCoins = c => {
     set(dbRef(db, `players/${playerId}/lastPlayAt`), Date.now());
 };
 window.fbLogHistory = (result, bet, mult) => {
-    push(historyRef, { result, bet, mult: mult || 0, at: Date.now() });
+    push(dbRef(db, `history/${playerId}`), { result, bet, mult: mult || 0, at: Date.now() });
 };
+
+// ===== プレイヤーID変更 =====
+window.openChangeIdModal = () => {
+    document.getElementById('cid-current').textContent = playerId;
+    document.getElementById('cid-new-input').value = '';
+    document.getElementById('cid-error').textContent = '';
+    document.getElementById('change-id-modal').classList.add('open');
+    setTimeout(() => document.getElementById('cid-new-input').focus(), 80);
+};
+window.closeChangeIdModal = () => {
+    document.getElementById('change-id-modal').classList.remove('open');
+};
+window.doChangeId = async () => {
+    const newId = document.getElementById('cid-new-input').value.trim();
+    const errEl = document.getElementById('cid-error');
+    errEl.textContent = '';
+    if (!newId) { errEl.textContent = 'IDを入力してください'; return; }
+    if (newId === playerId) { errEl.textContent = '現在と同じIDです'; return; }
+    if (!/^[a-zA-Z0-9_\-ぁ-んァ-ヶ一-龥々〆〤]+$/.test(newId)) {
+        errEl.textContent = '使えない文字が含まれています（英数字・日本語・_・- のみ可）'; return;
+    }
+    // 重複チェック
+    const newSnap = await get(dbRef(db, `players/${newId}`));
+    if (newSnap.exists()) { errEl.textContent = 'そのIDはすでに使われています'; return; }
+    // 旧データ取得
+    const oldSnap = await get(dbRef(db, `players/${playerId}`));
+    const oldData = oldSnap.exists() ? oldSnap.val() : { coins: 10000, online: true, lastPlayAt: null };
+    const oldHistSnap = await get(dbRef(db, `history/${playerId}`));
+    const oldHistory = oldHistSnap.exists() ? oldHistSnap.val() : null;
+    // 新IDに書き込み
+    await set(dbRef(db, `players/${newId}`), { ...oldData, online: true });
+    if (oldHistory) await set(dbRef(db, `history/${newId}`), oldHistory);
+    // 旧IDを削除
+    await remove(dbRef(db, `players/${playerId}`));
+    await remove(dbRef(db, `history/${playerId}`));
+    // onDisconnect を新IDで再設定
+    onDisconnect(dbRef(db, `players/${newId}/online`)).set(false);
+    // ローカル更新
+    playerId = newId;
+    localStorage.setItem('casino_player_id', newId);
+    document.getElementById('player-id-text').textContent = 'ID: ' + newId;
+    closeChangeIdModal();
+    alert('IDを「' + newId + '」に変更しました！');
+};
+document.getElementById('cid-new-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.doChangeId();
+    if (e.key === 'Escape') window.closeChangeIdModal();
+});
 
 // ===== 管理者パネル =====
 let _admPlayersData  = {};
 let _admEditingId    = null;
-let _admPlayersUnsub = null;  // players/ リスナー
-let _admHistoryUnsub = null;  // history/ リスナー（★追加）
+let _admPlayersUnsub = null;
+let _admHistoryUnsub = null;
+
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') window.openAdminPanel();
+});
 
 window.openAdminPanel = () => {
     document.getElementById('admin-overlay').classList.add('open');
@@ -585,7 +703,6 @@ function showAdmMain(user) {
 }
 
 function startAdmListeners() {
-    // players/ リスナー（プレイヤー一覧 + フィルター更新のみ）
     if (!_admPlayersUnsub) {
         _admPlayersUnsub = onValue(dbRef(db, 'players'), snap => {
             _admPlayersData = snap.val() || {};
@@ -593,11 +710,9 @@ function startAdmListeners() {
             admRebuildHistoryFilter();
         });
     }
-    // history/ リスナー（履歴表示をリアルタイムで自動更新）
     admResubscribeHistory();
 }
 
-// ★ 履歴リスナーを張り直す（フィルター変更時・初回起動時に呼ぶ）
 window.admResubscribeHistory = () => {
     if (_admHistoryUnsub) { _admHistoryUnsub(); _admHistoryUnsub = null; }
     const sel  = document.getElementById('adm-history-sel').value;
@@ -607,7 +722,6 @@ window.admResubscribeHistory = () => {
     });
 };
 
-// ---- プレイヤー一覧 ----
 function admRenderPlayers() {
     const tbody = document.getElementById('adm-players-tbody');
     const ids   = Object.keys(_admPlayersData);
@@ -640,7 +754,6 @@ function admRenderPlayers() {
     }).join('');
 }
 
-// ---- 履歴描画（onValue コールバックから呼ばれる）----
 function admRenderHistory(raw, sel) {
     const tbody = document.getElementById('adm-history-tbody');
     if (!raw) {
@@ -689,7 +802,6 @@ function admRenderHistory(raw, sel) {
     }).join('');
 }
 
-// ---- 残高変更 ----
 window.admOpenEdit = id => {
     _admEditingId = id;
     document.getElementById('adm-modal-pid').textContent = id;
@@ -713,7 +825,6 @@ document.getElementById('adm-modal-coins-input').addEventListener('keydown', e =
     if (e.key === 'Enter') window.admSaveCoins();
 });
 
-// ---- 個別リセット ----
 window.admResetPlayer = async id => {
     if (!confirm(`「${id}」の残高を 10,000G にリセットし、履歴を削除しますか？`)) return;
     await set(dbRef(db, `players/${id}/coins`), 10000);
@@ -721,7 +832,6 @@ window.admResetPlayer = async id => {
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'resetPlayer', playerId:id, at:Date.now() });
 };
 
-// ---- プレイヤー削除 ----
 window.admDeletePlayer = async id => {
     if (!confirm(`「${id}」を完全に削除しますか？\n残高データと全プレイ履歴が消去されます。この操作は取り消せません。`)) return;
     await remove(dbRef(db, `players/${id}`));
@@ -729,513 +839,33 @@ window.admDeletePlayer = async id => {
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'deletePlayer', playerId:id, at:Date.now() });
 };
 
-// ---- 全体リセット ----
 window.admGlobalReset = async () => {
-    if (!confirm('全プレイヤーの残高を 10,000G にリセットし、全履歴を消去しますか？\nこの操作は取り消せません。')) return;
-    for (const id of Object.keys(_admPlayersData))
+    if (!confirm('全プレイヤーの残高を 10,000G にリセットし、プレイ履歴を全消去しますか？\nこの操作は取り消せません。')) return;
+    const ids = Object.keys(_admPlayersData);
+    for (const id of ids) {
         await set(dbRef(db, `players/${id}/coins`), 10000);
+    }
     await remove(dbRef(db, 'history'));
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'globalReset', at:Date.now() });
     alert('リセット完了しました。');
 };
 
-// ---- 履歴フィルター再構築 ----
 function admRebuildHistoryFilter() {
     const sel = document.getElementById('adm-history-sel');
     const cur = sel.value;
     sel.innerHTML = '<option value="all">全員</option>';
     Object.keys(_admPlayersData).forEach(id => {
         const opt = document.createElement('option');
-        opt.value = id; opt.textContent = id; sel.appendChild(opt);
+        opt.value = id; opt.textContent = id;
+        sel.appendChild(opt);
     });
-    // 選択が変わっていたらリスナー張り直し
-    if (cur && sel.value !== cur) {
-        sel.value = cur;
-        admResubscribeHistory();
-    }
+    if (cur) sel.value = cur;
 }
 
-function escH(s) {
-    return String(s).replace(/[&<>"']/g,
-        m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+function escH(str) {
+    return String(str).replace(/[&<>"']/g, m =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
 }
-</script>
-
-<script>
-// ============================================================
-//  AUDIO ENGINE
-// ============================================================
-const ACtxClass = window.AudioContext || window.webkitAudioContext;
-let _ctx=null, _master=null, _comp=null, _rainbowGain=null;
-function ensureCtx() {
-    if (_ctx) { if (_ctx.state==='suspended') _ctx.resume(); return; }
-    _ctx = new ACtxClass();
-    _comp = _ctx.createDynamicsCompressor();
-    _comp.threshold.value=-3; _comp.knee.value=6;
-    _comp.ratio.value=6; _comp.attack.value=0.001; _comp.release.value=0.08;
-    _master = _ctx.createGain(); _master.gain.value=1.0;
-    _rainbowGain = _ctx.createGain(); _rainbowGain.gain.value=1.0;
-    _master.connect(_rainbowGain); _rainbowGain.connect(_comp); _comp.connect(_ctx.destination);
-}
-const VOL=4.5;
-function out(){return _master;}
-function now(){return _ctx.currentTime+0.001;}
-function tone(freq,type,dur,vol,off=0){
-    const t=now()+off,osc=_ctx.createOscillator(),g=_ctx.createGain();
-    osc.connect(g);g.connect(out());osc.type=type;osc.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    osc.start(t);osc.stop(t+dur+0.01);
-}
-function noise(dur,vol=0.1,off=0){
-    const t=now()+off,sr=_ctx.sampleRate,n=Math.floor(sr*dur);
-    const buf=_ctx.createBuffer(1,n,sr),d=buf.getChannelData(0);
-    for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
-    const src=_ctx.createBufferSource(),g=_ctx.createGain();
-    src.buffer=buf;src.connect(g);g.connect(out());
-    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    src.start(t);src.stop(t+dur+0.01);
-}
-function glide(f0,f1,type,dur,vol,off=0){
-    const t=now()+off,osc=_ctx.createOscillator(),g=_ctx.createGain();
-    osc.connect(g);g.connect(out());osc.type=type;
-    osc.frequency.setValueAtTime(f0,t);osc.frequency.exponentialRampToValueAtTime(f1,t+dur);
-    g.gain.setValueAtTime(vol*VOL,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.02);
-    osc.start(t);osc.stop(t+dur+0.05);
-}
-let _reelNodes=[],_reelAlertInterval=null;
-const ALERT_PITCHES=[[1047,784],[880,659],[1047,784],[1175,880]];
-let _alertStep=0;
-function sfxReelStart(){
-    sfxReelStop();ensureCtx();_alertStep=0;
-    function fireAlert(){
-        if(!_ctx||!_reelNodes.length)return;
-        const ctx=_ctx,t=ctx.currentTime+0.001,pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length];
-        _alertStep++;
-        const o1=ctx.createOscillator(),g1=ctx.createGain();
-        o1.connect(g1);g1.connect(out());o1.type='square';
-        o1.frequency.setValueAtTime(pair[0],t);
-        g1.gain.setValueAtTime(0.042*VOL,t);g1.gain.setValueAtTime(0.042*VOL,t+0.045);
-        g1.gain.exponentialRampToValueAtTime(0.0001,t+0.10);o1.start(t);o1.stop(t+0.12);
-        const o2=ctx.createOscillator(),g2=ctx.createGain();
-        o2.connect(g2);g2.connect(out());o2.type='square';
-        o2.frequency.setValueAtTime(pair[1],t+0.13);
-        g2.gain.setValueAtTime(0.038*VOL,t+0.13);g2.gain.setValueAtTime(0.038*VOL,t+0.175);
-        g2.gain.exponentialRampToValueAtTime(0.0001,t+0.24);o2.start(t+0.13);o2.stop(t+0.26);
-        const o3=ctx.createOscillator(),g3=ctx.createGain();
-        o3.connect(g3);g3.connect(out());o3.type='sine';
-        o3.frequency.setValueAtTime(pair[0]*1.26,t);
-        g3.gain.setValueAtTime(0.012*VOL,t);g3.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-        o3.start(t);o3.stop(t+0.10);
-    }
-    fireAlert();
-    _reelAlertInterval=setInterval(fireAlert,320);
-    _reelNodes=[{stop:()=>{},disconnect:()=>{}}];
-}
-function _stopAlertInterval(){
-    if(_reelAlertInterval!==null){clearInterval(_reelAlertInterval);_reelAlertInterval=null;}
-}
-function sfxReelStop(){
-    _stopAlertInterval();
-    _reelNodes.forEach(n=>{try{if(n.stop)n.stop();}catch(e){}try{n.disconnect();}catch(e){}});
-    _reelNodes=[];
-}
-function sfxReelFade(level){
-    _stopAlertInterval();
-    if(!_reelNodes.length)return;
-    const interval=level>0.5?320:level>0.1?600:900;
-    function fireF(){
-        if(!_ctx||!_reelNodes.length)return;
-        const ctx=_ctx,t=ctx.currentTime+0.001,pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length];
-        _alertStep++;const v=level*0.042;
-        const o1=ctx.createOscillator(),g1=ctx.createGain();
-        o1.connect(g1);g1.connect(out());o1.type='square';
-        o1.frequency.setValueAtTime(pair[0],t);
-        g1.gain.setValueAtTime(v*VOL,t);g1.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-        o1.start(t);o1.stop(t+0.10);
-        const o2=ctx.createOscillator(),g2=ctx.createGain();
-        o2.connect(g2);g2.connect(out());o2.type='square';
-        o2.frequency.setValueAtTime(pair[1],t+0.12);
-        g2.gain.setValueAtTime(v*0.85*VOL,t+0.12);g2.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
-        o2.start(t+0.12);o2.stop(t+0.23);
-    }
-    _reelAlertInterval=setInterval(fireF,interval);
-}
-function sfxStart(){tone(880,'sine',0.07,0.28);tone(1100,'sine',0.09,0.28,0.08);}
-function sfxStop(){noise(0.05,0.22);tone(180,'square',0.07,0.14);}
-function sfxReach(){
-    [330,392,494,587,698,880].forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
-    [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
-}
-function sfxChance(isBig){
-    if(isBig){[523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.33,i*0.08));tone(1568,'sine',0.45,0.38,0.48);}
-    else{[440,554,659].forEach((f,i)=>tone(f,'sine',0.15,0.26,i*0.12));tone(880,'sine',0.28,0.28,0.42);}
-}
-function sfxFlash(){tone(700,'square',0.04,0.20);tone(900,'square',0.04,0.20,0.05);tone(1100,'square',0.04,0.20,0.10);}
-function sfxEgg(stage){
-    const ff=[[300,450],[400,600],[550,820]];
-    tone(ff[stage][0],'sine',0.20,0.28);tone(ff[stage][1],'sine',0.16,0.18,0.10);
-}
-function sfxKira(){
-    [1047,1319,1568,2093,1568,2093,2637].forEach((f,i)=>tone(f,'sine',0.20,0.36,i*0.09));
-    setTimeout(()=>{ensureCtx();[1568,1976,2637].forEach((f,i)=>tone(f,'triangle',0.14,0.26,i*0.06));},720);
-}
-function sfxWin(mult){
-    if(mult>=50){
-        [523,523,659,784,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'square',0.15,0.42,i*0.08));
-        setTimeout(()=>{ensureCtx();[1047,1319,1568,2093].forEach((f,i)=>tone(f,'sine',0.26,0.38,i*0.06));},780);
-        setTimeout(()=>{ensureCtx();noise(0.28,0.14);},1100);
-    }else if(mult>=10){
-        [523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.38,i*0.09));
-        tone(1568,'sine',0.28,0.33,0.50);
-    }else{
-        [523,659,784].forEach((f,i)=>tone(f,'sine',0.13,0.33,i*0.12));
-        tone(1047,'sine',0.23,0.28,0.40);
-    }
-}
-function sfxLose(){
-    tone(220,'sawtooth',0.24,0.28);tone(165,'sawtooth',0.28,0.22,0.18);
-    tone(110,'sawtooth',0.24,0.18,0.42);noise(0.10,0.08);
-}
-function sfxReachMiss(){
-    [523,659,784].forEach((f,i)=>tone(f,'square',0.09,0.50,i*0.07));
-    glide(400,40,'sawtooth',0.75,0.70,0.24);glide(300,50,'square',0.65,0.52,0.26);
-    noise(0.45,0.55,0.26);noise(0.28,0.38,0.50);
-    tone(80,'sine',0.55,0.44,0.88);tone(60,'sine',0.65,0.38,1.00);noise(0.20,0.28,0.90);
-}
-
-// ============================================================
-//  GAME LOGIC
-// ============================================================
-let IMG_DATA_CURRENT=[
-    "gyanb/gyanb1_transparent.png","gyanb/gyanb2_transparent.png",
-    "gyanb/gyanb3_transparent.png","gyanb/gyanb4_tr.png",
-    "gyanb/gyanb5_transparent.png","gyanb/gyanb6_transparent.png",
-    "gyanb/gyanb7n-transparent.png"
-];
-const IMG_7_NORMAL="gyanb/gyanb7n-transparent.png";
-const IMG_7_KAKUHEN="gyanb/gyanb7_transparent.png";
-const ODD_SET=[0,2,4],EVEN_SET=[1,3,5],SEVEN=6;
-let coins=10000,currentBet=0;
-let stoppedCount=0,firstResultIndex=null,secondResultIndex=null,thirdResultIndex=null;
-let Atsu=0,gameRunning=false,totalStartCount=0;
-let earlyReachUsed=false;
-let consecutiveAnyLose=0,kakuhenActive=false,kakuhenWinRound=0,kakuhenReachCount=0;
-const initialCoins=10000;
-let _rainbowLoopInterval=null;
-function startRainbowSound(){
-    stopRainbowSound();
-    function f(){
-        if(!_ctx)return;
-        [330,392,494,587,698,880].forEach((fr,i)=>tone(fr,'sine',0.13,0.26,i*0.10));
-        [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
-    }
-    f();_rainbowLoopInterval=setInterval(f,1400);
-}
-function stopRainbowSound(){
-    if(_rainbowLoopInterval!==null){clearInterval(_rainbowLoopInterval);_rainbowLoopInterval=null;}
-}
-function setRainbow(on){
-    const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    if(on){
-        L.classList.add('rainbow');R.classList.add('rainbow');
-        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(0.8,_ctx.currentTime);}
-        if(_rainbowLoopInterval===null)startRainbowSound();
-    }else{
-        L.classList.remove('rainbow');R.classList.remove('rainbow');
-        L.style.backgroundColor='#000';R.style.backgroundColor='#000';
-        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(1.0,_ctx.currentTime);}
-        stopRainbowSound();
-    }
-}
-function rebuildReels(){
-    [1,2,3].forEach(n=>{
-        const s=document.getElementById(`reel${n}`);
-        const wasSpinning=s.style.animation&&s.style.animation.includes('spin');
-        s.innerHTML=[...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT]
-            .map(src=>`<img src="${src}">`).join('');
-        if(!wasSpinning){s.style.animation='none';s.style.transition='';s.style.transform='translateY(0)';}
-    });
-}
-function setKakuhenMode(on){kakuhenActive=on;IMG_DATA_CURRENT[SEVEN]=on?IMG_7_KAKUHEN:IMG_7_NORMAL;}
-function getComboMultiplier(r1,r2,r3){
-    const v=[r1,r2,r3].sort((a,b)=>a-b);
-    if(v[0]===0&&v[1]===1&&v[2]===2)return 8;
-    if(v[0]===3&&v[1]===4&&v[2]===5)return 6;
-    return 0;
-}
-function getMultiplier(idx){
-    if(idx===SEVEN)return 15;
-    if(ODD_SET.includes(idx))return 10;
-    if(EVEN_SET.includes(idx))return 5;
-    return 0;
-}
-function init(){updateCoinDisplay();rebuildReels();}
-function updateCoinDisplay(){document.getElementById("coinshow").innerText=coins.toLocaleString();}
-function selectBet(amount,btn){
-    document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected');document.getElementById('custom-bet').value='';
-    currentBet=amount;updateBetDisplay();
-}
-function onCustomBetInput(input){
-    document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
-    const v=parseInt(input.value);currentBet=(!isNaN(v)&&v>0)?v:0;updateBetDisplay();
-}
-function updateBetDisplay(){
-    const txt=document.getElementById('bet-val-text'),btn=document.getElementById('start-btn');
-    if(currentBet>0){txt.innerText=currentBet.toLocaleString()+' G';btn.disabled=gameRunning;}
-    else{txt.innerText='未選択';btn.disabled=true;}
-}
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function showEffectImage(src,duration,cls=''){
-    const ov=document.getElementById("effect-overlay"),im=document.getElementById("effect-img");
-    im.src=src;im.className=cls;ov.style.display="block";
-    await sleep(duration);ov.style.display="none";im.className='';
-}
-async function showKiraEffect(count=20){
-    sfxKira();
-    for(let i=0;i<count;i++){
-        const k=document.createElement("img");
-        k.src="gyanb/kira_transparent.png";k.className="kira-particle";
-        k.style.top=`${30+Math.random()*40}%`;k.style.left=`${30+Math.random()*40}%`;
-        document.body.appendChild(k);await sleep(50);setTimeout(()=>k.remove(),1000);
-    }
-    await sleep(1000);
-}
-async function flashSides(times){
-    const cols=['#ff0000','#ffff00','#00ff00','#0000ff','#ff00ff','#00ffff'];
-    const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    for(let i=0;i<times;i++)for(let c of cols){sfxFlash();L.style.backgroundColor=c;R.style.backgroundColor=c;await sleep(250);}
-    L.style.backgroundColor='#000';R.style.backgroundColor='#000';
-}
-function getNextFromSet(cur,set){
-    const cn=cur+1;let nx=null;
-    for(let v of set.map(i=>i+1).sort((a,b)=>a-b))if(v>cn){nx=v;break;}
-    if(nx===null)nx=set[0]+1;return nx-1;
-}
-function showResultBanner(msg,cls){
-    const b=document.getElementById('result-banner');b.innerText=msg;b.className=cls||'';
-}
-function triggerReachEffect(){
-    sfxReach();
-    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.add('reach-flash'));
-    setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
-}
-function setBetLocked(locked){
-    document.querySelectorAll('.bet-btn').forEach(b=>b.disabled=locked);
-    document.getElementById('custom-bet').disabled=locked;
-    const op=locked?'0.4':'1';
-    document.querySelectorAll('.bet-btn').forEach(b=>b.style.opacity=op);
-    document.getElementById('custom-bet').style.opacity=op;
-}
-let noOddReach=false;
-function startGame(){
-    if(currentBet<=0)return;
-    if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
-    ensureCtx();
-    const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
-    if(shouldKakuhen){(async()=>{await triggerKakuhen();_doStartGame();})();return;}
-    _doStartGame();
-}
-function _doStartGame(){
-    coins-=currentBet;updateCoinDisplay();totalStartCount++;
-    gameRunning=true;stoppedCount=0;
-    firstResultIndex=null;secondResultIndex=null;thirdResultIndex=null;Atsu=0;
-    noOddReach=(coins>=initialCoins*2.5);
-    setBetLocked(true);
-    document.getElementById('start-btn').disabled=true;
-    document.getElementById('result-banner').innerText='';
-    document.getElementById('result-banner').className='';
-    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-    if(kakuhenActive){setRainbow(true);}else{setRainbow(false);}
-    rebuildReels();
-    [1,2,3].forEach(n=>{
-        const s=document.getElementById(`reel${n}`);
-        s.style.transition='';s.style.transform='translateY(0)';
-        s.style.animation='spin 0.75s linear infinite';
-        document.getElementById(`stopbtn${n}`).disabled=false;
-    });
-    sfxStart();
-    setTimeout(()=>{ensureCtx();sfxReelStart();},150);
-}
-function decideReach(currentIndex){
-    if(kakuhenActive)return firstResultIndex;
-    if(noOddReach&&ODD_SET.includes(firstResultIndex))return pickNonMatchRandom(currentIndex,firstResultIndex);
-    const ruleA=(totalStartCount<=3&&!earlyReachUsed);
-    if(ruleA&&Math.random()<0.70)return firstResultIndex;
-    return pickRandom(currentIndex);
-}
-function pickRandom(currentIndex){
-    const r=Math.random();
-    if(r<0.6)return getNextFromSet(currentIndex,EVEN_SET);
-    else if(r<0.9)return getNextFromSet(currentIndex,ODD_SET);
-    else return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
-}
-function pickNonMatchRandom(currentIndex,exclude){
-    let idx,tries=0;
-    do{idx=pickRandom(currentIndex);tries++;}while(idx===exclude&&tries<20);
-    return idx;
-}
-async function triggerKakuhen(){
-    setBetLocked(true);setRainbow(true);sfxFlash();sfxFlash();
-    await sleep(400);
-    await showEffectImage("gyanb/kakuhen_transparent.png",1800,"chance-large");
-    setRainbow(true);setKakuhenMode(true);rebuildReels();
-    kakuhenWinRound=coins<=initialCoins*0.5?Math.floor(Math.random()*2)+1:Math.floor(Math.random()*4)+1;
-    kakuhenReachCount=0;consecutiveAnyLose=0;
-}
-async function stopReel(reelId,btn){
-    const reel=document.getElementById(reelId);
-    if(btn.disabled)return;
-    btn.disabled=true;stoppedCount++;
-    sfxStop();
-    if(stoppedCount===1)sfxReelFade(0.35);
-    else if(stoppedCount===2)sfxReelFade(0.12);
-    else sfxReelStop();
-    const st=window.getComputedStyle(reel);
-    let currentY=0;
-    try{const m=new WebKitCSSMatrix(st.transform);currentY=m.m42;}catch(e){}
-    const currentIndex=((Math.abs(Math.round(currentY/110))%7)+7)%7;
-    let targetIndex;
-    if(stoppedCount===1){
-        if(kakuhenActive){
-            targetIndex=coins<=initialCoins*0.5?SEVEN:(Math.random()<0.5?SEVEN:ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
-        }else{targetIndex=pickRandom(currentIndex);}
-        firstResultIndex=targetIndex;
-    }else if(stoppedCount===2){
-        targetIndex=decideReach(currentIndex);secondResultIndex=targetIndex;
-        if(firstResultIndex===secondResultIndex){
-            if(!earlyReachUsed)earlyReachUsed=true;
-            if(kakuhenActive)kakuhenReachCount++;
-            setTimeout(()=>triggerReachEffect(),350);
-        }
-    }else{
-        if(firstResultIndex===secondResultIndex){
-            Atsu=0;
-            if(kakuhenActive){
-                const isWinRound=(kakuhenReachCount===kakuhenWinRound);
-                if(isWinRound){
-                    sfxChance(true);
-                    await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
-                    Atsu+=70;await flashSides(2);Atsu+=80;Atsu+=70;
-                    sfxEgg(0);await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
-                }else{
-                    sfxChance(false);
-                    await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
-                    Atsu+=30;
-                    sfxEgg(0);await showEffectImage("gyanb/egg_1_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1);await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2);await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
-                }
-                if(isWinRound){
-                    const richBlock=coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex);
-                    if(richBlock){
-                        targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
-                        setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
-                        if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                        if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
-                    }else{
-                        await showKiraEffect(20);targetIndex=firstResultIndex;
-                        setKakuhenMode(false);setRainbow(false);setBetLocked(false);
-                        kakuhenWinRound=0;kakuhenReachCount=0;consecutiveAnyLose=0;
-                        setTimeout(()=>{
-                            const mult=getMultiplier(targetIndex),payout=currentBet*mult;
-                            coins+=payout;updateCoinDisplay();sfxWin(mult);
-                            showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                            if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                            if(window.fbLogHistory)window.fbLogHistory('win',currentBet,mult);
-                        },500);
-                    }
-                }else{
-                    targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
-                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
-                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
-                }
-            }else{
-                const isBig=Math.random()>=0.7;
-                sfxChance(isBig);
-                await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
-                Atsu+=isBig?70:30;
-                const sr2=Math.random();
-                if(sr2<0.3){await flashSides(1);Atsu+=70;}
-                else if(sr2<0.5){await flashSides(2);Atsu+=80;}
-                const eggType=Math.random()<0.7?"1":"2";
-                Atsu+=(eggType==="1"?30:70);
-                sfxEgg(0);await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
-                sfxEgg(1);await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
-                sfxEgg(2);await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                let winProb=Atsu*0.454;if(winProb<30)winProb=0;
-                let isWin=Math.random()*100<winProb;
-                if(isWin&&coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex))isWin=false;
-                if(isWin){
-                    await showKiraEffect(20);targetIndex=firstResultIndex;consecutiveAnyLose=0;
-                    setTimeout(()=>{
-                        const mult=getMultiplier(targetIndex),payout=currentBet*mult;
-                        coins+=payout;updateCoinDisplay();sfxWin(mult);
-                        showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                        if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                        if(window.fbLogHistory)window.fbLogHistory('win',currentBet,mult);
-                    },500);
-                }else{
-                    targetIndex=(firstResultIndex+1)%7;consecutiveAnyLose++;
-                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
-                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
-                }
-            }
-        }else{
-            thirdResultIndex=currentIndex;
-            const r1=firstResultIndex,r2=secondResultIndex,r3=thirdResultIndex;
-            const combo=getComboMultiplier(r1,r2,r3);
-            if(combo>0){
-                targetIndex=currentIndex;
-                const payout=currentBet*combo;
-                coins+=payout;updateCoinDisplay();sfxWin(combo);consecutiveAnyLose=0;
-                setTimeout(()=>{
-                    showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win");
-                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                    if(window.fbLogHistory)window.fbLogHistory('combo',currentBet,combo);
-                },500);
-            }else{
-                consecutiveAnyLose++;targetIndex=(currentIndex+1)%7;
-                setTimeout(()=>{
-                    sfxLose();showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");
-                    if(window.fbSaveCoins)window.fbSaveCoins(coins);
-                    if(window.fbLogHistory)window.fbLogHistory('lose',currentBet,0);
-                },500);
-            }
-        }
-    }
-    let diff=targetIndex-currentIndex;
-    if(diff===0){
-        reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
-    }else{
-        if(diff<0)diff+=7;
-        const finalY=(Math.round(currentY/110)-diff)*110;
-        reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
-        setTimeout(()=>{reel.style.transition='transform 0.4s ease-out';reel.style.transform=`translateY(${finalY}px)`;},10);
-    }
-    if(stoppedCount===3){
-        setTimeout(()=>{
-            stoppedCount=0;Atsu=0;gameRunning=false;
-            [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            if(!kakuhenActive)setBetLocked(false);
-            if(currentBet>0&&coins>0)document.getElementById('start-btn').disabled=false;
-        },3000);
-    }
-}
-
-document.addEventListener('keydown', e => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        const ov = document.getElementById('admin-overlay');
-        ov.classList.contains('open') ? closeAdminPanel() : openAdminPanel();
-    }
-});
-
-window.onload = init;
 </script>
 </body>
 </html>
