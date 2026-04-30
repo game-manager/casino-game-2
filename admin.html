@@ -60,7 +60,7 @@
         #login-error { color: #ff5555; font-size: 12px; text-align: center; margin-top: 10px; min-height: 18px; }
 
         /* ── メイン画面 ── */
-        #main-screen { display: none; max-width: 900px; margin: 0 auto; }
+        #main-screen { display: none; max-width: 960px; margin: 0 auto; }
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 28px;
@@ -74,17 +74,51 @@
         }
         #logout-btn:hover { background: #3a1a1a; color: #ff5555; border-color: #ff5555; }
 
-        /* プレイヤー一覧 */
+        /* セクション共通 */
         .section-title {
             color: #888; font-size: 11px; letter-spacing: 3px;
             text-transform: uppercase; margin-bottom: 14px;
             padding-bottom: 8px; border-bottom: 1px solid #333;
+            display: flex; align-items: center; gap: 10px;
         }
+        .count-badge {
+            background: #2a2a2a; color: #aaa; border-radius: 10px;
+            padding: 1px 8px; font-size: 10px; letter-spacing: 0;
+            font-weight: normal; text-transform: none;
+        }
+
+        /* ── 端末一覧 ── */
+        #terminals-section { margin-bottom: 32px; }
+        #terminals-table { width: 100%; border-collapse: collapse; }
+        #terminals-table th {
+            background: #111a2a; color: #88aaff;
+            font-size: 11px; letter-spacing: 2px;
+            padding: 10px 14px; text-align: left;
+            border-bottom: 2px solid #223;
+        }
+        #terminals-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #1a1a2a;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        #terminals-table tr:hover td { background: #111a2a; }
+        .terminal-device-id { color: #88aaff; font-size: 11px; font-family: 'Courier New', monospace; }
+        .terminal-player-id { color: #ffd700; font-size: 12px; font-family: 'Courier New', monospace; }
+        .terminal-player-id.unset { color: #555; font-style: italic; }
+        .assign-btn {
+            padding: 5px 12px; background: #0e1a2e;
+            color: #88aaff; border: 1px solid #88aaff;
+            border-radius: 5px; cursor: pointer;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            transition: all 0.15s;
+        }
+        .assign-btn:hover { background: #88aaff; color: #000; }
+        #no-terminals { color: #555; text-align: center; padding: 30px; font-size: 13px; }
+
+        /* ── プレイヤー一覧 ── */
         #players-section { margin-bottom: 32px; }
-        #players-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        #players-table { width: 100%; border-collapse: collapse; }
         #players-table th {
             background: #1a1a1a; color: #888;
             font-size: 11px; letter-spacing: 2px;
@@ -128,7 +162,7 @@
         }
         #no-players { color: #555; text-align: center; padding: 30px; font-size: 13px; }
 
-        /* 残高編集モーダル */
+        /* ── 残高編集モーダル ── */
         #edit-modal {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.8); z-index: 1000;
@@ -164,6 +198,71 @@
             cursor: pointer; letter-spacing: 2px;
         }
         .modal-cancel:hover { background: #3a3a3a; color: #ccc; }
+
+        /* ── 端末プレイヤーID割り当てモーダル ── */
+        #assign-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        #assign-modal.open { display: flex; }
+        .assign-modal-box {
+            background: #111a2a; border: 2px solid #88aaff;
+            border-radius: 14px; padding: 32px 28px; width: 400px;
+        }
+        .assign-modal-box h3 { color: #88aaff; margin-bottom: 6px; letter-spacing: 2px; font-size: 16px; }
+        .assign-device-sub { color: #445566; font-size: 11px; margin-bottom: 20px; font-family: 'Courier New', monospace; }
+        .assign-modal-box label { color: #888; font-size: 11px; letter-spacing: 2px; display: block; margin-bottom: 6px; }
+        #assign-modal-input {
+            width: 100%; padding: 10px 14px;
+            background: #0a1020; color: #88aaff;
+            border: 1px solid #334; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 16px;
+            margin-bottom: 8px;
+        }
+        #assign-modal-input:focus { outline: none; border-color: #88aaff; }
+        .assign-hint {
+            color: #445566; font-size: 11px; margin-bottom: 18px;
+        }
+        .assign-hint span { color: #88aaff; }
+        .assign-player-list {
+            max-height: 140px; overflow-y: auto;
+            border: 1px solid #223; border-radius: 6px;
+            margin-bottom: 18px;
+        }
+        .assign-player-item {
+            padding: 8px 12px; cursor: pointer;
+            font-size: 12px; color: #888;
+            border-bottom: 1px solid #1a1a2a;
+            transition: background 0.1s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .assign-player-item:hover { background: #1a2a3a; color: #88aaff; }
+        .assign-player-item .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .dot-on  { background: #44ff88; box-shadow: 0 0 5px #44ff88; }
+        .dot-off { background: #444; }
+        .assign-actions { display: flex; gap: 10px; }
+        .assign-save {
+            flex: 1; padding: 11px; background: linear-gradient(135deg,#1a3a6a,#0a2040);
+            color: #88aaff; border: 1px solid #88aaff; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 14px;
+            font-weight: bold; cursor: pointer; letter-spacing: 2px;
+        }
+        .assign-save:hover { background: #88aaff; color: #000; }
+        .assign-cancel {
+            flex: 1; padding: 11px; background: #1a1a1a;
+            color: #888; border: 1px solid #333; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 14px;
+            cursor: pointer;
+        }
+        .assign-cancel:hover { background: #2a2a2a; color: #ccc; }
+        .assign-clear {
+            width: 100%; padding: 8px; background: #1a0a0a;
+            color: #ff5555; border: 1px solid #3a1a1a; border-radius: 7px;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            cursor: pointer; margin-top: 8px; letter-spacing: 1px;
+        }
+        .assign-clear:hover { background: #ff5555; color: #fff; }
 
         /* プレイ履歴 */
         #history-section { margin-bottom: 32px; }
@@ -210,7 +309,6 @@
         }
         #global-reset-btn:hover { background: #ff5555; color: #fff; }
 
-        /* ライブ更新インジケーター */
         .live-badge {
             display: inline-flex; align-items: center; gap: 6px;
             background: #0a1a0a; border: 1px solid #44ff88;
@@ -224,7 +322,6 @@
         @keyframes livePulse {
             0%,100% { opacity: 1; } 50% { opacity: 0.3; }
         }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
@@ -259,9 +356,34 @@
         <button id="logout-btn" onclick="doLogout()">LOGOUT</button>
     </div>
 
+    <!-- 端末一覧 -->
+    <div id="terminals-section">
+        <div class="section-title">
+            🖥 端末一覧 — プレイヤーID管理
+            <span class="count-badge" id="terminal-count">0台</span>
+        </div>
+        <table id="terminals-table">
+            <thead>
+                <tr>
+                    <th>STATUS</th>
+                    <th>端末ID (deviceId)</th>
+                    <th>割り当てプレイヤーID</th>
+                    <th>最終確認</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="terminals-tbody">
+                <tr><td colspan="5" id="no-terminals">読み込み中…</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <!-- プレイヤー一覧 -->
     <div id="players-section">
-        <div class="section-title">👥 プレイヤー一覧 — 残高管理</div>
+        <div class="section-title">
+            👥 プレイヤー一覧 — 残高管理
+            <span class="count-badge" id="player-count">0人</span>
+        </div>
         <table id="players-table">
             <thead>
                 <tr>
@@ -317,37 +439,52 @@
     </div>
 </div>
 
+<!-- 端末プレイヤーID割り当てモーダル -->
+<div id="assign-modal">
+    <div class="assign-modal-box">
+        <h3>🖥 プレイヤーID を割り当て</h3>
+        <div class="assign-device-sub" id="assign-device-label">端末ID: —</div>
+        <label>新しいプレイヤーID</label>
+        <input type="text" id="assign-modal-input" placeholder="player_xxxxxxx">
+        <div class="assign-hint">既存のプレイヤーを選択するか、新しいIDを直接入力してください。<br>新しいIDを入力すると <span>自動で新規作成</span> されます。</div>
+        <div class="assign-player-list" id="assign-player-list"></div>
+        <div class="assign-actions">
+            <button class="assign-save" onclick="saveAssign()">✔ 割り当て</button>
+            <button class="assign-cancel" onclick="closeAssignModal()">キャンセル</button>
+        </div>
+        <button class="assign-clear" onclick="clearAssign()">✕ 割り当てを解除（デフォルトIDに戻す）</button>
+    </div>
+</div>
+
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getDatabase, ref, onValue, set, remove, get, child }
+import { getDatabase, ref, onValue, set, remove, get }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-// ============================================================
-//  🔧 Firebase 設定 — ここを自分のプロジェクトの値に書き換えてください
-// ============================================================
 const firebaseConfig = {
-    apiKey:            "YOUR_API_KEY",
-    authDomain:        "YOUR_PROJECT.firebaseapp.com",
-    databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-    projectId:         "YOUR_PROJECT",
-    storageBucket:     "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId:             "YOUR_APP_ID"
+    apiKey:            "AIzaSyB5qi2mA-a2RylE2mc-_ChMgLyMZttEvH8",
+    authDomain:        "casino-game-2.firebaseapp.com",
+    databaseURL:       "https://casino-game-2-default-rtdb.firebaseio.com",
+    projectId:         "casino-game-2",
+    storageBucket:     "casino-game-2.firebasestorage.app",
+    messagingSenderId: "610664056062",
+    appId:             "1:610664056062:web:25135b37a8c7ca565b91af"
 };
-// ============================================================
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getDatabase(app);
 
-let editingPlayerId = null;
-let playersData     = {};
-let historyUnsubscribe = null;
+let editingPlayerId   = null;
+let assigningDeviceId = null;
+let playersData       = {};
+let terminalsData     = {};
+let assignmentsData   = {};
 
-// ---------- 認証 ----------
+// ── 認証 ──
 window.doLogin = async () => {
     const email = document.getElementById('login-email').value.trim();
     const pass  = document.getElementById('login-password').value;
@@ -358,10 +495,7 @@ window.doLogin = async () => {
         document.getElementById('login-error').textContent = 'ログイン失敗: ' + e.message;
     }
 };
-
-window.doLogout = async () => {
-    await signOut(auth);
-};
+window.doLogout = async () => { await signOut(auth); };
 
 onAuthStateChanged(auth, user => {
     if (user) {
@@ -372,23 +506,29 @@ onAuthStateChanged(auth, user => {
     } else {
         document.getElementById('login-screen').style.display  = 'block';
         document.getElementById('main-screen').style.display   = 'none';
-        stopListeners();
     }
 });
 
-// ログインフォームでEnterキー対応
 document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
         window.doLogin();
     }
 });
 
-// ---------- リスナー ----------
-let playersRef = null;
-
+// ── リスナー ──
 function startListeners() {
-    playersRef = ref(db, 'players');
-    onValue(playersRef, snap => {
+    // 端末一覧
+    onValue(ref(db, 'terminals'), snap => {
+        terminalsData = snap.val() || {};
+        renderTerminals();
+    });
+    // 割り当て一覧
+    onValue(ref(db, 'terminalAssignments'), snap => {
+        assignmentsData = snap.val() || {};
+        renderTerminals();
+    });
+    // プレイヤー一覧
+    onValue(ref(db, 'players'), snap => {
         playersData = snap.val() || {};
         renderPlayers();
         rebuildHistoryFilter();
@@ -396,40 +536,139 @@ function startListeners() {
     });
 }
 
-function stopListeners() {
-    playersData = {};
-}
-
-// ---------- プレイヤー一覧レンダリング ----------
-function renderPlayers() {
-    const tbody = document.getElementById('players-tbody');
-    const ids = Object.keys(playersData);
-    if (ids.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" id="no-players">プレイヤーがいません</td></tr>';
+// ── 端末一覧レンダリング ──
+function renderTerminals() {
+    const tbody = document.getElementById('terminals-tbody');
+    const ids   = Object.keys(terminalsData);
+    document.getElementById('terminal-count').textContent = ids.length + '台';
+    if (!ids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" id="no-terminals">端末がありません（ゲーム画面を開くと登録されます）</td></tr>';
         return;
     }
-    tbody.innerHTML = ids.map(id => {
-        const p = playersData[id];
-        const coins  = (p.coins ?? 10000).toLocaleString();
-        const online = p.online ? '<span class="badge-online"></span>オンライン' : '<span class="badge-offline"></span>オフライン';
-        const lastPlay = p.lastPlayAt
-            ? new Date(p.lastPlayAt).toLocaleString('ja-JP')
+    tbody.innerHTML = ids.map(devId => {
+        const t = terminalsData[devId];
+        const assigned = assignmentsData[devId]?.playerId || null;
+        const online   = t.online
+            ? '<span class="badge-online"></span>オンライン'
+            : '<span class="badge-offline"></span>オフライン';
+        const lastSeen = t.lastSeen
+            ? new Date(t.lastSeen).toLocaleString('ja-JP')
             : '—';
-        return `
-        <tr>
+        const pidCell  = assigned
+            ? `<span class="terminal-player-id">${escHtml(assigned)}</span>`
+            : `<span class="terminal-player-id unset">（未割り当て）</span>`;
+        const eid = escHtml(devId);
+        return `<tr>
             <td>${online}</td>
-            <td class="player-id">${escHtml(id)}</td>
-            <td class="player-coins">${coins} G</td>
-            <td style="color:#666;font-size:12px">${lastPlay}</td>
+            <td class="terminal-device-id">${eid}</td>
+            <td>${pidCell}</td>
+            <td style="color:#555;font-size:11px">${lastSeen}</td>
             <td>
-                <button class="edit-btn" onclick="openEdit('${escHtml(id)}')">✏ 変更</button>
-                <button class="reset-btn" onclick="resetPlayer('${escHtml(id)}')">↩ リセット</button>
+                <button class="assign-btn" onclick="openAssignModal('${eid}')">✏ IDを変更</button>
             </td>
         </tr>`;
     }).join('');
 }
 
-// ---------- 残高変更モーダル ----------
+// ── 端末割り当てモーダル ──
+window.openAssignModal = (devId) => {
+    assigningDeviceId = devId;
+    document.getElementById('assign-device-label').textContent = '端末ID: ' + devId;
+    const current = assignmentsData[devId]?.playerId || '';
+    document.getElementById('assign-modal-input').value = current;
+    // プレイヤーリスト
+    const list = document.getElementById('assign-player-list');
+    const pids  = Object.keys(playersData);
+    if (!pids.length) {
+        list.innerHTML = '<div class="assign-player-item" style="color:#555">プレイヤーがいません</div>';
+    } else {
+        list.innerHTML = pids.map(pid => {
+            const p   = playersData[pid];
+            const dot = p.online ? 'dot-on' : 'dot-off';
+            return `<div class="assign-player-item" onclick="selectPlayerForAssign('${escHtml(pid)}')">
+                <span class="dot ${dot}"></span>${escHtml(pid)}
+            </div>`;
+        }).join('');
+    }
+    document.getElementById('assign-modal').classList.add('open');
+    setTimeout(() => document.getElementById('assign-modal-input').focus(), 80);
+};
+
+window.selectPlayerForAssign = (pid) => {
+    document.getElementById('assign-modal-input').value = pid;
+};
+
+window.closeAssignModal = () => {
+    document.getElementById('assign-modal').classList.remove('open');
+    assigningDeviceId = null;
+};
+
+window.saveAssign = async () => {
+    if (!assigningDeviceId) return;
+    const newPid = document.getElementById('assign-modal-input').value.trim();
+    if (!newPid) { alert('プレイヤーIDを入力してください'); return; }
+
+    // 新しいIDなら players に作成
+    if (!playersData[newPid]) {
+        await set(ref(db, `players/${newPid}`), { coins: 10000, online: false, lastPlayAt: null });
+    }
+    // 割り当て保存
+    await set(ref(db, `terminalAssignments/${assigningDeviceId}/playerId`), newPid);
+    // ログ
+    await set(ref(db, `adminLogs/${Date.now()}`), {
+        action: 'assignPlayerId', deviceId: assigningDeviceId, playerId: newPid, at: Date.now()
+    });
+    closeAssignModal();
+};
+
+window.clearAssign = async () => {
+    if (!assigningDeviceId) return;
+    if (!confirm(`端末「${assigningDeviceId}」の割り当てを解除しますか？\n端末は次回起動時にデフォルトIDを使用します。`)) return;
+    await remove(ref(db, `terminalAssignments/${assigningDeviceId}`));
+    await set(ref(db, `adminLogs/${Date.now()}`), {
+        action: 'clearAssign', deviceId: assigningDeviceId, at: Date.now()
+    });
+    closeAssignModal();
+};
+
+document.getElementById('assign-modal-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.saveAssign();
+    if (e.key === 'Escape') window.closeAssignModal();
+});
+
+// ── プレイヤー一覧レンダリング ──
+function renderPlayers() {
+    const tbody = document.getElementById('players-tbody');
+    const ids   = Object.keys(playersData);
+    document.getElementById('player-count').textContent = ids.length + '人';
+    if (!ids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" id="no-players">プレイヤーがいません</td></tr>';
+        return;
+    }
+    tbody.innerHTML = ids.map(id => {
+        const p      = playersData[id];
+        const coins  = (p.coins ?? 10000).toLocaleString();
+        const online = p.online
+            ? '<span class="badge-online"></span>オンライン'
+            : '<span class="badge-offline"></span>オフライン';
+        const lastPlay = p.lastPlayAt
+            ? new Date(p.lastPlayAt).toLocaleString('ja-JP')
+            : '—';
+        const eid = escHtml(id);
+        return `<tr>
+            <td>${online}</td>
+            <td class="player-id">${eid}</td>
+            <td class="player-coins">${coins} G</td>
+            <td style="color:#666;font-size:12px">${lastPlay}</td>
+            <td>
+                <button class="edit-btn"  onclick="openEdit('${eid}')">✏ 変更</button>
+                <button class="reset-btn" onclick="resetPlayer('${eid}')">↩ リセット</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ── 残高変更モーダル ──
 window.openEdit = (id) => {
     editingPlayerId = id;
     document.getElementById('modal-player-id').textContent = id;
@@ -437,52 +676,43 @@ window.openEdit = (id) => {
     document.getElementById('edit-modal').classList.add('open');
     setTimeout(() => document.getElementById('modal-coins-input').focus(), 100);
 };
-
 window.closeModal = () => {
     document.getElementById('edit-modal').classList.remove('open');
     editingPlayerId = null;
 };
-
 window.saveCoins = async () => {
     if (!editingPlayerId) return;
     const val = parseInt(document.getElementById('modal-coins-input').value);
     if (isNaN(val) || val < 0) { alert('正しい数値を入力してください'); return; }
     await set(ref(db, `players/${editingPlayerId}/coins`), val);
-    // 管理者操作ログ
-    const logRef = ref(db, `adminLogs/${Date.now()}`);
-    await set(logRef, { action: 'setCoins', playerId: editingPlayerId, value: val, at: Date.now() });
+    await set(ref(db, `adminLogs/${Date.now()}`), { action: 'setCoins', playerId: editingPlayerId, value: val, at: Date.now() });
     closeModal();
 };
-
-// Enterキーで保存
-document.getElementById('modal-coins-input')?.addEventListener('keydown', e => {
+document.getElementById('modal-coins-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') window.saveCoins();
+    if (e.key === 'Escape') window.closeModal();
 });
 
-// ---------- 個別リセット ----------
+// ── 個別リセット ──
 window.resetPlayer = async (id) => {
     if (!confirm(`「${id}」の残高を 10,000G にリセットしますか？`)) return;
     await set(ref(db, `players/${id}/coins`), 10000);
-    // 履歴削除
     await remove(ref(db, `history/${id}`));
-    const logRef = ref(db, `adminLogs/${Date.now()}`);
-    await set(logRef, { action: 'resetPlayer', playerId: id, at: Date.now() });
+    await set(ref(db, `adminLogs/${Date.now()}`), { action: 'resetPlayer', playerId: id, at: Date.now() });
 };
 
-// ---------- 全体リセット ----------
+// ── 全体リセット ──
 window.globalReset = async () => {
     if (!confirm('全プレイヤーの残高を 10,000G にリセットし、プレイ履歴を全消去しますか？\nこの操作は取り消せません。')) return;
-    const ids = Object.keys(playersData);
-    for (const id of ids) {
+    for (const id of Object.keys(playersData)) {
         await set(ref(db, `players/${id}/coins`), 10000);
     }
     await remove(ref(db, 'history'));
-    const logRef = ref(db, `adminLogs/${Date.now()}`);
-    await set(logRef, { action: 'globalReset', at: Date.now() });
+    await set(ref(db, `adminLogs/${Date.now()}`), { action: 'globalReset', at: Date.now() });
     alert('リセット完了しました。');
 };
 
-// ---------- 履歴フィルター再構築 ----------
+// ── 履歴フィルター ──
 function rebuildHistoryFilter() {
     const sel = document.getElementById('history-player-select');
     const cur = sel.value;
@@ -495,9 +725,8 @@ function rebuildHistoryFilter() {
     if (cur) sel.value = cur;
 }
 
-// ---------- 履歴読み込み ----------
 window.loadHistory = () => {
-    const sel = document.getElementById('history-player-select').value;
+    const sel     = document.getElementById('history-player-select').value;
     const histRef = sel === 'all' ? ref(db, 'history') : ref(db, `history/${sel}`);
     get(histRef).then(snap => {
         const container = document.getElementById('history-list');
@@ -506,7 +735,6 @@ window.loadHistory = () => {
             container.innerHTML = '<div id="no-history">プレイ履歴がありません</div>';
             return;
         }
-        // フラット化して時刻降順ソート
         let items = [];
         if (sel === 'all') {
             Object.entries(raw).forEach(([pid, entries]) => {
@@ -516,15 +744,13 @@ window.loadHistory = () => {
             Object.values(raw).forEach(e => items.push({ ...e, pid: sel }));
         }
         items.sort((a, b) => b.at - a.at);
-        items = items.slice(0, 100); // 最新100件
-
+        items = items.slice(0, 200);
         container.innerHTML = items.map(e => {
-            const time = new Date(e.at).toLocaleString('ja-JP');
+            const time     = new Date(e.at).toLocaleString('ja-JP');
             const resClass = e.result === 'win' ? 'win' : e.result === 'combo' ? 'combo' : 'lose';
             const resLabel = e.result === 'win' ? `🎉 当たり ×${e.mult}` : e.result === 'combo' ? `🎊 コンボ ×${e.mult}` : '💔 ハズレ';
-            const change = e.result !== 'lose' ? `+${(e.bet * e.mult).toLocaleString()}G` : `-${e.bet.toLocaleString()}G`;
-            return `
-            <div class="history-item">
+            const change   = e.result !== 'lose' ? `+${(e.bet * e.mult).toLocaleString()}G` : `-${e.bet.toLocaleString()}G`;
+            return `<div class="history-item">
                 <span class="player-id">${escHtml(e.pid)}</span>
                 <span class="history-result ${resClass}">${resLabel}</span>
                 <span class="history-bet">Bet: ${e.bet?.toLocaleString()}G</span>
@@ -535,9 +761,9 @@ window.loadHistory = () => {
     });
 };
 
-// ---------- ユーティリティ ----------
 function escHtml(str) {
-    return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
+    return String(str).replace(/[&<>"']/g,
+        m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
 }
 </script>
 </body>
