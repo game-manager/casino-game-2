@@ -310,6 +310,17 @@
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-track { background:#111; }
         ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
+        /* 端末割り当てプレイヤーリスト */
+.adm-assign-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; cursor: pointer;
+    font-size: 11px; color: #888;
+    border-bottom: 1px solid #1a1a2a;
+    transition: background 0.1s;
+    font-family: 'Courier New', monospace;
+}
+.adm-assign-item:hover { background: #1a2a3a; color: #88aaff; }
+.adm-assign-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     </style>
 </head>
 <body class="dark">
