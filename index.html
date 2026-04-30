@@ -393,7 +393,56 @@
                     <button id="adm-logout-btn" onclick="admDoLogout()">LOGOUT</button>
                 </div>
             </div>
+<!-- 端末一覧セクション -->
+<div id="adm-terminals-section" style="margin-bottom:30px;">
+    <div class="adm-section-title">
+        🖥 端末一覧 — プレイヤーID管理
+        <span class="adm-count-badge" id="adm-terminal-count">0台</span>
+    </div>
+    <table id="adm-terminals-table" style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">STATUS</th>
+                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">端末ID</th>
+                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">割り当てプレイヤーID</th>
+                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">最終確認</th>
+                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">操作</th>
+            </tr>
+        </thead>
+        <tbody id="adm-terminals-tbody">
+            <tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">読み込み中…</td></tr>
+        </tbody>
+    </table>
+</div>
 
+<!-- 端末割り当てモーダル -->
+<div id="adm-assign-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;">
+    <div style="background:#111a2a;border:2px solid #88aaff;border-radius:14px;padding:28px 26px;width:360px;">
+        <h3 style="color:#88aaff;margin-bottom:5px;letter-spacing:2px;font-size:15px;">🖥 プレイヤーIDを割り当て</h3>
+        <div id="adm-assign-device-label" style="color:#334455;font-size:11px;margin-bottom:18px;font-family:'Courier New',monospace;"></div>
+        <label style="color:#888;font-size:10px;letter-spacing:2px;display:block;margin-bottom:5px;">プレイヤーID</label>
+        <input type="text" id="adm-assign-input"
+            style="width:100%;padding:10px 12px;background:#0a1020;color:#88aaff;border:1px solid #334;border-radius:7px;font-family:'Courier New',monospace;font-size:15px;margin-bottom:8px;outline:none;"
+            placeholder="player_xxxxxxx">
+        <div style="color:#334455;font-size:11px;margin-bottom:12px;">既存プレイヤーを選択 または 新しいIDを直接入力</div>
+        <div id="adm-assign-player-list"
+            style="max-height:130px;overflow-y:auto;border:1px solid #1a2535;border-radius:6px;margin-bottom:16px;"></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button onclick="admSaveAssign()"
+                style="flex:1;padding:10px;background:linear-gradient(135deg,#1a3a6a,#0a2040);color:#88aaff;border:1px solid #88aaff;border-radius:7px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;cursor:pointer;letter-spacing:2px;">
+                ✔ 割り当て
+            </button>
+            <button onclick="admCloseAssign()"
+                style="flex:1;padding:10px;background:#1a1a2a;color:#888;border:1px solid #333;border-radius:7px;font-family:'Courier New',monospace;font-size:13px;cursor:pointer;">
+                キャンセル
+            </button>
+        </div>
+        <button onclick="admClearAssign()"
+            style="width:100%;padding:7px;background:#1a0a0a;color:#ff5555;border:1px solid #3a1a1a;border-radius:7px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;letter-spacing:1px;">
+            ✕ 割り当て解除（デフォルトIDに戻す）
+        </button>
+    </div>
+</div>
             <div id="adm-players-section">
                 <div class="adm-section-title">
                     👥 プレイヤー一覧
