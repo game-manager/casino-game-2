@@ -493,55 +493,125 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getDatabase(app);
 
-// ===== プレイヤー側 =====
-let playerId = localStorage.getItem('casino_player_id');
-if (!playerId) {
-    playerId = 'player_' + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem('casino_player_id', playerId);
+// =====================================================
+//  端末ID（デバイスID）― 永続的、変更しない
+// =====================================================
+let deviceId = localStorage.getItem('casino_device_id');
+if (!deviceId) {
+    deviceId = 'device_' + Math.random().toString(36).slice(2, 9);
+    localStorage.setItem('casino_device_id', deviceId);
 }
-document.getElementById('player-id-display').textContent = 'ID: ' + playerId;
 
-const playerRef  = dbRef(db, `players/${playerId}`);
-const historyRef = dbRef(db, `history/${playerId}`);
+// =====================================================
+//  プレイヤー状態（動的に切り替わる）
+// =====================================================
+let playerId   = null;
+let _coinsUnsub = null;
+let _prevCoins  = null;
 
-get(playerRef).then(snap => {
-    if (!snap.exists()) {
-        set(playerRef, { coins: 10000, online: true, lastPlayAt: null });
+/**
+ * 指定した playerId でゲームを初期化する。
+ * 管理者が割り当てを変更したときも呼ばれる。
+ */
+function setupPlayer(pid) {
+    if (playerId === pid) return;   // 変化なしなら何もしない
+
+    // 旧プレイヤーのオンライン状態をオフにする
+    if (playerId) {
+        set(dbRef(db, `players/${playerId}/online`), false);
+    }
+    // コインリスナーを解除
+    if (_coinsUnsub) { _coinsUnsub(); _coinsUnsub = null; }
+
+    playerId = pid;
+    localStorage.setItem('casino_player_id', playerId);
+
+    // 表示更新
+    document.getElementById('player-id-display').textContent =
+        'ID: ' + playerId + '  |  端末: ' + deviceId;
+
+    // Firebaseからコインを取得して初期化
+    const pRef = dbRef(db, `players/${playerId}`);
+    get(pRef).then(snap => {
+        if (!snap.exists()) {
+            set(pRef, { coins: 10000, online: true, lastPlayAt: null });
+            coins = 10000;
+        } else {
+            set(dbRef(db, `players/${playerId}/online`), true);
+            const saved = snap.val().coins;
+            if (typeof saved === 'number') { coins = saved; }
+        }
+        updateCoinDisplay();
+    });
+
+    // コイン変更をリアルタイム監視
+    _prevCoins = null;
+    _coinsUnsub = onValue(dbRef(db, `players/${playerId}/coins`), snap => {
+        const val = snap.val();
+        if (typeof val !== 'number') return;
+        if (_prevCoins !== null && val !== coins) {
+            coins = val; updateCoinDisplay();
+            const cd = document.getElementById('coin-display');
+            cd.classList.remove('admin-updated'); void cd.offsetWidth;
+            cd.classList.add('admin-updated');
+        }
+        _prevCoins = val;
+    });
+
+    // 切断時にオフライン化
+    onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
+}
+
+// =====================================================
+//  端末をFirebaseに登録 ＋ 割り当て変更を監視
+// =====================================================
+// 端末の存在を登録
+set(dbRef(db, `terminals/${deviceId}`), {
+    online: true, lastSeen: Date.now()
+});
+onDisconnect(dbRef(db, `terminals/${deviceId}/online`)).set(false);
+
+// 管理者による割り当て変更をリアルタイムで監視
+onValue(dbRef(db, `terminalAssignments/${deviceId}/playerId`), snap => {
+    const assigned = snap.val();
+    if (assigned) {
+        // 管理者が割り当てたIDを使用
+        setupPlayer(assigned);
     } else {
-        set(dbRef(db, `players/${playerId}/online`), true);
-        const saved = snap.val().coins;
-        if (typeof saved === 'number') { coins = saved; updateCoinDisplay(); }
+        // 割り当てがなければ localStorage のデフォルトIDを使用
+        if (!playerId) {
+            let defaultId = localStorage.getItem('casino_player_id');
+            if (!defaultId) {
+                defaultId = 'player_' + Math.random().toString(36).slice(2, 9);
+            }
+            setupPlayer(defaultId);
+        }
     }
 });
 
-let _prevCoins = null;
-onValue(dbRef(db, `players/${playerId}/coins`), snap => {
-    const val = snap.val();
-    if (typeof val !== 'number') return;
-    if (_prevCoins !== null && val !== coins) {
-        coins = val; updateCoinDisplay();
-        const cd = document.getElementById('coin-display');
-        cd.classList.remove('admin-updated'); void cd.offsetWidth;
-        cd.classList.add('admin-updated');
-    }
-    _prevCoins = val;
-});
-
-onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
-
+// =====================================================
+//  fbSaveCoins / fbLogHistory（playerId 動的参照）
+// =====================================================
 window.fbSaveCoins = c => {
+    if (!playerId) return;
     set(dbRef(db, `players/${playerId}/coins`), c);
     set(dbRef(db, `players/${playerId}/lastPlayAt`), Date.now());
 };
 window.fbLogHistory = (result, bet, mult) => {
-    push(historyRef, { result, bet, mult: mult || 0, at: Date.now() });
+    if (!playerId) return;
+    push(dbRef(db, `history/${playerId}`), { result, bet, mult: mult || 0, at: Date.now() });
 };
 
-// ===== 管理者パネル =====
-let _admPlayersData  = {};
-let _admEditingId    = null;
-let _admPlayersUnsub = null;  // players/ リスナー
-let _admHistoryUnsub = null;  // history/ リスナー（★追加）
+// =====================================================
+//  管理者パネル
+// =====================================================
+let _admPlayersData   = {};
+let _admTerminalData  = {};
+let _admAssignData    = {};
+let _admEditingId     = null;
+let _admAssigningDev  = null;
+let _admPlayersUnsub  = null;
+let _admHistoryUnsub  = null;
 
 window.openAdminPanel = () => {
     document.getElementById('admin-overlay').classList.add('open');
@@ -585,7 +655,6 @@ function showAdmMain(user) {
 }
 
 function startAdmListeners() {
-    // players/ リスナー（プレイヤー一覧 + フィルター更新のみ）
     if (!_admPlayersUnsub) {
         _admPlayersUnsub = onValue(dbRef(db, 'players'), snap => {
             _admPlayersData = snap.val() || {};
@@ -593,18 +662,116 @@ function startAdmListeners() {
             admRebuildHistoryFilter();
         });
     }
-    // history/ リスナー（履歴表示をリアルタイムで自動更新）
+    // 端末一覧と割り当て
+    onValue(dbRef(db, 'terminals'), snap => {
+        _admTerminalData = snap.val() || {};
+        admRenderTerminals();
+    });
+    onValue(dbRef(db, 'terminalAssignments'), snap => {
+        _admAssignData = snap.val() || {};
+        admRenderTerminals();
+    });
     admResubscribeHistory();
 }
 
-// ★ 履歴リスナーを張り直す（フィルター変更時・初回起動時に呼ぶ）
+// ---- 端末一覧レンダリング ----
+function admRenderTerminals() {
+    const tbody = document.getElementById('adm-terminals-tbody');
+    if (!tbody) return;
+    const ids = Object.keys(_admTerminalData);
+    const countEl = document.getElementById('adm-terminal-count');
+    if (countEl) countEl.textContent = ids.length + '台';
+    if (!ids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">端末がありません</td></tr>';
+        return;
+    }
+    tbody.innerHTML = ids.map(devId => {
+        const t        = _admTerminalData[devId];
+        const assigned = _admAssignData[devId]?.playerId || null;
+        const online   = t.online
+            ? '<span class="adm-badge-on"></span>オンライン'
+            : '<span class="adm-badge-off"></span>オフライン';
+        const lastSeen = t.lastSeen
+            ? new Date(t.lastSeen).toLocaleString('ja-JP') : '—';
+        const pidCell  = assigned
+            ? `<span style="color:#88aaff;font-size:11px;font-family:'Courier New',monospace">${escH(assigned)}</span>`
+            : `<span style="color:#444;font-size:11px;font-style:italic">（未割り当て）</span>`;
+        const eid = escH(devId);
+        return `<tr>
+            <td>${online}</td>
+            <td style="color:#88aaff;font-size:11px;font-family:'Courier New',monospace">${eid}</td>
+            <td>${pidCell}</td>
+            <td style="color:#555;font-size:11px">${lastSeen}</td>
+            <td>
+                <button class="adm-btn" style="background:#0e1a2e;color:#88aaff;border-color:#88aaff"
+                    onclick="admOpenAssign('${eid}')">✏ IDを変更</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ---- 端末割り当てモーダル ----
+window.admOpenAssign = devId => {
+    _admAssigningDev = devId;
+    document.getElementById('adm-assign-device-label').textContent = '端末ID: ' + devId;
+    const cur = _admAssignData[devId]?.playerId || '';
+    document.getElementById('adm-assign-input').value = cur;
+    // プレイヤーリスト
+    const list = document.getElementById('adm-assign-player-list');
+    const pids = Object.keys(_admPlayersData);
+    list.innerHTML = pids.length
+        ? pids.map(pid => {
+            const dot = _admPlayersData[pid].online
+                ? 'style="background:#44ff88;box-shadow:0 0 5px #44ff88"'
+                : 'style="background:#444"';
+            return `<div class="adm-assign-item" onclick="admSelectPid('${escH(pid)}')">
+                <span class="adm-assign-dot" ${dot}></span>${escH(pid)}
+            </div>`;
+          }).join('')
+        : '<div style="color:#444;padding:10px;font-size:11px">プレイヤーがいません</div>';
+    document.getElementById('adm-assign-modal').classList.add('open');
+    setTimeout(() => document.getElementById('adm-assign-input').focus(), 80);
+};
+window.admSelectPid = pid => {
+    document.getElementById('adm-assign-input').value = pid;
+};
+window.admCloseAssign = () => {
+    document.getElementById('adm-assign-modal').classList.remove('open');
+    _admAssigningDev = null;
+};
+window.admSaveAssign = async () => {
+    if (!_admAssigningDev) return;
+    const newPid = document.getElementById('adm-assign-input').value.trim();
+    if (!newPid) { alert('プレイヤーIDを入力してください'); return; }
+    if (!_admPlayersData[newPid]) {
+        await set(dbRef(db, `players/${newPid}`), { coins: 10000, online: false, lastPlayAt: null });
+    }
+    await set(dbRef(db, `terminalAssignments/${_admAssigningDev}/playerId`), newPid);
+    await set(dbRef(db, `adminLogs/${Date.now()}`), {
+        action: 'assignPlayerId', deviceId: _admAssigningDev, playerId: newPid, at: Date.now()
+    });
+    admCloseAssign();
+};
+window.admClearAssign = async () => {
+    if (!_admAssigningDev) return;
+    if (!confirm(`端末「${_admAssigningDev}」の割り当てを解除しますか？`)) return;
+    await remove(dbRef(db, `terminalAssignments/${_admAssigningDev}`));
+    await set(dbRef(db, `adminLogs/${Date.now()}`), {
+        action: 'clearAssign', deviceId: _admAssigningDev, at: Date.now()
+    });
+    admCloseAssign();
+};
+document.getElementById('adm-assign-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.admSaveAssign();
+    if (e.key === 'Escape') window.admCloseAssign();
+});
+
+// ---- 履歴リスナー ----
 window.admResubscribeHistory = () => {
     if (_admHistoryUnsub) { _admHistoryUnsub(); _admHistoryUnsub = null; }
     const sel  = document.getElementById('adm-history-sel').value;
     const hRef = sel === 'all' ? dbRef(db, 'history') : dbRef(db, `history/${sel}`);
-    _admHistoryUnsub = onValue(hRef, snap => {
-        admRenderHistory(snap.val(), sel);
-    });
+    _admHistoryUnsub = onValue(hRef, snap => { admRenderHistory(snap.val(), sel); });
 };
 
 // ---- プレイヤー一覧 ----
@@ -617,14 +784,13 @@ function admRenderPlayers() {
         return;
     }
     tbody.innerHTML = ids.map(id => {
-        const p = _admPlayersData[id];
+        const p        = _admPlayersData[id];
         const coinsVal = (p.coins ?? 10000).toLocaleString();
         const online   = p.online
             ? '<span class="adm-badge-on"></span>オンライン'
             : '<span class="adm-badge-off"></span>オフライン';
         const lastPlay = p.lastPlayAt
-            ? new Date(p.lastPlayAt).toLocaleString('ja-JP')
-            : '—';
+            ? new Date(p.lastPlayAt).toLocaleString('ja-JP') : '—';
         const eid = escH(id);
         return `<tr>
             <td>${online}</td>
@@ -640,7 +806,7 @@ function admRenderPlayers() {
     }).join('');
 }
 
-// ---- 履歴描画（onValue コールバックから呼ばれる）----
+// ---- 履歴描画 ----
 function admRenderHistory(raw, sel) {
     const tbody = document.getElementById('adm-history-tbody');
     if (!raw) {
@@ -662,21 +828,15 @@ function admRenderHistory(raw, sel) {
     items = items.slice(0, 200);
     document.getElementById('adm-history-count').textContent =
         total > 200 ? `最新200件 / 全${total}件` : `${total}件`;
-
     tbody.innerHTML = items.map(e => {
-        const rCls   = e.result === 'win'   ? 'hist-result-win'
-                     : e.result === 'combo' ? 'hist-result-combo'
-                     :                        'hist-result-lose';
-        const rLabel = e.result === 'win'   ? '🎉 当たり'
-                     : e.result === 'combo' ? '🎊 コンボ'
-                     :                        '💔 ハズレ';
-        const mult  = e.result !== 'lose' ? `×${e.mult}` : '—';
-        const diff  = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
-        const chCls = diff >= 0 ? 'hist-change-pos' : 'hist-change-neg';
-        const chTxt = diff >= 0 ? `+${diff.toLocaleString()} G` : `${diff.toLocaleString()} G`;
-        const time  = new Date(e.at).toLocaleString('ja-JP', {
-            month:'2-digit', day:'2-digit',
-            hour:'2-digit', minute:'2-digit', second:'2-digit'
+        const rCls   = e.result === 'win' ? 'hist-result-win' : e.result === 'combo' ? 'hist-result-combo' : 'hist-result-lose';
+        const rLabel = e.result === 'win' ? '🎉 当たり' : e.result === 'combo' ? '🎊 コンボ' : '💔 ハズレ';
+        const mult   = e.result !== 'lose' ? `×${e.mult}` : '—';
+        const diff   = e.result !== 'lose' ? e.bet * e.mult : -e.bet;
+        const chCls  = diff >= 0 ? 'hist-change-pos' : 'hist-change-neg';
+        const chTxt  = diff >= 0 ? `+${diff.toLocaleString()} G` : `${diff.toLocaleString()} G`;
+        const time   = new Date(e.at).toLocaleString('ja-JP', {
+            month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'
         });
         return `<tr>
             <td class="hist-pid">${escH(e.pid)}</td>
@@ -723,7 +883,7 @@ window.admResetPlayer = async id => {
 
 // ---- プレイヤー削除 ----
 window.admDeletePlayer = async id => {
-    if (!confirm(`「${id}」を完全に削除しますか？\n残高データと全プレイ履歴が消去されます。この操作は取り消せません。`)) return;
+    if (!confirm(`「${id}」を完全に削除しますか？\n残高データと全プレイ履歴が消去されます。`)) return;
     await remove(dbRef(db, `players/${id}`));
     await remove(dbRef(db, `history/${id}`));
     await set(dbRef(db, `adminLogs/${Date.now()}`), { action:'deletePlayer', playerId:id, at:Date.now() });
@@ -748,7 +908,6 @@ function admRebuildHistoryFilter() {
         const opt = document.createElement('option');
         opt.value = id; opt.textContent = id; sel.appendChild(opt);
     });
-    // 選択が変わっていたらリスナー張り直し
     if (cur && sel.value !== cur) {
         sel.value = cur;
         admResubscribeHistory();
