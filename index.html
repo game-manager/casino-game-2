@@ -666,21 +666,27 @@ function setupPlayer(pid) {
 set(dbRef(db, `terminals/${deviceId}`), { online: true, lastSeen: Date.now() });
 onDisconnect(dbRef(db, `terminals/${deviceId}/online`)).set(false);
 
-onValue(dbRef(db, `terminalAssignments/${deviceId}/playerId`), snap => {
+// 初回：割り当てを即時取得してセットアップ
+get(dbRef(db, `terminalAssignments/${deviceId}/playerId`)).then(snap => {
     const assigned = snap.val();
     if (assigned) {
         setupPlayer(assigned);
     } else {
-        if (!playerId) {
-            let defaultId = localStorage.getItem('casino_player_id');
-            if (!defaultId) {
-                defaultId = 'player_' + Math.random().toString(36).slice(2, 9);
-            }
-            setupPlayer(defaultId);
+        let defaultId = localStorage.getItem('casino_player_id');
+        if (!defaultId) {
+            defaultId = 'player_' + Math.random().toString(36).slice(2, 9);
         }
+        setupPlayer(defaultId);
     }
 });
 
+// 以降：管理者が変更した時だけリアルタイムで切り替え
+onValue(dbRef(db, `terminalAssignments/${deviceId}/playerId`), snap => {
+    const assigned = snap.val();
+    if (assigned && assigned !== playerId) {
+        setupPlayer(assigned);
+    }
+});
 // =====================================================
 //  Firebase保存ヘルパー
 // =====================================================
