@@ -183,13 +183,29 @@
         .adm-section-title {
             color:#888; font-size:10px; letter-spacing:3px; text-transform:uppercase;
             padding-bottom:8px; border-bottom:1px solid #2a2a2a; margin-bottom:14px;
+            display:flex; align-items:center; gap:8px;
         }
-        .adm-section-title .adm-count-badge {
+        .adm-count-badge {
             display:inline-block; background:#2a2a2a; color:#aaa;
             border-radius:10px; padding:1px 8px; font-size:10px;
-            margin-left:8px; letter-spacing:0; font-weight:normal;
+            margin-left:2px; letter-spacing:0; font-weight:normal;
             text-transform:none;
         }
+
+        /* 端末一覧 */
+        #adm-terminals-section { margin-bottom:30px; }
+        #adm-terminals-table { width:100%; border-collapse:collapse; }
+        #adm-terminals-table th {
+            background:#0e1520; color:#88aaff; font-size:10px; letter-spacing:2px;
+            padding:9px 10px; text-align:left; border-bottom:2px solid #1a2535;
+        }
+        #adm-terminals-table td {
+            padding:9px 10px; border-bottom:1px solid #161e2a;
+            font-size:12px; vertical-align:middle;
+        }
+        #adm-terminals-table tr:hover td { background:#0e1520; }
+
+        /* プレイヤー一覧 */
         #adm-players-section { margin-bottom:30px; }
         #adm-players-table { width:100%; border-collapse:collapse; }
         #adm-players-table th {
@@ -217,7 +233,62 @@
         .adm-btn-orange:hover { background:#ffaa44; color:#000; }
         .adm-btn-red    { background:#2a1010; color:#ff5555; border-color:#ff5555; }
         .adm-btn-red:hover    { background:#ff5555; color:#fff; }
-        #adm-no-players { color:#444; text-align:center; padding:26px; font-size:12px; }
+
+        /* 履歴 */
+        #adm-history-section { margin-bottom:28px; }
+        .adm-history-toolbar {
+            display:flex; gap:10px; align-items:center; margin-bottom:12px;
+            flex-wrap:wrap; justify-content:space-between;
+        }
+        .adm-history-toolbar-left { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .adm-history-toolbar label { color:#888; font-size:11px; white-space:nowrap; }
+        #adm-history-sel {
+            padding:6px 10px; background:#111; color:#ffd700;
+            border:1px solid #444; border-radius:6px;
+            font-family:'Courier New',monospace; font-size:12px; min-width:160px;
+        }
+        #adm-history-sel:focus { outline:none; border-color:#ffd700; }
+        #adm-history-refresh {
+            padding:5px 12px; background:#1a1a2a; color:#88aaff;
+            border:1px solid #88aaff; border-radius:6px;
+            font-family:'Courier New',monospace; font-size:11px; cursor:pointer;
+            transition:all 0.15s;
+        }
+        #adm-history-refresh:hover { background:#88aaff; color:#000; }
+        #adm-history-table-wrap { max-height:320px; overflow-y:auto; border:1px solid #222; border-radius:8px; }
+        #adm-history-table { width:100%; border-collapse:collapse; }
+        #adm-history-table th {
+            background:#111; color:#555; font-size:10px; letter-spacing:2px;
+            padding:8px 10px; text-align:left; position:sticky; top:0; z-index:1;
+            border-bottom:1px solid #2a2a2a;
+        }
+        #adm-history-table td { padding:8px 10px; border-bottom:1px solid #181818; font-size:11px; font-family:'Courier New',monospace; }
+        #adm-history-table tr:hover td { background:#141414; }
+        .hist-result-win   { color:#44ff88; font-weight:bold; }
+        .hist-result-lose  { color:#ff5555; font-weight:bold; }
+        .hist-result-combo { color:#44ddff; font-weight:bold; }
+        .hist-change-pos   { color:#44ff88; }
+        .hist-change-neg   { color:#ff5555; }
+        .hist-pid          { color:#888; font-size:10px; }
+        .hist-time         { color:#444; font-size:10px; }
+
+        /* リセット */
+        #adm-reset-section {
+            background:#160808; border:1px solid #3a1a1a;
+            border-radius:10px; padding:18px 22px;
+            display:flex; justify-content:space-between; align-items:center; gap:16px;
+        }
+        .adm-reset-desc { color:#888; font-size:11px; line-height:1.7; }
+        .adm-reset-desc strong { color:#ff5555; }
+        #adm-global-reset-btn {
+            padding:9px 20px; background:#3a0000; color:#ff5555;
+            border:1px solid #ff5555; border-radius:7px; cursor:pointer; white-space:nowrap;
+            font-family:'Courier New',monospace; font-size:12px;
+            font-weight:bold; letter-spacing:2px; transition:all 0.15s;
+        }
+        #adm-global-reset-btn:hover { background:#ff5555; color:#fff; }
+
+        /* 残高変更モーダル */
         #adm-edit-modal {
             display:none; position:fixed; inset:0; z-index:9500;
             background:rgba(0,0,0,0.85); align-items:center; justify-content:center;
@@ -250,77 +321,64 @@
             font-family:'Courier New',monospace; font-size:13px; cursor:pointer;
         }
         .adm-modal-cancel:hover { background:#333; color:#ccc; }
-        #adm-history-section { margin-bottom:28px; }
-        .adm-history-toolbar {
-            display:flex; gap:10px; align-items:center; margin-bottom:12px;
-            flex-wrap:wrap; justify-content:space-between;
+
+        /* 端末割り当てモーダル */
+        #adm-assign-modal {
+            display:none; position:fixed; inset:0; z-index:9500;
+            background:rgba(0,0,0,0.88); align-items:center; justify-content:center;
         }
-        .adm-history-toolbar-left { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-        .adm-history-toolbar label { color:#888; font-size:11px; white-space:nowrap; }
-        #adm-history-sel {
-            padding:6px 10px; background:#111; color:#ffd700;
-            border:1px solid #444; border-radius:6px;
-            font-family:'Courier New',monospace; font-size:12px; min-width:160px;
+        #adm-assign-modal.open { display:flex; }
+        .adm-assign-box {
+            background:#111a2a; border:2px solid #88aaff;
+            border-radius:14px; padding:28px 26px; width:360px;
         }
-        #adm-history-sel:focus { outline:none; border-color:#ffd700; }
-        #adm-history-refresh {
-            padding:5px 12px; background:#1a1a2a; color:#88aaff;
-            border:1px solid #88aaff; border-radius:6px;
-            font-family:'Courier New',monospace; font-size:11px; cursor:pointer;
-            transition:all 0.15s;
+        .adm-assign-box h3 { color:#88aaff; margin-bottom:5px; letter-spacing:2px; font-size:15px; }
+        #adm-assign-device-label { color:#334455; font-size:11px; margin-bottom:18px; font-family:'Courier New',monospace; }
+        .adm-assign-box label { color:#888; font-size:10px; letter-spacing:2px; display:block; margin-bottom:5px; }
+        #adm-assign-input {
+            width:100%; padding:10px 12px; background:#0a1020; color:#88aaff;
+            border:1px solid #334; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:15px; margin-bottom:8px;
         }
-        #adm-history-refresh:hover { background:#88aaff; color:#000; }
-        #adm-history-table-wrap {
-            max-height:320px; overflow-y:auto;
-            border:1px solid #222; border-radius:8px;
+        #adm-assign-input:focus { outline:none; border-color:#88aaff; }
+        .adm-assign-hint { color:#334455; font-size:11px; margin-bottom:12px; }
+        .adm-assign-player-list {
+            max-height:130px; overflow-y:auto;
+            border:1px solid #1a2535; border-radius:6px; margin-bottom:16px;
         }
-        #adm-history-table { width:100%; border-collapse:collapse; }
-        #adm-history-table th {
-            background:#111; color:#555; font-size:10px; letter-spacing:2px;
-            padding:8px 10px; text-align:left; position:sticky; top:0; z-index:1;
-            border-bottom:1px solid #2a2a2a;
+        .adm-assign-item {
+            display:flex; align-items:center; gap:8px;
+            padding:8px 12px; cursor:pointer; font-size:11px; color:#888;
+            border-bottom:1px solid #1a1a2a; transition:background 0.1s;
+            font-family:'Courier New',monospace;
         }
-        #adm-history-table td {
-            padding:8px 10px; border-bottom:1px solid #181818;
-            font-size:11px; font-family:'Courier New',monospace;
+        .adm-assign-item:hover { background:#1a2a3a; color:#88aaff; }
+        .adm-assign-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .adm-assign-actions { display:flex; gap:8px; margin-bottom:8px; }
+        .adm-assign-save {
+            flex:1; padding:10px; background:linear-gradient(135deg,#1a3a6a,#0a2040);
+            color:#88aaff; border:1px solid #88aaff; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px;
+            font-weight:bold; cursor:pointer; letter-spacing:2px;
         }
-        #adm-history-table tr:hover td { background:#141414; }
-        .hist-result-win   { color:#44ff88; font-weight:bold; }
-        .hist-result-lose  { color:#ff5555; font-weight:bold; }
-        .hist-result-combo { color:#44ddff; font-weight:bold; }
-        .hist-change-pos   { color:#44ff88; }
-        .hist-change-neg   { color:#ff5555; }
-        .hist-pid          { color:#888; font-size:10px; }
-        .hist-time         { color:#444; font-size:10px; }
-        #adm-no-history    { color:#444; text-align:center; padding:24px; font-size:12px; }
-        #adm-reset-section {
-            background:#160808; border:1px solid #3a1a1a;
-            border-radius:10px; padding:18px 22px;
-            display:flex; justify-content:space-between; align-items:center; gap:16px;
+        .adm-assign-save:hover { background:#88aaff; color:#000; }
+        .adm-assign-cancel {
+            flex:1; padding:10px; background:#1a1a2a; color:#888;
+            border:1px solid #333; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:13px; cursor:pointer;
         }
-        .adm-reset-desc { color:#888; font-size:11px; line-height:1.7; }
-        .adm-reset-desc strong { color:#ff5555; }
-        #adm-global-reset-btn {
-            padding:9px 20px; background:#3a0000; color:#ff5555;
-            border:1px solid #ff5555; border-radius:7px; cursor:pointer; white-space:nowrap;
-            font-family:'Courier New',monospace; font-size:12px;
-            font-weight:bold; letter-spacing:2px; transition:all 0.15s;
+        .adm-assign-cancel:hover { background:#2a2a3a; color:#ccc; }
+        .adm-assign-clear {
+            width:100%; padding:7px; background:#1a0a0a;
+            color:#ff5555; border:1px solid #3a1a1a; border-radius:7px;
+            font-family:'Courier New',monospace; font-size:11px;
+            cursor:pointer; letter-spacing:1px;
         }
-        #adm-global-reset-btn:hover { background:#ff5555; color:#fff; }
+        .adm-assign-clear:hover { background:#ff5555; color:#fff; }
+
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-track { background:#111; }
         ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
-        /* 端末割り当てプレイヤーリスト */
-.adm-assign-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; cursor: pointer;
-    font-size: 11px; color: #888;
-    border-bottom: 1px solid #1a1a2a;
-    transition: background 0.1s;
-    font-family: 'Courier New', monospace;
-}
-.adm-assign-item:hover { background: #1a2a3a; color: #88aaff; }
-.adm-assign-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     </style>
 </head>
 <body class="dark">
@@ -404,56 +462,30 @@
                     <button id="adm-logout-btn" onclick="admDoLogout()">LOGOUT</button>
                 </div>
             </div>
-<!-- 端末一覧セクション -->
-<div id="adm-terminals-section" style="margin-bottom:30px;">
-    <div class="adm-section-title">
-        🖥 端末一覧 — プレイヤーID管理
-        <span class="adm-count-badge" id="adm-terminal-count">0台</span>
-    </div>
-    <table id="adm-terminals-table" style="width:100%;border-collapse:collapse;">
-        <thead>
-            <tr>
-                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">STATUS</th>
-                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">端末ID</th>
-                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">割り当てプレイヤーID</th>
-                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">最終確認</th>
-                <th style="background:#0e1520;color:#88aaff;font-size:10px;letter-spacing:2px;padding:9px 10px;text-align:left;border-bottom:2px solid #1a2535;">操作</th>
-            </tr>
-        </thead>
-        <tbody id="adm-terminals-tbody">
-            <tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">読み込み中…</td></tr>
-        </tbody>
-    </table>
-</div>
 
-<!-- 端末割り当てモーダル -->
-<div id="adm-assign-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;">
-    <div style="background:#111a2a;border:2px solid #88aaff;border-radius:14px;padding:28px 26px;width:360px;">
-        <h3 style="color:#88aaff;margin-bottom:5px;letter-spacing:2px;font-size:15px;">🖥 プレイヤーIDを割り当て</h3>
-        <div id="adm-assign-device-label" style="color:#334455;font-size:11px;margin-bottom:18px;font-family:'Courier New',monospace;"></div>
-        <label style="color:#888;font-size:10px;letter-spacing:2px;display:block;margin-bottom:5px;">プレイヤーID</label>
-        <input type="text" id="adm-assign-input"
-            style="width:100%;padding:10px 12px;background:#0a1020;color:#88aaff;border:1px solid #334;border-radius:7px;font-family:'Courier New',monospace;font-size:15px;margin-bottom:8px;outline:none;"
-            placeholder="player_xxxxxxx">
-        <div style="color:#334455;font-size:11px;margin-bottom:12px;">既存プレイヤーを選択 または 新しいIDを直接入力</div>
-        <div id="adm-assign-player-list"
-            style="max-height:130px;overflow-y:auto;border:1px solid #1a2535;border-radius:6px;margin-bottom:16px;"></div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <button onclick="admSaveAssign()"
-                style="flex:1;padding:10px;background:linear-gradient(135deg,#1a3a6a,#0a2040);color:#88aaff;border:1px solid #88aaff;border-radius:7px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;cursor:pointer;letter-spacing:2px;">
-                ✔ 割り当て
-            </button>
-            <button onclick="admCloseAssign()"
-                style="flex:1;padding:10px;background:#1a1a2a;color:#888;border:1px solid #333;border-radius:7px;font-family:'Courier New',monospace;font-size:13px;cursor:pointer;">
-                キャンセル
-            </button>
-        </div>
-        <button onclick="admClearAssign()"
-            style="width:100%;padding:7px;background:#1a0a0a;color:#ff5555;border:1px solid #3a1a1a;border-radius:7px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;letter-spacing:1px;">
-            ✕ 割り当て解除（デフォルトIDに戻す）
-        </button>
-    </div>
-</div>
+            <!-- 端末一覧 -->
+            <div id="adm-terminals-section">
+                <div class="adm-section-title">
+                    🖥 端末一覧 — プレイヤーID管理
+                    <span class="adm-count-badge" id="adm-terminal-count">0台</span>
+                </div>
+                <table id="adm-terminals-table">
+                    <thead>
+                        <tr>
+                            <th>STATUS</th>
+                            <th>端末ID</th>
+                            <th>割り当てプレイヤーID</th>
+                            <th>最終確認</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adm-terminals-tbody">
+                        <tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">読み込み中…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- プレイヤー一覧 -->
             <div id="adm-players-section">
                 <div class="adm-section-title">
                     👥 プレイヤー一覧
@@ -475,6 +507,7 @@
                 </table>
             </div>
 
+            <!-- 履歴 -->
             <div id="adm-history-section">
                 <div class="adm-section-title">
                     📋 プレイ履歴
@@ -506,6 +539,7 @@
                 </div>
             </div>
 
+            <!-- 全体リセット -->
             <div id="adm-reset-section">
                 <div class="adm-reset-desc">
                     <strong>⚠ 全体リセット</strong><br>
@@ -516,6 +550,7 @@
         </div>
     </div>
 
+    <!-- 残高変更モーダル -->
     <div id="adm-edit-modal">
         <div class="adm-modal-box">
             <h3>✏ 残高を変更</h3>
@@ -527,6 +562,23 @@
                 <button class="adm-modal-save" onclick="admSaveCoins()">保存</button>
                 <button class="adm-modal-cancel" onclick="admCloseModal()">キャンセル</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 端末割り当てモーダル -->
+    <div id="adm-assign-modal">
+        <div class="adm-assign-box">
+            <h3>🖥 プレイヤーIDを割り当て</h3>
+            <div id="adm-assign-device-label"></div>
+            <label>プレイヤーID</label>
+            <input type="text" id="adm-assign-input" placeholder="player_xxxxxxx">
+            <div class="adm-assign-hint">既存プレイヤーを選択 または 新しいIDを直接入力</div>
+            <div class="adm-assign-player-list" id="adm-assign-player-list"></div>
+            <div class="adm-assign-actions">
+                <button class="adm-assign-save" onclick="admSaveAssign()">✔ 割り当て</button>
+                <button class="adm-assign-cancel" onclick="admCloseAssign()">キャンセル</button>
+            </div>
+            <button class="adm-assign-clear" onclick="admClearAssign()">✕ 割り当て解除（デフォルトIDに戻す）</button>
         </div>
     </div>
 
@@ -554,7 +606,7 @@ const auth = getAuth(app);
 const db   = getDatabase(app);
 
 // =====================================================
-//  端末ID（デバイスID）― 永続的、変更しない
+//  端末ID（デバイスID）― 永続的・変更しない
 // =====================================================
 let deviceId = localStorage.getItem('casino_device_id');
 if (!deviceId) {
@@ -563,34 +615,22 @@ if (!deviceId) {
 }
 
 // =====================================================
-//  プレイヤー状態（動的に切り替わる）
+//  プレイヤー状態（管理者操作で動的に切り替わる）
 // =====================================================
-let playerId   = null;
+let playerId    = null;
 let _coinsUnsub = null;
 let _prevCoins  = null;
 
-/**
- * 指定した playerId でゲームを初期化する。
- * 管理者が割り当てを変更したときも呼ばれる。
- */
 function setupPlayer(pid) {
-    if (playerId === pid) return;   // 変化なしなら何もしない
-
-    // 旧プレイヤーのオンライン状態をオフにする
-    if (playerId) {
-        set(dbRef(db, `players/${playerId}/online`), false);
-    }
-    // コインリスナーを解除
+    if (playerId === pid) return;
+    if (playerId) set(dbRef(db, `players/${playerId}/online`), false);
     if (_coinsUnsub) { _coinsUnsub(); _coinsUnsub = null; }
 
     playerId = pid;
     localStorage.setItem('casino_player_id', playerId);
-
-    // 表示更新
     document.getElementById('player-id-display').textContent =
         'ID: ' + playerId + '  |  端末: ' + deviceId;
 
-    // Firebaseからコインを取得して初期化
     const pRef = dbRef(db, `players/${playerId}`);
     get(pRef).then(snap => {
         if (!snap.exists()) {
@@ -599,13 +639,12 @@ function setupPlayer(pid) {
         } else {
             set(dbRef(db, `players/${playerId}/online`), true);
             const saved = snap.val().coins;
-            if (typeof saved === 'number') { coins = saved; }
+            if (typeof saved === 'number') coins = saved;
         }
         updateCoinDisplay();
     });
 
-    // コイン変更をリアルタイム監視
-    _prevCoins = null;
+    _prevCoins  = null;
     _coinsUnsub = onValue(dbRef(db, `players/${playerId}/coins`), snap => {
         const val = snap.val();
         if (typeof val !== 'number') return;
@@ -618,27 +657,20 @@ function setupPlayer(pid) {
         _prevCoins = val;
     });
 
-    // 切断時にオフライン化
     onDisconnect(dbRef(db, `players/${playerId}/online`)).set(false);
 }
 
 // =====================================================
-//  端末をFirebaseに登録 ＋ 割り当て変更を監視
+//  端末をFirebaseに登録 ＋ 割り当て変更をリアルタイム監視
 // =====================================================
-// 端末の存在を登録
-set(dbRef(db, `terminals/${deviceId}`), {
-    online: true, lastSeen: Date.now()
-});
+set(dbRef(db, `terminals/${deviceId}`), { online: true, lastSeen: Date.now() });
 onDisconnect(dbRef(db, `terminals/${deviceId}/online`)).set(false);
 
-// 管理者による割り当て変更をリアルタイムで監視
 onValue(dbRef(db, `terminalAssignments/${deviceId}/playerId`), snap => {
     const assigned = snap.val();
     if (assigned) {
-        // 管理者が割り当てたIDを使用
         setupPlayer(assigned);
     } else {
-        // 割り当てがなければ localStorage のデフォルトIDを使用
         if (!playerId) {
             let defaultId = localStorage.getItem('casino_player_id');
             if (!defaultId) {
@@ -650,7 +682,7 @@ onValue(dbRef(db, `terminalAssignments/${deviceId}/playerId`), snap => {
 });
 
 // =====================================================
-//  fbSaveCoins / fbLogHistory（playerId 動的参照）
+//  Firebase保存ヘルパー
 // =====================================================
 window.fbSaveCoins = c => {
     if (!playerId) return;
@@ -665,13 +697,13 @@ window.fbLogHistory = (result, bet, mult) => {
 // =====================================================
 //  管理者パネル
 // =====================================================
-let _admPlayersData   = {};
-let _admTerminalData  = {};
-let _admAssignData    = {};
-let _admEditingId     = null;
-let _admAssigningDev  = null;
-let _admPlayersUnsub  = null;
-let _admHistoryUnsub  = null;
+let _admPlayersData  = {};
+let _admTerminalData = {};
+let _admAssignData   = {};
+let _admEditingId    = null;
+let _admAssigningDev = null;
+let _admPlayersUnsub = null;
+let _admHistoryUnsub = null;
 
 window.openAdminPanel = () => {
     document.getElementById('admin-overlay').classList.add('open');
@@ -722,7 +754,6 @@ function startAdmListeners() {
             admRebuildHistoryFilter();
         });
     }
-    // 端末一覧と割り当て
     onValue(dbRef(db, 'terminals'), snap => {
         _admTerminalData = snap.val() || {};
         admRenderTerminals();
@@ -737,10 +768,8 @@ function startAdmListeners() {
 // ---- 端末一覧レンダリング ----
 function admRenderTerminals() {
     const tbody = document.getElementById('adm-terminals-tbody');
-    if (!tbody) return;
-    const ids = Object.keys(_admTerminalData);
-    const countEl = document.getElementById('adm-terminal-count');
-    if (countEl) countEl.textContent = ids.length + '台';
+    const ids   = Object.keys(_admTerminalData);
+    document.getElementById('adm-terminal-count').textContent = ids.length + '台';
     if (!ids.length) {
         tbody.innerHTML = '<tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">端末がありません</td></tr>';
         return;
@@ -776,16 +805,15 @@ window.admOpenAssign = devId => {
     document.getElementById('adm-assign-device-label').textContent = '端末ID: ' + devId;
     const cur = _admAssignData[devId]?.playerId || '';
     document.getElementById('adm-assign-input').value = cur;
-    // プレイヤーリスト
     const list = document.getElementById('adm-assign-player-list');
     const pids = Object.keys(_admPlayersData);
     list.innerHTML = pids.length
         ? pids.map(pid => {
-            const dot = _admPlayersData[pid].online
-                ? 'style="background:#44ff88;box-shadow:0 0 5px #44ff88"'
-                : 'style="background:#444"';
+            const dotStyle = _admPlayersData[pid].online
+                ? 'background:#44ff88;box-shadow:0 0 5px #44ff88'
+                : 'background:#444';
             return `<div class="adm-assign-item" onclick="admSelectPid('${escH(pid)}')">
-                <span class="adm-assign-dot" ${dot}></span>${escH(pid)}
+                <span class="adm-assign-dot" style="${dotStyle}"></span>${escH(pid)}
             </div>`;
           }).join('')
         : '<div style="color:#444;padding:10px;font-size:11px">プレイヤーがいません</div>';
@@ -821,7 +849,7 @@ window.admClearAssign = async () => {
     });
     admCloseAssign();
 };
-document.getElementById('adm-assign-input')?.addEventListener('keydown', e => {
+document.getElementById('adm-assign-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') window.admSaveAssign();
     if (e.key === 'Escape') window.admCloseAssign();
 });
