@@ -10,9 +10,9 @@ body.dark {
     display: flex; flex-direction: column; align-items: center;
     justify-content: flex-start; min-height: 100vh; margin: 0;
     overflow-x: hidden; overflow-y: auto; position: relative;
-    padding: 10px 60px; font-family: 'Courier New', Courier, monospace;
+    padding: 10px 60px;
+    font-family: 'Courier New', Courier, monospace;
 }
-
 /* サイドバー */
 .side-bar {
     position: fixed; top: 0; width: 50px; height: 100%;
@@ -20,11 +20,8 @@ body.dark {
     border-right: 1px solid #c0a00033;
     transition: background 0.2s; z-index: 1;
 }
-#right-bar { border-right: none; border-left: 1px solid #c0a00033; }
-@keyframes rainbowSlide {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 0% 200%; }
-}
+#left-bar  { left: 0; }
+#right-bar { right: 0; border-right: none; border-left: 1px solid #c0a00033; }
 .side-bar.rainbow {
     background: linear-gradient(to bottom,
         #ff0000,#ff7700,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000,
