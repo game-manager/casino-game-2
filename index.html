@@ -2,233 +2,103 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>竜一中2年-スロット-ver.7</title>
+    <title>竜一中2年-スロット-ver.8</title>
     <style>
-        * { box-sizing: border-box; }
-body.dark {
-    background: radial-gradient(ellipse at top, #0a1a0f 0%, #050d08 60%, #000 100%);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: flex-start; min-height: 100vh; margin: 0;
-    overflow-x: hidden; overflow-y: auto; position: relative;
-    padding: 10px 60px;
-    font-family: 'Courier New', Courier, monospace;
-}
-/* サイドバー */
-.side-bar {
-    position: fixed; top: 0; width: 50px; height: 100%;
-    background: linear-gradient(to bottom, #1a0a00, #0a0500, #1a0a00);
-    border-right: 1px solid #c0a00033;
-    transition: background 0.2s; z-index: 1;
-}
-#left-bar  { left: 0; }
-#right-bar { right: 0; border-right: none; border-left: 1px solid #c0a00033; }
-.side-bar.rainbow {
-    background: linear-gradient(to bottom,
-        #ff0000,#ff7700,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000,
-        #ff7700,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);
-    background-size: 100% 200%;
-    animation: rainbowSlide 0.6s linear infinite;
-    transition: none;
-}
+       <body class="dark">
+    <div id="left-bar" class="side-bar"></div>
+    <div id="right-bar" class="side-bar"></div>
 
-/* コイン表示 */
-#coin-display {
-    margin-top: 16px;
-    background: linear-gradient(135deg, #0d1f14 0%, #0a1a0f 100%);
-    border: 1px solid #c0a000;
-    border-radius: 16px; padding: 14px 36px;
-    text-align: center; width: 100%; max-width: 480px;
-    box-shadow: 0 0 30px #c0a00022, inset 0 1px 0 #c0a00033;
-    position: relative; overflow: hidden;
-}
-#coin-display::before {
-    content: '♠ ♥ ♦ ♣';
-    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
-    color: #c0a00022; font-size: 11px; letter-spacing: 8px;
-}
-#coin-display .label {
-    color: #8a7a40; font-size: 10px; letter-spacing: 4px;
-    text-transform: uppercase; margin-bottom: 4px; margin-top: 8px;
-}
-#coin-display .amount {
-    color: #ffd700; font-size: 36px; font-weight: bold;
-    text-shadow: 0 0 20px #ffd70066, 0 2px 4px #0005;
-    line-height: 1.1;
-}
-#coin-display .coin-unit { color: #c0a000; font-size: 14px; margin-left: 6px; }
-#player-id-display {
-    color: #3a5a3a; font-size: 10px; letter-spacing: 1px;
-    margin-top: 6px; padding-top: 6px;
-    border-top: 1px solid #1a3a1a;
-}
+    <!-- タイトルヘッダー -->
+    <div id="game-header">
+        <div class="header-logo-row">
+            <span class="header-logo">🎰</span>
+            <div class="header-title">CASINO SLOTS</div>
+        </div>
+        <div class="header-sub">Lucky Seven Premium</div>
+        <div class="header-badge">竜一中2年 文化祭ver.</div>
+        <div class="header-dots">
+            <span class="header-dot" style="background:#cc2222;color:#cc2222">●</span>
+            <span class="header-dot" style="background:#cc8800;color:#cc8800">●</span>
+            <span class="header-dot" style="background:#cccc00;color:#cccc00">●</span>
+            <span class="header-dot" style="background:#22aa22;color:#22aa22">●</span>
+            <span class="header-dot" style="background:#2288cc;color:#2288cc">●</span>
+            <span class="header-dot" style="background:#8822cc;color:#8822cc">●</span>
+            <span class="header-dot" style="background:#cc2288;color:#cc2288">●</span>
+            <span class="header-dot" style="background:#cc2222;color:#cc2222">●</span>
+        </div>
+    </div>
 
-/* ベットパネル */
-#bet-panel {
-    margin-top: 12px;
-    background: linear-gradient(135deg, #0d1f14, #0a1a0f);
-    border: 1px solid #2a4a2a;
-    border-radius: 16px; padding: 16px 22px;
-    width: 100%; max-width: 480px;
-    box-shadow: 0 4px 20px #00000066;
-}
-#bet-panel .section-title {
-    color: #5a8a5a; font-size: 10px; letter-spacing: 4px;
-    text-align: center; margin-bottom: 12px;
-    text-transform: uppercase;
-}
-.bet-buttons { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-.bet-btn {
-    background: linear-gradient(135deg, #0f2a18, #0a1f12);
-    color: #c0a000; border: 1px solid #2a4a2a;
-    border-radius: 8px; padding: 8px 14px;
-    font-size: 13px; font-weight: bold;
-    font-family: 'Courier New', monospace;
-    cursor: pointer; transition: all 0.15s;
-    box-shadow: 0 2px 6px #00000044;
-}
-.bet-btn:hover { background: linear-gradient(135deg, #1a3a22, #143020); border-color: #c0a000; color: #ffd700; }
-.bet-btn.selected {
-    background: linear-gradient(135deg, #c0a000, #806800);
-    color: #000; border-color: #ffd700;
-    box-shadow: 0 0 12px #ffd70044, 0 2px 6px #00000066;
-}
-.bet-custom-row { display: flex; gap: 8px; align-items: center; justify-content: center; }
-#custom-bet {
-    background: #071209; color: #ffd700;
-    border: 1px solid #2a4a2a; border-radius: 8px;
-    padding: 8px 12px; font-size: 13px;
-    font-family: 'Courier New', monospace;
-    width: 130px; text-align: right;
-    transition: border-color 0.15s;
-}
-#custom-bet:focus { outline: none; border-color: #c0a000; box-shadow: 0 0 8px #c0a00033; }
-.custom-label { color: #5a7a5a; font-size: 11px; }
-#current-bet-display {
-    margin-top: 10px; text-align: center;
-    font-size: 12px; color: #5a7a5a; min-height: 18px;
-}
-#current-bet-display .bet-val { color: #ffd700; font-weight: bold; }
-.payout-hint { margin-top: 10px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-.payout-item {
-    font-size: 10px; color: #3a5a3a; text-align: center;
-    background: #071209; border: 1px solid #1a3a1a;
-    border-radius: 6px; padding: 4px 8px;
-}
-.payout-item span { display: block; color: #8a9a6a; font-weight: bold; margin-bottom: 2px; }
+    <!-- メインカード -->
+    <div id="main-card">
 
-/* スタートボタン */
-#start-btn {
-    margin-top: 14px; width: 100%; max-width: 480px; padding: 16px;
-    background: linear-gradient(135deg, #8b0000, #5a0000);
-    color: #ffd700; border: 1px solid #c0000066;
-    border-radius: 12px; font-size: 18px; font-weight: bold;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 6px; cursor: pointer;
-    box-shadow: 0 6px 0 #3a0000, 0 0 30px #8b000044;
-    transition: all 0.15s; text-shadow: 0 0 10px #ffd70066;
-}
-#start-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #a00000, #700000);
-    box-shadow: 0 6px 0 #3a0000, 0 0 40px #a0000066;
-}
-#start-btn:active:not(:disabled) {
-    transform: translateY(5px);
-    box-shadow: 0 1px 0 #3a0000, 0 0 20px #8b000044;
-}
-#start-btn:disabled {
-    background: linear-gradient(135deg, #1a1a1a, #111);
-    color: #3a3a3a; border-color: #2a2a2a;
-    box-shadow: none; cursor: not-allowed; text-shadow: none;
-}
+        <!-- コイン表示 -->
+        <div id="coin-display">
+            <div>
+                <div class="label">CHIPS</div>
+                <div id="player-id-display">接続中…</div>
+            </div>
+            <div>
+                <span class="amount" id="coinshow">10000</span><span class="coin-unit">G</span>
+            </div>
+        </div>
 
-/* リール */
-.reel-area { display: flex; gap: 16px; margin-top: 18px; z-index: 10; }
-.reel-column { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.reel-window {
-    width: 130px; height: 110px;
-    border: 2px solid #c0a00066;
-    border-radius: 12px; overflow: hidden;
-    background: #fff;
-    box-shadow: 0 0 20px #c0a00022, inset 0 0 10px #00000011;
-    position: relative;
-}
-.reel-window::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom,
-        rgba(0,0,0,0.15) 0%, transparent 30%,
-        transparent 70%, rgba(0,0,0,0.15) 100%);
-    pointer-events: none; z-index: 1;
-}
-.reel-strip { display: flex; flex-direction: column; animation: spin 0.75s linear infinite; }
-.reel-strip img { width: 130px; height: 110px; object-fit: contain; padding: 8px; box-sizing: border-box; }
-@keyframes spin { 0% { transform: translateY(0); } 100% { transform: translateY(-770px); } }
-@keyframes reachPulse {
-    0%, 100% { border-color: #c0a00066; box-shadow: 0 0 20px #c0a00022; }
-    50% { border-color: #ffd700; box-shadow: 0 0 30px #ffd70099; }
-}
-.reel-window.reach-flash { animation: reachPulse 0.45s ease-in-out infinite; }
+        <!-- リール -->
+        <div class="reel-area">
+            <div class="reel-column">
+                <div class="reel-window" id="win1"><div class="reel-strip" id="reel1"></div></div>
+                <button class="stop-btn" id="stopbtn1" onclick="stopReel('reel1',this)" disabled>STOP</button>
+            </div>
+            <div class="reel-column">
+                <div class="reel-window" id="win2"><div class="reel-strip" id="reel2"></div></div>
+                <button class="stop-btn" id="stopbtn2" onclick="stopReel('reel2',this)" disabled>STOP</button>
+            </div>
+            <div class="reel-column">
+                <div class="reel-window" id="win3"><div class="reel-strip" id="reel3"></div></div>
+                <button class="stop-btn" id="stopbtn3" onclick="stopReel('reel3',this)" disabled>STOP</button>
+            </div>
+        </div>
 
-/* ストップボタン */
-.stop-btn {
-    width: 90px; height: 40px;
-    background: linear-gradient(135deg, #8b0000, #5a0000);
-    color: #ffd700; border: 1px solid #c0000066;
-    border-radius: 8px; font-weight: bold;
-    font-family: 'Courier New', monospace; font-size: 12px;
-    letter-spacing: 2px; cursor: pointer;
-    box-shadow: 0 4px 0 #3a0000;
-    transition: all 0.1s;
-}
-.stop-btn:active:not(:disabled) { box-shadow: none; transform: translateY(3px); }
-.stop-btn:disabled {
-    background: linear-gradient(135deg, #1a1a1a, #111);
-    color: #333; border-color: #222;
-    box-shadow: none; transform: translateY(3px); cursor: not-allowed;
-}
+        <!-- リザルト -->
+        <div id="result-banner"></div>
 
-/* リザルト */
-#result-banner {
-    margin-top: 12px; min-height: 36px; text-align: center;
-    font-size: 14px; font-weight: bold;
-    color: #5a7a5a; letter-spacing: 2px;
-}
-#result-banner.win {
-    color: #ffd700;
-    text-shadow: 0 0 15px #ffd70066;
-}
-#result-banner.lose { color: #8b3333; }
+        <!-- ベットパネル -->
+        <div id="bet-panel">
+            <div class="section-title">掛け金を選ぶ</div>
+            <div class="bet-row">
+                <span class="bet-label">BET</span>
+                <div class="bet-buttons">
+                    <button class="bet-btn" onclick="selectBet(10,this)">10</button>
+                    <button class="bet-btn" onclick="selectBet(50,this)">50</button>
+                    <button class="bet-btn" onclick="selectBet(100,this)">100</button>
+                    <button class="bet-btn" onclick="selectBet(500,this)">500</button>
+                    <button class="bet-btn" onclick="selectBet(1000,this)">1000</button>
+                </div>
+            </div>
+            <div class="bet-custom-row">
+                <span class="custom-label">自分で入力:</span>
+                <input type="number" id="custom-bet" placeholder="金額" min="1" oninput="onCustomBetInput(this)">
+            </div>
+            <div id="current-bet-display">掛け金: <span class="bet-val" id="bet-val-text">未選択</span></div>
+            <div class="payout-hint">
+                <div class="payout-item"><span>2・4・6 揃い</span>×5</div>
+                <div class="payout-item"><span>1・3・5 揃い</span>×10</div>
+                <div class="payout-item"><span>7 揃い</span>×15</div>
+                <div class="payout-item"><span>1・2・3 順不同</span>×8</div>
+                <div class="payout-item"><span>4・5・6 順不同</span>×6</div>
+            </div>
+        </div>
 
-/* エフェクト */
-#effect-overlay {
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100; pointer-events: none;
-    display: none; text-align: center;
-}
-#effect-img { max-width: 400px; transition: transform 0.3s ease-out; }
-.kira-particle {
-    position: fixed; width: 90px; height: 90px;
-    z-index: 150; pointer-events: none;
-    animation: kira-fade 1s ease-out forwards;
-}
-@keyframes kira-fade {
-    0%   { transform: scale(0) rotate(0deg); opacity: 0; }
-    50%  { opacity: 1; }
-    100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
-}
-.egg-size-1 { transform: scale(1.2); }
-.egg-size-2 { transform: scale(1.5); }
-.egg-size-3 { transform: scale(2.0); }
-.chance-large { transform: scale(1.8); }
-.spacer { height: 20px; }
+        <!-- スタートボタン -->
+        <button id="start-btn" onclick="startGame()" disabled>
+            <span class="btn-icon">🎰</span> SPIN
+        </button>
 
-@keyframes adminFlash {
-    0%, 100% { background: linear-gradient(135deg, #0d1f14, #0a1a0f); }
-    50%       { background: linear-gradient(135deg, #1a3a22, #143020); }
-}
-.admin-updated { animation: adminFlash 0.5s ease-in-out 3; }
+    </div><!-- /main-card -->
 
+    <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
+    <div class="spacer"></div>
+
+    <!-- 管理者パネル以降はそのまま -->
 /* ===== 管理者パネル ===== */
 #admin-overlay {
     display: none; position: fixed; inset: 0; z-index: 9000;
