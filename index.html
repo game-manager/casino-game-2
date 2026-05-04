@@ -305,17 +305,7 @@ body.dark {
     border-radius: 10px; padding: 1px 8px; font-size: 10px;
     margin-left: 2px; letter-spacing: 0; font-weight: normal; text-transform: none;
 }
-#adm-terminals-section { margin-bottom: 30px; }
-#adm-terminals-table { width: 100%; border-collapse: collapse; }
-#adm-terminals-table th {
-    background: #071a10; color: #5a9a6a; font-size: 10px; letter-spacing: 2px;
-    padding: 9px 10px; text-align: left; border-bottom: 2px solid #1a3a2a;
-}
-#adm-terminals-table td {
-    padding: 9px 10px; border-bottom: 1px solid #0f2015;
-    font-size: 12px; vertical-align: middle;
-}
-#adm-terminals-table tr:hover td { background: #071a10; }
+
 #adm-players-section { margin-bottom: 30px; }
 #adm-players-table { width: 100%; border-collapse: collapse; }
 #adm-players-table th {
@@ -430,60 +420,40 @@ body.dark {
     font-family: 'Courier New', monospace; font-size: 13px; cursor: pointer;
 }
 .adm-modal-cancel:hover { background: #1a3a22; color: #aaa; }
-#adm-assign-modal {
+#adm-rename-modal {
     display: none; position: fixed; inset: 0; z-index: 9500;
     background: rgba(0,5,2,0.92); align-items: center; justify-content: center;
 }
-#adm-assign-modal.open { display: flex; }
-.adm-assign-box {
-    background: #071a10; border: 1px solid #2a6a3a;
-    border-radius: 14px; padding: 28px 26px; width: 360px;
-    box-shadow: 0 0 40px #00000088;
+#adm-rename-modal.open { display: flex; }
+.adm-rename-box {
+    background: #0d1f14; border: 1px solid #c0a000;
+    border-radius: 14px; padding: 28px 26px; width: 340px;
+    box-shadow: 0 0 40px #c0a00022;
 }
-.adm-assign-box h3 { color: #44ff88; margin-bottom: 5px; letter-spacing: 2px; font-size: 15px; }
-#adm-assign-device-label { color: #2a4a2a; font-size: 11px; margin-bottom: 18px; font-family: 'Courier New', monospace; }
-.adm-assign-box label { color: #5a7a5a; font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 5px; }
-#adm-assign-input {
-    width: 100%; padding: 10px 12px; background: #040f08; color: #44ff88;
-    border: 1px solid #1a4a2a; border-radius: 7px;
-    font-family: 'Courier New', monospace; font-size: 15px; margin-bottom: 8px;
+.adm-rename-box h3 { color: #ffd700; margin-bottom: 16px; letter-spacing: 2px; font-size: 15px; }
+.adm-rename-box label { color: #5a7a5a; font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 5px; }
+#adm-rename-old-pid { color: #3a5a3a; font-size: 11px; margin-bottom: 14px; font-family: 'Courier New', monospace; }
+#adm-rename-input {
+    width: 100%; padding: 10px 12px; background: #071209; color: #ffd700;
+    border: 1px solid #2a4a2a; border-radius: 7px;
+    font-family: 'Courier New', monospace; font-size: 15px; margin-bottom: 16px;
 }
-#adm-assign-input:focus { outline: none; border-color: #44ff88; }
-.adm-assign-hint { color: #2a4a2a; font-size: 11px; margin-bottom: 12px; }
-.adm-assign-player-list {
-    max-height: 130px; overflow-y: auto;
-    border: 1px solid #1a3a2a; border-radius: 6px; margin-bottom: 16px;
-}
-.adm-assign-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; cursor: pointer; font-size: 11px; color: #5a7a5a;
-    border-bottom: 1px solid #0f2015; transition: background 0.1s;
-    font-family: 'Courier New', monospace;
-}
-.adm-assign-item:hover { background: #0f2a18; color: #44ff88; }
-.adm-assign-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.adm-assign-actions { display: flex; gap: 8px; margin-bottom: 8px; }
-.adm-assign-save {
+#adm-rename-input:focus { outline: none; border-color: #c0a000; }
+.adm-rename-actions { display: flex; gap: 8px; }
+.adm-rename-save {
     flex: 1; padding: 10px;
-    background: linear-gradient(135deg, #0f2a18, #0a1f12);
-    color: #44ff88; border: 1px solid #2a6a3a; border-radius: 7px;
+    background: linear-gradient(135deg, #c0a000, #806800);
+    color: #000; border: none; border-radius: 7px;
     font-family: 'Courier New', monospace; font-size: 13px;
     font-weight: bold; cursor: pointer; letter-spacing: 2px;
 }
-.adm-assign-save:hover { background: #44ff88; color: #000; }
-.adm-assign-cancel {
+.adm-rename-save:hover { background: linear-gradient(135deg, #ffd700, #c0a000); }
+.adm-rename-cancel {
     flex: 1; padding: 10px; background: #0a1a0f; color: #5a7a5a;
-    border: 1px solid #1a3a1a; border-radius: 7px;
+    border: 1px solid #2a4a2a; border-radius: 7px;
     font-family: 'Courier New', monospace; font-size: 13px; cursor: pointer;
 }
-.adm-assign-cancel:hover { background: #1a3a22; color: #aaa; }
-.adm-assign-clear {
-    width: 100%; padding: 7px; background: #1a0505;
-    color: #ff5555; border: 1px solid #3a1a1a; border-radius: 7px;
-    font-family: 'Courier New', monospace; font-size: 11px;
-    cursor: pointer; letter-spacing: 1px;
-}
-.adm-assign-clear:hover { background: #ff5555; color: #fff; }
+.adm-rename-cancel:hover { background: #1a3a22; color: #aaa; }
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #050d08; }
@@ -598,28 +568,6 @@ body.shake {
                 </div>
             </div>
 
-            <!-- 端末一覧 -->
-            <div id="adm-terminals-section">
-                <div class="adm-section-title">
-                    🖥 端末一覧 — プレイヤーID管理
-                    <span class="adm-count-badge" id="adm-terminal-count">0台</span>
-                </div>
-                <table id="adm-terminals-table">
-                    <thead>
-                        <tr>
-                            <th>STATUS</th>
-                            <th>端末ID</th>
-                            <th>割り当てプレイヤーID</th>
-                            <th>最終確認</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adm-terminals-tbody">
-                        <tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">読み込み中…</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
             <!-- プレイヤー一覧 -->
             <div id="adm-players-section">
                 <div class="adm-section-title">
@@ -700,20 +648,18 @@ body.shake {
         </div>
     </div>
 
-    <!-- 端末割り当てモーダル -->
-    <div id="adm-assign-modal">
-        <div class="adm-assign-box">
-            <h3>🖥 プレイヤーIDを割り当て</h3>
-            <div id="adm-assign-device-label"></div>
-            <label>プレイヤーID</label>
-            <input type="text" id="adm-assign-input" placeholder="player_xxxxxxx">
-            <div class="adm-assign-hint">既存プレイヤーを選択 または 新しいIDを直接入力</div>
-            <div class="adm-assign-player-list" id="adm-assign-player-list"></div>
-            <div class="adm-assign-actions">
-                <button class="adm-assign-save" onclick="admSaveAssign()">✔ 割り当て</button>
-                <button class="adm-assign-cancel" onclick="admCloseAssign()">キャンセル</button>
+    <!-- プレイヤーID変更モーダル -->
+    <div id="adm-rename-modal">
+        <div class="adm-rename-box">
+            <h3>✏ プレイヤーIDを変更</h3>
+            <label>現在のID</label>
+            <div id="adm-rename-old-pid"></div>
+            <label>新しいプレイヤーID</label>
+            <input type="text" id="adm-rename-input" placeholder="player_xxxxxxx">
+            <div class="adm-rename-actions">
+                <button class="adm-rename-save" onclick="admSaveRename()">保存</button>
+                <button class="adm-rename-cancel" onclick="admCloseRename()">キャンセル</button>
             </div>
-            <button class="adm-assign-clear" onclick="admClearAssign()">✕ 割り当て解除（デフォルトIDに戻す）</button>
         </div>
     </div>
 
@@ -839,10 +785,8 @@ window.fbLogHistory = (result, bet, mult) => {
 //  管理者パネル
 // =====================================================
 let _admPlayersData  = {};
-let _admTerminalData = {};
-let _admAssignData   = {};
 let _admEditingId    = null;
-let _admAssigningDev = null;
+let _admRenamingId   = null;
 let _admPlayersUnsub = null;
 let _admHistoryUnsub = null;
 
@@ -895,104 +839,57 @@ function startAdmListeners() {
             admRebuildHistoryFilter();
         });
     }
-    onValue(dbRef(db, 'terminals'), snap => {
-        _admTerminalData = snap.val() || {};
-        admRenderTerminals();
-    });
-    onValue(dbRef(db, 'terminalAssignments'), snap => {
-        _admAssignData = snap.val() || {};
-        admRenderTerminals();
-    });
     admResubscribeHistory();
 }
 
-// ---- 端末一覧レンダリング ----
-function admRenderTerminals() {
-    const tbody = document.getElementById('adm-terminals-tbody');
-    const ids   = Object.keys(_admTerminalData);
-    document.getElementById('adm-terminal-count').textContent = ids.length + '台';
-    if (!ids.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color:#444;text-align:center;padding:20px;font-size:12px;">端末がありません</td></tr>';
-        return;
+// ---- プレイヤーID変更モーダル ----
+window.admOpenRename = id => {
+    _admRenamingId = id;
+    document.getElementById('adm-rename-old-pid').textContent = id;
+    document.getElementById('adm-rename-input').value = id;
+    document.getElementById('adm-rename-modal').classList.add('open');
+    setTimeout(() => {
+        const inp = document.getElementById('adm-rename-input');
+        inp.focus(); inp.select();
+    }, 80);
+};
+window.admCloseRename = () => {
+    document.getElementById('adm-rename-modal').classList.remove('open');
+    _admRenamingId = null;
+};
+window.admSaveRename = async () => {
+    if (!_admRenamingId) return;
+    const oldId = _admRenamingId;
+    const newId = document.getElementById('adm-rename-input').value.trim();
+    if (!newId) { alert('新しいプレイヤーIDを入力してください'); return; }
+    if (newId === oldId) { admCloseRename(); return; }
+    if (_admPlayersData[newId]) { alert('このIDは既に使われています'); return; }
+    const oldData = _admPlayersData[oldId] || { coins: 10000, online: false, lastPlayAt: null };
+    await set(dbRef(db, `players/${newId}`), oldData);
+    const histSnap = await get(dbRef(db, `history/${oldId}`));
+    if (histSnap.exists()) {
+        await set(dbRef(db, `history/${newId}`), histSnap.val());
+        await remove(dbRef(db, `history/${oldId}`));
     }
-    tbody.innerHTML = ids.map(devId => {
-        const t        = _admTerminalData[devId];
-        const assigned = _admAssignData[devId]?.playerId || null;
-        const online   = t.online
-            ? '<span class="adm-badge-on"></span>オンライン'
-            : '<span class="adm-badge-off"></span>オフライン';
-        const lastSeen = t.lastSeen
-            ? new Date(t.lastSeen).toLocaleString('ja-JP') : '—';
-        const pidCell  = assigned
-            ? `<span style="color:#88aaff;font-size:11px;font-family:'Courier New',monospace">${escH(assigned)}</span>`
-            : `<span style="color:#444;font-size:11px;font-style:italic">（未割り当て）</span>`;
-        const eid = escH(devId);
-        return `<tr>
-            <td>${online}</td>
-            <td style="color:#88aaff;font-size:11px;font-family:'Courier New',monospace">${eid}</td>
-            <td>${pidCell}</td>
-            <td style="color:#555;font-size:11px">${lastSeen}</td>
-            <td>
-                <button class="adm-btn" style="background:#0e1a2e;color:#88aaff;border-color:#88aaff"
-                    onclick="admOpenAssign('${eid}')">✏ IDを変更</button>
-            </td>
-        </tr>`;
-    }).join('');
-}
-
-// ---- 端末割り当てモーダル ----
-window.admOpenAssign = devId => {
-    _admAssigningDev = devId;
-    document.getElementById('adm-assign-device-label').textContent = '端末ID: ' + devId;
-    const cur = _admAssignData[devId]?.playerId || '';
-    document.getElementById('adm-assign-input').value = cur;
-    const list = document.getElementById('adm-assign-player-list');
-    const pids = Object.keys(_admPlayersData);
-    list.innerHTML = pids.length
-        ? pids.map(pid => {
-            const dotStyle = _admPlayersData[pid].online
-                ? 'background:#44ff88;box-shadow:0 0 5px #44ff88'
-                : 'background:#444';
-            return `<div class="adm-assign-item" onclick="admSelectPid('${escH(pid)}')">
-                <span class="adm-assign-dot" style="${dotStyle}"></span>${escH(pid)}
-            </div>`;
-          }).join('')
-        : '<div style="color:#444;padding:10px;font-size:11px">プレイヤーがいません</div>';
-    document.getElementById('adm-assign-modal').classList.add('open');
-    setTimeout(() => document.getElementById('adm-assign-input').focus(), 80);
-};
-window.admSelectPid = pid => {
-    document.getElementById('adm-assign-input').value = pid;
-};
-window.admCloseAssign = () => {
-    document.getElementById('adm-assign-modal').classList.remove('open');
-    _admAssigningDev = null;
-};
-window.admSaveAssign = async () => {
-    if (!_admAssigningDev) return;
-    const newPid = document.getElementById('adm-assign-input').value.trim();
-    if (!newPid) { alert('プレイヤーIDを入力してください'); return; }
-    if (!_admPlayersData[newPid]) {
-        await set(dbRef(db, `players/${newPid}`), { coins: 10000, online: false, lastPlayAt: null });
+    const assignSnap = await get(dbRef(db, 'terminalAssignments'));
+    if (assignSnap.exists()) {
+        const assigns = assignSnap.val();
+        for (const devId of Object.keys(assigns)) {
+            if (assigns[devId]?.playerId === oldId) {
+                await set(dbRef(db, `terminalAssignments/${devId}/playerId`), newId);
+            }
+        }
     }
-    await set(dbRef(db, `terminalAssignments/${_admAssigningDev}/playerId`), newPid);
+    await remove(dbRef(db, `players/${oldId}`));
+    if (playerId === oldId) setupPlayer(newId);
     await set(dbRef(db, `adminLogs/${Date.now()}`), {
-        action: 'assignPlayerId', deviceId: _admAssigningDev, playerId: newPid, at: Date.now()
+        action: 'renamePlayer', oldId, newId, at: Date.now()
     });
-    admCloseAssign();
+    admCloseRename();
 };
-window.admClearAssign = async () => {
-    if (!_admAssigningDev) return;
-    if (!confirm(`端末「${_admAssigningDev}」の割り当てを解除しますか？`)) return;
-    await remove(dbRef(db, `terminalAssignments/${_admAssigningDev}`));
-    await set(dbRef(db, `adminLogs/${Date.now()}`), {
-        action: 'clearAssign', deviceId: _admAssigningDev, at: Date.now()
-    });
-    admCloseAssign();
-};
-document.getElementById('adm-assign-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') window.admSaveAssign();
-    if (e.key === 'Escape') window.admCloseAssign();
+document.getElementById('adm-rename-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.admSaveRename();
+    if (e.key === 'Escape') window.admCloseRename();
 });
 
 // ---- 履歴リスナー ----
@@ -1027,7 +924,8 @@ function admRenderPlayers() {
             <td class="adm-coins-val">${coinsVal} G</td>
             <td style="color:#555;font-size:11px">${lastPlay}</td>
             <td>
-                <button class="adm-btn adm-btn-green"  onclick="admOpenEdit('${eid}')">✏ 変更</button>
+                <button class="adm-btn" style="background:#0e1a2e;color:#88aaff;border-color:#88aaff" onclick="admOpenRename('${eid}')">✏ ID変更</button>
+                <button class="adm-btn adm-btn-green"  onclick="admOpenEdit('${eid}')">✏ 残高</button>
                 <button class="adm-btn adm-btn-orange" onclick="admResetPlayer('${eid}')">↩ リセット</button>
                 <button class="adm-btn adm-btn-red"    onclick="admDeletePlayer('${eid}')">🗑 削除</button>
             </td>
