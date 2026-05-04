@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>竜一中2年-スロット-ver.7</title>
+    <title>竜一中2年-スロット-ver.8</title>
     <style>
         * { box-sizing: border-box; }
 body.dark {
@@ -1570,12 +1570,14 @@ async function stopReel(reelId,btn){
             }
         }
     }
+    // currentYを110px単位にスナップして正確に真ん中で止める
+    const snappedY = Math.round(currentY / 110) * 110;
     let diff=targetIndex-currentIndex;
     if(diff===0){
-        reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
+        reel.style.animation='none';reel.style.transform=`translateY(${snappedY}px)`;
     }else{
         if(diff<0)diff+=7;
-        const finalY=(Math.round(currentY/110)-diff)*110;
+        const finalY=(Math.round(snappedY/110)-diff)*110;
         reel.style.animation='none';reel.style.transform=`translateY(${currentY}px)`;
         setTimeout(()=>{reel.style.transition='transform 0.4s ease-out';reel.style.transform=`translateY(${finalY}px)`;},10);
     }
