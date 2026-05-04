@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>竜一中2年-スロット-ver.10</title>
+    <title>竜一中2年-スロット-ver.11</title>
     <style>
         * { box-sizing: border-box; }
 body.dark {
@@ -1569,7 +1569,7 @@ async function stopReel(reelId,btn){
                 sfxEgg(0);await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
                 sfxEgg(1);await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
                 sfxEgg(2);await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                let winProb=Atsu*0.25;if(winProb<30)winProb=0;
+                let winProb=Atsu*0.35;if(winProb<30)winProb=0;
                 let isWin=Math.random()*100<winProb;
                 if(isWin&&coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex))isWin=false;
                 if(isWin){
