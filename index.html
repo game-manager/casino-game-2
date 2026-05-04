@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>竜一中2年-スロット-ver.8</title>
+    <title>竜一中2年-スロット-ver.9</title>
     <style>
         * { box-sizing: border-box; }
 body.dark {
@@ -488,7 +488,33 @@ body.dark {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #050d08; }
 ::-webkit-scrollbar-thumb { background: #1a3a1a; border-radius: 3px; }
-    </style>
+    
+/* カメラシェイク */
+@keyframes cameraShake {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    10%  { transform: translate(-6px, -4px) rotate(-0.5deg); }
+    20%  { transform: translate(6px, 4px) rotate(0.5deg); }
+    30%  { transform: translate(-5px, 3px) rotate(-0.3deg); }
+    40%  { transform: translate(5px, -3px) rotate(0.3deg); }
+    50%  { transform: translate(-4px, 4px) rotate(-0.2deg); }
+    60%  { transform: translate(4px, -2px) rotate(0.2deg); }
+    70%  { transform: translate(-3px, 2px) rotate(-0.1deg); }
+    80%  { transform: translate(3px, -1px) rotate(0.1deg); }
+    90%  { transform: translate(-1px, 1px) rotate(0deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+}
+body.shake {
+    animation: cameraShake 0.55s ease-out forwards;
+}
+
+/* スロー演出用 reel-strip の速度変化 */
+.reel-strip.slow-spin {
+    animation-duration: 2.5s !important;
+}
+.reel-strip.very-slow-spin {
+    animation-duration: 5s !important;
+}
+</style>
 </head>
 <body class="dark">
     <div id="left-bar" class="side-bar"></div>
@@ -1381,6 +1407,17 @@ function triggerReachEffect(){
     sfxReach();
     [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.add('reach-flash'));
     setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
+    // カメラシェイク（3回）
+    let shakeCount=0;
+    const doShake=()=>{
+        document.body.classList.remove('shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('shake');
+        shakeCount++;
+        if(shakeCount<3) setTimeout(doShake,600);
+        else setTimeout(()=>document.body.classList.remove('shake'),600);
+    };
+    doShake();
 }
 function setBetLocked(locked){
     document.querySelectorAll('.bet-btn').forEach(b=>b.disabled=locked);
@@ -1469,6 +1506,10 @@ async function stopReel(reelId,btn){
             if(!earlyReachUsed)earlyReachUsed=true;
             if(kakuhenActive)kakuhenReachCount++;
             setTimeout(()=>triggerReachEffect(),350);
+            // スロー演出：3枚目リールをジリジリ遅くする
+            const r3el = document.getElementById('reel3');
+            setTimeout(()=>{ r3el.classList.add('slow-spin'); },400);
+            setTimeout(()=>{ r3el.classList.remove('slow-spin'); r3el.classList.add('very-slow-spin'); },1800);
         }
     }else{
         if(firstResultIndex===secondResultIndex){
@@ -1571,6 +1612,8 @@ async function stopReel(reelId,btn){
         }
     }
     // currentYを110px単位にスナップして正確に真ん中で止める
+    // スロー演出クラスをクリーンアップ
+    reel.classList.remove('slow-spin','very-slow-spin');
     const snappedY = Math.round(currentY / 110) * 110;
     let diff=targetIndex-currentIndex;
     if(diff===0){
