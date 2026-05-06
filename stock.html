@@ -706,7 +706,12 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-screen').style.display = 'block';
         document.getElementById('user-email').textContent = user.email;
-        await loadUserData();
+        try {
+            await loadUserData();
+        } catch (e) {
+            console.warn('Firebase load failed, using localStorage fallback:', e.message);
+            loadFromLocalStorage();
+        }
         initMarket();
     } else {
         currentUser = null;
@@ -715,6 +720,34 @@ onAuthStateChanged(auth, async (user) => {
         if (priceInterval) { clearInterval(priceInterval); priceInterval = null; }
     }
 });
+
+/* ─── localStorage ヘルパー ─── */
+function getStorageKey() {
+    return `stock_sim_${currentUser.uid}`;
+}
+
+function saveToLocalStorage() {
+    const key = getStorageKey();
+    localStorage.setItem(key, JSON.stringify({
+        balance, holdings, company: userCompany || null,
+        history: tradeHistory,
+    }));
+}
+
+function loadFromLocalStorage() {
+    const key = getStorageKey();
+    const raw = localStorage.getItem(key);
+    if (raw) {
+        try {
+            const data = JSON.parse(raw);
+            balance      = data.balance ?? 10000000;
+            holdings     = data.holdings ?? {};
+            tradeHistory = data.history ?? [];
+            if (data.company) userCompany = data.company;
+        } catch { /* corrupt data, use defaults */ }
+    }
+    updateBalanceDisplay();
+}
 
 /* ─── ユーザーデータ読み込み ─── */
 async function loadUserData() {
@@ -729,28 +762,42 @@ async function loadUserData() {
             userCompany = data.company;
         }
     } else {
-        balance      = 10000000;
-        holdings     = {};
-        tradeHistory = [];
-        userCompany  = null;
-        await saveUserData();
+        loadFromLocalStorage();
+        if (balance === 10000000 && Object.keys(holdings).length === 0) {
+            balance      = 10000000;
+            holdings     = {};
+            tradeHistory = [];
+            userCompany  = null;
+        }
+        try { await saveUserData(); } catch {}
     }
+    saveToLocalStorage();
     updateBalanceDisplay();
 }
 
 async function saveUserData() {
     const uid = currentUser.uid;
-    await set(dbRef(db, `stock_users/${uid}`), {
-        balance,
-        holdings,
-        company: userCompany || null,
-    });
+    saveToLocalStorage();
+    try {
+        await set(dbRef(db, `stock_users/${uid}`), {
+            balance,
+            holdings,
+            company: userCompany || null,
+        });
+    } catch (e) {
+        console.warn('Firebase save failed, data saved to localStorage:', e.message);
+    }
 }
 
 async function saveTradeToHistory(trade) {
     const uid = currentUser.uid;
-    await push(dbRef(db, `stock_users/${uid}/history`), trade);
     tradeHistory.push(trade);
+    saveToLocalStorage();
+    try {
+        await push(dbRef(db, `stock_users/${uid}/history`), trade);
+    } catch (e) {
+        console.warn('Firebase history save failed:', e.message);
+    }
 }
 
 /* ─── マーケット初期化 ─── */
@@ -776,7 +823,35 @@ function initMarket() {
 
 /* ─── 全ユーザー会社を読み込む ─── */
 async function loadAllUserCompanies() {
-    const snap = await get(dbRef(db, 'stock_users'));
+    let snap;
+    try {
+        snap = await get(dbRef(db, 'stock_users'));
+    } catch (e) {
+        console.warn('Could not load other companies (permission denied). Using local data only.');
+        if (userCompany) {
+            const c = userCompany;
+            const companyId = c.id;
+            if (!allStocks.find(s => s.id === companyId)) {
+                allStocks.push({
+                    id: companyId, name: c.name, ticker: c.ticker,
+                    basePrice: c.initialPrice, sector: '自社',
+                    isUserCompany: true, ownerUid: currentUser.uid,
+                });
+                stockPrices[companyId] = c.initialPrice;
+                priceHistory[companyId] = Array(21).fill(c.initialPrice).map((p, i) =>
+                    i < 20 ? p + (Math.random() - 0.5) * p * 0.02 : p
+                );
+            }
+            document.getElementById('company-form').style.display = 'none';
+            document.getElementById('company-status').style.display = 'block';
+            document.getElementById('company-info').innerHTML =
+                `<strong>${c.name}</strong>（${c.ticker}）<br>` +
+                `初期株価: ¥${c.initialPrice.toLocaleString()}<br>` +
+                `現在の株価: ¥${(stockPrices[companyId] || c.initialPrice).toLocaleString()}`;
+        }
+        renderMarket();
+        return;
+    }
     if (!snap.exists()) return;
 
     const users = snap.val();
