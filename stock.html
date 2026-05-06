@@ -189,6 +189,15 @@
         .mini-chart .bar.down { background: #f87171; }
         .mini-chart .bar.flat { background: #374151; }
 
+        .stock-holding-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #1e3a5f; color: #60a5fa;
+            font-size: 11px; font-weight: bold;
+            padding: 2px 8px; border-radius: 4px;
+            margin-left: 6px;
+        }
+        .stock-holding-badge .holding-icon { font-size: 10px; }
+
         .stock-actions {
             display: flex; gap: 8px;
         }
@@ -422,6 +431,69 @@
         .toast.success { border-left: 3px solid #34d399; }
         .toast.error { border-left: 3px solid #f87171; }
 
+        /* ─── マーケットサブタブ ─── */
+        .market-sub-tabs {
+            display: flex; gap: 8px; margin-bottom: 16px;
+        }
+        .market-sub-tab {
+            padding: 8px 20px;
+            background: #1e293b; color: #6b7280;
+            border: 1px solid #334155; border-radius: 8px;
+            font-size: 13px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 0.5px;
+        }
+        .market-sub-tab:hover { color: #94a3b8; border-color: #475569; }
+        .market-sub-tab.active {
+            background: #1e3a5f; color: #60a5fa;
+            border-color: #3b82f6;
+        }
+        .market-sub-tab .tab-count {
+            font-size: 11px; color: #4b5563;
+            margin-left: 4px;
+        }
+        .market-sub-tab.active .tab-count { color: #60a5fa88; }
+
+        /* ─── ログインボーナス ─── */
+        .bonus-modal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000a; z-index: 250;
+            align-items: center; justify-content: center;
+        }
+        .bonus-modal-overlay.show { display: flex; }
+        .bonus-modal {
+            background: linear-gradient(135deg, #1e293b, #111827);
+            border: 2px solid #fbbf24;
+            border-radius: 16px;
+            padding: 32px 40px;
+            text-align: center;
+            box-shadow: 0 0 60px #fbbf2433;
+            max-width: 380px; width: 100%;
+        }
+        .bonus-icon { font-size: 48px; margin-bottom: 12px; }
+        .bonus-title {
+            color: #fbbf24; font-size: 20px;
+            font-weight: bold; margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .bonus-amount {
+            color: #f59e0b; font-size: 32px;
+            font-weight: bold; margin-bottom: 6px;
+        }
+        .bonus-desc {
+            color: #9ca3af; font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .bonus-close-btn {
+            padding: 10px 40px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #111827; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+        .bonus-close-btn:hover { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
         /* ─── レスポンシブ ─── */
         @media (max-width: 640px) {
             .header { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
@@ -487,6 +559,14 @@
             <div class="market-header">
                 <h2>株式マーケット</h2>
                 <div class="market-time" id="market-time"></div>
+            </div>
+            <div class="market-sub-tabs" id="market-sub-tabs">
+                <button class="market-sub-tab active" data-filter="real" onclick="filterMarket('real')">
+                    実際の株式 <span class="tab-count" id="count-real"></span>
+                </button>
+                <button class="market-sub-tab" data-filter="user" onclick="filterMarket('user')">
+                    作成した株式 <span class="tab-count" id="count-user"></span>
+                </button>
             </div>
             <div class="stock-grid" id="stock-grid"></div>
         </div>
@@ -602,6 +682,17 @@
 <!-- トースト -->
 <div class="toast" id="toast"></div>
 
+<!-- ログインボーナスモーダル -->
+<div class="bonus-modal-overlay" id="bonus-modal">
+    <div class="bonus-modal">
+        <div class="bonus-icon">🎁</div>
+        <div class="bonus-title">ログインボーナス</div>
+        <div class="bonus-amount">+¥10,000</div>
+        <div class="bonus-desc">毎日のログインありがとうございます！</div>
+        <button class="bonus-close-btn" onclick="closeBonusModal()">受け取る</button>
+    </div>
+</div>
+
 <!-- ===== Firebase + ロジック ===== -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -656,6 +747,8 @@ let tradeMode      = null;
 let tradeStockId   = null;
 let priceInterval  = null;
 let allStocks      = [...FAMOUS_STOCKS];
+let marketFilter   = 'real';
+let lastBonusDate  = null;
 
 /* ─── Firebase認証 ─── */
 window.toggleAuthMode = function() {
@@ -712,6 +805,7 @@ onAuthStateChanged(auth, async (user) => {
             console.warn('Firebase load failed, using localStorage fallback:', e.message);
             loadFromLocalStorage();
         }
+        checkLoginBonus();
         initMarket();
     } else {
         currentUser = null;
@@ -731,6 +825,7 @@ function saveToLocalStorage() {
     localStorage.setItem(key, JSON.stringify({
         balance, holdings, company: userCompany || null,
         history: tradeHistory,
+        lastBonusDate: lastBonusDate || null,
     }));
 }
 
@@ -743,6 +838,7 @@ function loadFromLocalStorage() {
             balance      = data.balance ?? 10000000;
             holdings     = data.holdings ?? {};
             tradeHistory = data.history ?? [];
+            lastBonusDate = data.lastBonusDate || null;
             if (data.company) userCompany = data.company;
         } catch { /* corrupt data, use defaults */ }
     }
@@ -758,6 +854,7 @@ async function loadUserData() {
         balance      = data.balance ?? 10000000;
         holdings     = data.holdings ?? {};
         tradeHistory = data.history ? Object.values(data.history) : [];
+        lastBonusDate = data.lastBonusDate || null;
         if (data.company) {
             userCompany = data.company;
         }
@@ -783,6 +880,7 @@ async function saveUserData() {
             balance,
             holdings,
             company: userCompany || null,
+            lastBonusDate: lastBonusDate || null,
         });
     } catch (e) {
         console.warn('Firebase save failed, data saved to localStorage:', e.message);
@@ -910,12 +1008,39 @@ function tickPrices() {
     updatePortfolio();
 }
 
+/* ─── マーケットフィルター ─── */
+window.filterMarket = function(filter) {
+    marketFilter = filter;
+    document.querySelectorAll('.market-sub-tab').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.market-sub-tab[data-filter="${filter}"]`).classList.add('active');
+    renderMarket();
+};
+
+function updateMarketCounts() {
+    const realCount = allStocks.filter(s => !s.isUserCompany).length;
+    const userCount = allStocks.filter(s => s.isUserCompany).length;
+    document.getElementById('count-real').textContent = `(${realCount})`;
+    document.getElementById('count-user').textContent = `(${userCount})`;
+}
+
 /* ─── マーケット描画 ─── */
 function renderMarket() {
     const grid = document.getElementById('stock-grid');
     grid.innerHTML = '';
+    updateMarketCounts();
 
-    allStocks.forEach(s => {
+    const filtered = marketFilter === 'real'
+        ? allStocks.filter(s => !s.isUserCompany)
+        : allStocks.filter(s => s.isUserCompany);
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#6b7280;padding:48px 0;font-size:14px;">
+            ${marketFilter === 'user' ? 'まだ作成された株式はありません。「会社設立」タブから会社を作れます。' : '株式データがありません'}
+        </div>`;
+        return;
+    }
+
+    filtered.forEach(s => {
         const price = stockPrices[s.id] || s.basePrice;
         const hist  = priceHistory[s.id] || [price];
         const prev  = hist.length >= 2 ? hist[hist.length - 2] : price;
@@ -923,12 +1048,17 @@ function renderMarket() {
         const changePct = prev ? ((change / prev) * 100).toFixed(2) : '0.00';
         const isOwn = userCompany && s.id === userCompany.id;
 
+        const holdQty = holdings[s.id] ? holdings[s.id].qty : 0;
+        const holdingBadge = holdQty > 0
+            ? `<span class="stock-holding-badge"><span class="holding-icon">📦</span>${holdQty}株 保有</span>`
+            : '';
+
         const card = document.createElement('div');
         card.className = 'stock-card' + (isOwn ? ' user-company' : '');
         card.innerHTML = `
             <div class="stock-top">
                 <div>
-                    <div class="stock-name">${s.name}</div>
+                    <div class="stock-name">${s.name} ${holdingBadge}</div>
                     <div class="stock-ticker">${s.ticker} · ${s.sector || ''}</div>
                 </div>
                 ${isOwn ? '<span class="stock-badge badge-own">自社</span>' :
@@ -1237,6 +1367,28 @@ window.switchTab = function(tab) {
 
     if (tab === 'portfolio') updatePortfolio();
     if (tab === 'history')   renderHistory();
+};
+
+/* ─── ログインボーナス ─── */
+function getTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function checkLoginBonus() {
+    const today = getTodayStr();
+    if (lastBonusDate === today) return;
+
+    lastBonusDate = today;
+    balance += 10000;
+    updateBalanceDisplay();
+    await saveUserData();
+
+    document.getElementById('bonus-modal').classList.add('show');
+}
+
+window.closeBonusModal = function() {
+    document.getElementById('bonus-modal').classList.remove('show');
 };
 
 /* ─── トースト ─── */
