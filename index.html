@@ -1292,10 +1292,12 @@ async function showKiraEffect(count=20){
     await sleep(1000);
 }
 async function flashSides(times){
-    const cols=['#ff0000','#ffff00','#00ff00','#0000ff','#ff00ff','#00ffff'];
     const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    for(let i=0;i<times;i++)for(let c of cols){sfxFlash();L.style.backgroundColor=c;R.style.backgroundColor=c;await sleep(250);}
-    L.style.backgroundColor='#000';R.style.backgroundColor='#000';
+    L.classList.add('rainbow'); R.classList.add('rainbow');
+    sfxFlash();
+    await sleep(250 * 6 * times);
+    L.classList.remove('rainbow'); R.classList.remove('rainbow');
+    L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
 }
 function getNextFromSet(cur,set){
     const cn=cur+1;let nx=null;
