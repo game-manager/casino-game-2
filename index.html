@@ -1294,8 +1294,10 @@ async function showKiraEffect(count=20){
 async function flashSides(times){
     const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
     L.classList.add('rainbow'); R.classList.add('rainbow');
+    startRainbowSound();
     sfxFlash();
     await sleep(250 * 6 * times);
+    stopRainbowSound();
     L.classList.remove('rainbow'); R.classList.remove('rainbow');
     L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
 }
