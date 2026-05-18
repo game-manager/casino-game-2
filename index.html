@@ -1399,7 +1399,7 @@ async function stopReel(reelId,btn){
     const st=window.getComputedStyle(reel);
     let currentY=0;
     try{const m=new WebKitCSSMatrix(st.transform);currentY=m.m42;}catch(e){}
-    const currentIndex=((Math.abs(Math.round(currentY/110))%7)+7)%7;
+    const currentIndex=(((Math.round(currentY/110))%7)+7)%7;
     let targetIndex;
     if(stoppedCount===1){
         if(kakuhenActive){
