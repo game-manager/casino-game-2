@@ -30,6 +30,51 @@
             transition: none;
         }
 
+        /* ============ セットアップ画面 ============ */
+        #setup-screen {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 80vh; width: 100%; max-width: 480px;
+            gap: 0;
+        }
+        #setup-screen .setup-title {
+            color: #ffd700; font-size: 20px; font-weight: bold; letter-spacing: 4px;
+            text-align: center; margin-bottom: 28px; text-shadow: 0 0 12px #ffd70066;
+        }
+        .setup-card {
+            background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
+            border: 2px solid #444; border-radius: 14px;
+            padding: 24px 28px; width: 100%; margin-bottom: 16px;
+        }
+        .setup-row {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+        }
+        .setup-row:last-child { margin-bottom: 0; }
+        .setup-label { color: #aaa; font-size: 13px; white-space: nowrap; min-width: 140px; }
+        .setup-input {
+            flex: 1; background: #111; color: #ffd700; border: 1px solid #555;
+            border-radius: 6px; padding: 9px 12px; font-size: 15px;
+            font-family: 'Courier New', monospace; text-align: right;
+        }
+        .setup-input:focus { outline: none; border-color: #ffd700; }
+        .setup-unit { color: #888; font-size: 12px; white-space: nowrap; }
+        .setup-calc {
+            margin-top: 14px; padding: 10px 14px; background: #111; border-radius: 8px;
+            border: 1px solid #333; font-size: 13px; color: #888; text-align: center;
+        }
+        .setup-calc .calc-val { color: #ffd700; font-weight: bold; font-size: 15px; }
+        #setup-start-btn {
+            width: 100%; max-width: 480px; padding: 15px;
+            background: linear-gradient(135deg,#c00000,#800000); color: #fff; border: none;
+            border-radius: 10px; font-size: 18px; font-weight: bold; font-family: 'Courier New',monospace;
+            letter-spacing: 4px; cursor: pointer; box-shadow: 0 5px #500000; transition: all 0.15s;
+            margin-top: 6px;
+        }
+        #setup-start-btn:hover { background: linear-gradient(135deg,#e00000,#a00000); }
+        #setup-start-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* ============ ゲーム本体 ============ */
+        #game-screen { display: none; width: 100%; flex-direction: column; align-items: center; }
+
         #coin-display {
             margin-top: 10px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
             border: 2px solid #c0a000; border-radius: 12px; padding: 10px 30px;
@@ -38,6 +83,24 @@
         #coin-display .label { color:#888; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
+
+        /* 残り回数バー */
+        #turns-display {
+            margin-top: 10px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
+            border: 2px solid #444; border-radius: 12px; padding: 10px 20px;
+            text-align: center; width: 100%; max-width: 480px;
+        }
+        #turns-display .t-label { color: #888; font-size: 11px; letter-spacing: 2px; }
+        #turns-display .t-val { color: #ffd700; font-size: 20px; font-weight: bold; }
+        #turns-display .t-total { color: #555; font-size: 13px; }
+        .turns-bar-outer {
+            margin-top: 6px; background: #111; border-radius: 6px; height: 8px;
+            border: 1px solid #333; overflow: hidden;
+        }
+        #turns-bar-inner {
+            height: 100%; background: #c0a000; border-radius: 6px;
+            transition: width 0.4s ease;
+        }
 
         #bet-panel {
             margin-top: 12px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
@@ -127,9 +190,36 @@
         .egg-size-3{transform:scale(2.0);} .chance-large{transform:scale(1.8);}
         .spacer{height:20px;}
 
-        /* ============================================================
-           FIREBASE MODAL STYLES
-           ============================================================ */
+        /* ============ ゲーム終了画面 ============ */
+        #gameover-screen {
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 80vh; width: 100%; max-width: 480px;
+            gap: 0;
+        }
+        #gameover-screen .go-title {
+            color: #ffd700; font-size: 24px; font-weight: bold; letter-spacing: 6px;
+            text-align: center; margin-bottom: 28px; text-shadow: 0 0 16px #ffd70066;
+        }
+        .gameover-card {
+            background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
+            border: 2px solid #c0a000; border-radius: 14px;
+            padding: 28px 32px; width: 100%; text-align: center;
+        }
+        .go-formula {
+            font-size: 16px; color: #888; letter-spacing: 2px; margin-bottom: 16px;
+        }
+        .go-formula .go-num { color: #ffd700; font-size: 20px; font-weight: bold; }
+        .go-divider { color: #555; margin: 0 8px; }
+        .go-result-label {
+            font-size: 12px; color: #888; letter-spacing: 3px; margin-bottom: 6px;
+        }
+        .go-result-val {
+            font-size: 48px; font-weight: bold; color: #ffd700;
+            text-shadow: 0 0 20px #ffd70066; margin-bottom: 4px;
+        }
+        .go-result-unit { font-size: 14px; color: #c0a000; }
+
+        /* ============ Firebase モーダル ============ */
         #fb-modal-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
             z-index:9000; align-items:center; justify-content:center;
@@ -166,8 +256,6 @@
             color:#666; font-size:18px; cursor:pointer; font-family:'Courier New',monospace;
         }
         #fb-modal-close:hover { color:#fff; }
-
-        /* 管理者画面 */
         #admin-panel { display:none; }
         #admin-panel h2 { color:#ffd700; font-size:13px; letter-spacing:3px; text-align:center; margin:0 0 14px; }
         #device-list { max-height:280px; overflow-y:auto; margin-bottom:12px; }
@@ -195,14 +283,12 @@
         .badge-ok { background:#1a4a1a; color:#00ff88; }
         .badge-stop { background:#4a1a1a; color:#ff4444; }
 
-        /* デバイス名バッジ */
         #device-name-badge {
             position:fixed; bottom:12px; right:60px; background:#111; border:1px solid #333;
             border-radius:8px; padding:4px 12px; font-size:11px; color:#555;
             font-family:'Courier New',monospace; z-index:50; display:none;
         }
 
-        /* 緊急停止オーバーレイ */
         #emergency-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
             z-index:99999; align-items:center; justify-content:center; flex-direction:column;
@@ -221,59 +307,115 @@
     <div id="left-bar" class="side-bar"></div>
     <div id="right-bar" class="side-bar"></div>
 
-    <div id="coin-display">
-        <div class="label">所持コイン</div>
-        <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
+    <!-- ============ セットアップ画面 ============ -->
+    <div id="setup-screen">
+        <div class="setup-title">⚙ GAME SETUP</div>
+        <div class="setup-card">
+            <div class="setup-row">
+                <span class="setup-label">回数券の数</span>
+                <input type="number" class="setup-input" id="ticket-count" value="1" min="1" oninput="updateSetupCalc()">
+                <span class="setup-unit">枚</span>
+            </div>
+            <div class="setup-row">
+                <span class="setup-label">× 一回の回数</span>
+                <input type="number" class="setup-input" id="turns-per-ticket" value="20" min="1" oninput="updateSetupCalc()">
+                <span class="setup-unit">回</span>
+            </div>
+            <div class="setup-calc">
+                合計プレイ回数：<span class="calc-val" id="calc-total-turns">20</span> 回
+            </div>
+        </div>
+        <div class="setup-card" style="margin-bottom:16px;">
+            <div class="setup-row">
+                <span class="setup-label">本所持金</span>
+                <input type="number" class="setup-input" id="real-money" value="100" min="1" oninput="updateSetupCalc()">
+                <span class="setup-unit">円</span>
+            </div>
+            <div class="setup-calc">
+                ゲーム内コイン：<span class="calc-val" id="calc-coins">10000</span> G
+                <span style="color:#555;font-size:11px;"> (本所持金 × 100)</span>
+            </div>
+        </div>
+        <button id="setup-start-btn" onclick="beginGame()">▶ GAME START</button>
     </div>
 
-    <div id="bet-panel">
-        <div class="section-title">掛け金を選ぶ</div>
-        <div class="bet-buttons">
-            <button class="bet-btn" onclick="selectBet(10,this)">10</button>
-            <button class="bet-btn" onclick="selectBet(50,this)">50</button>
-            <button class="bet-btn" onclick="selectBet(100,this)">100</button>
-            <button class="bet-btn" onclick="selectBet(500,this)">500</button>
-            <button class="bet-btn" onclick="selectBet(1000,this)">1000</button>
+    <!-- ============ ゲーム本体 ============ -->
+    <div id="game-screen">
+        <div id="coin-display">
+            <div class="label">所持コイン</div>
+            <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
         </div>
-        <div class="bet-custom-row">
-            <span class="custom-label">自分で入力:</span>
-            <input type="number" id="custom-bet" placeholder="金額" min="1" oninput="onCustomBetInput(this)">
+
+        <div id="turns-display">
+            <div class="t-label">残りプレイ回数</div>
+            <div><span class="t-val" id="turns-left">20</span><span class="t-total" id="turns-total-show"> / 20</span></div>
+            <div class="turns-bar-outer">
+                <div id="turns-bar-inner" style="width:100%;"></div>
+            </div>
         </div>
-        <div id="current-bet-display">掛け金: <span class="bet-val" id="bet-val-text">未選択</span></div>
-        <div class="payout-hint">
-            <div class="payout-item"><span>2・4・6 揃い</span>×5</div>
-            <div class="payout-item"><span>1・3・5 揃い</span>×10</div>
-            <div class="payout-item"><span>7 揃い</span>×15</div>
-            <div class="payout-item"><span>1・2・3 順不同</span>×8</div>
-            <div class="payout-item"><span>4・5・6 順不同</span>×6</div>
+
+        <div id="bet-panel">
+            <div class="section-title">掛け金を選ぶ</div>
+            <div class="bet-buttons">
+                <button class="bet-btn" onclick="selectBet(10,this)">10</button>
+                <button class="bet-btn" onclick="selectBet(50,this)">50</button>
+                <button class="bet-btn" onclick="selectBet(100,this)">100</button>
+                <button class="bet-btn" onclick="selectBet(500,this)">500</button>
+                <button class="bet-btn" onclick="selectBet(1000,this)">1000</button>
+            </div>
+            <div class="bet-custom-row">
+                <span class="custom-label">自分で入力:</span>
+                <input type="number" id="custom-bet" placeholder="金額" min="1" oninput="onCustomBetInput(this)">
+            </div>
+            <div id="current-bet-display">掛け金: <span class="bet-val" id="bet-val-text">未選択</span></div>
+            <div class="payout-hint">
+                <div class="payout-item"><span>2・4・6 揃い</span>×5</div>
+                <div class="payout-item"><span>1・3・5 揃い</span>×10</div>
+                <div class="payout-item"><span>7 揃い</span>×15</div>
+                <div class="payout-item"><span>1・2・3 順不同</span>×8</div>
+                <div class="payout-item"><span>4・5・6 順不同</span>×6</div>
+            </div>
+        </div>
+
+        <button id="start-btn" onclick="startGame()" disabled>▶ START</button>
+
+        <div class="reel-area">
+            <div class="reel-column">
+                <div class="reel-window" id="win1"><div class="reel-strip" id="reel1"></div></div>
+                <button class="stop-btn" id="stopbtn1" onclick="stopReel('reel1',this)" disabled>STOP</button>
+            </div>
+            <div class="reel-column">
+                <div class="reel-window" id="win2"><div class="reel-strip" id="reel2"></div></div>
+                <button class="stop-btn" id="stopbtn2" onclick="stopReel('reel2',this)" disabled>STOP</button>
+            </div>
+            <div class="reel-column">
+                <div class="reel-window" id="win3"><div class="reel-strip" id="reel3"></div></div>
+                <button class="stop-btn" id="stopbtn3" onclick="stopReel('reel3',this)" disabled>STOP</button>
+            </div>
+        </div>
+
+        <div id="result-banner"></div>
+        <div class="spacer"></div>
+    </div>
+
+    <!-- ============ ゲーム終了画面 ============ -->
+    <div id="gameover-screen">
+        <div class="go-title">GAME OVER</div>
+        <div class="gameover-card">
+            <div class="go-formula">
+                <span class="go-num" id="go-final-coins">0</span>
+                <span class="go-divider">G</span>
+                <span style="color:#555;"> ÷ 100 =</span>
+            </div>
+            <div class="go-result-label">最終的な所持金</div>
+            <div class="go-result-val" id="go-result">0</div>
+            <div class="go-result-unit">円</div>
         </div>
     </div>
 
-    <button id="start-btn" onclick="startGame()" disabled>▶ START</button>
-
-    <div class="reel-area">
-        <div class="reel-column">
-            <div class="reel-window" id="win1"><div class="reel-strip" id="reel1"></div></div>
-            <button class="stop-btn" id="stopbtn1" onclick="stopReel('reel1',this)" disabled>STOP</button>
-        </div>
-        <div class="reel-column">
-            <div class="reel-window" id="win2"><div class="reel-strip" id="reel2"></div></div>
-            <button class="stop-btn" id="stopbtn2" onclick="stopReel('reel2',this)" disabled>STOP</button>
-        </div>
-        <div class="reel-column">
-            <div class="reel-window" id="win3"><div class="reel-strip" id="reel3"></div></div>
-            <button class="stop-btn" id="stopbtn3" onclick="stopReel('reel3',this)" disabled>STOP</button>
-        </div>
-    </div>
-
-    <div id="result-banner"></div>
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
-    <div class="spacer"></div>
 
-    <!-- デバイス名バッジ -->
     <div id="device-name-badge"></div>
-
-    <!-- 緊急停止オーバーレイ -->
     <div id="emergency-overlay">
         <div class="em-title">⛔ EMERGENCY STOP ⛔</div>
         <div class="em-sub">管理者によって停止されています</div>
@@ -283,8 +425,6 @@
     <div id="fb-modal-overlay">
         <div id="fb-modal">
             <button id="fb-modal-close" onclick="fbModalClose()">✕</button>
-
-            <!-- Step 1: パスワード入力 -->
             <div id="fb-step-pass">
                 <h2>🔐 ADMIN ACCESS</h2>
                 <input type="password" id="fb-pass-input" placeholder="パスワードを入力" autocomplete="off">
@@ -292,8 +432,6 @@
                 <button class="fb-btn fb-btn-primary" onclick="fbCheckPass()">確認</button>
                 <button class="fb-btn fb-btn-cancel" onclick="fbModalClose()">キャンセル</button>
             </div>
-
-            <!-- Step 2a: デバイス名登録 (pass=1161) -->
             <div id="fb-step-register" style="display:none;">
                 <h2>📱 デバイス名登録</h2>
                 <input type="text" id="fb-device-name-input" placeholder="デバイス名を入力" maxlength="30" autocomplete="off">
@@ -301,8 +439,6 @@
                 <button class="fb-btn fb-btn-primary" onclick="fbRegisterDevice()">登録する</button>
                 <button class="fb-btn fb-btn-cancel" onclick="fbModalClose()">キャンセル</button>
             </div>
-
-            <!-- Step 2b: 管理者画面 (pass=2272) -->
             <div id="admin-panel">
                 <h2>🛠 ADMIN PANEL</h2>
                 <div id="device-list"></div>
@@ -324,9 +460,6 @@
     </div>
 
 <script type="module">
-// ============================================================
-//  FIREBASE SDK (ESM CDN)
-// ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -344,9 +477,6 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const fbDb  = getDatabase(fbApp);
 
-// ============================================================
-//  デバイスID管理
-// ============================================================
 let myDeviceId   = localStorage.getItem("slotDeviceId")   || null;
 let myDeviceName = localStorage.getItem("slotDeviceName") || null;
 let _deviceListenerUnsubscribe = null;
@@ -359,8 +489,6 @@ function showDeviceNameBadge(name){
     if(name){ el.textContent = "📱 " + name; el.style.display = "block"; }
     else     { el.style.display = "none"; }
 }
-
-// デバイスノードをリアルタイム監視 (coins / emergency)
 function startDeviceListener(){
     if(!myDeviceId) return;
     if(_deviceListenerUnsubscribe){ _deviceListenerUnsubscribe(); _deviceListenerUnsubscribe=null; }
@@ -368,17 +496,14 @@ function startDeviceListener(){
     _deviceListenerUnsubscribe = onValue(devRef, snap => {
         const data = snap.val();
         if(!data) return;
-        // 管理者が所持金を書き換えたら反映
         if(typeof data.coins === "number" && data.coins !== coins){
             coins = data.coins;
-            updateCoinDisplay(false); // Firebaseへの再書き込みなし
+            updateCoinDisplay(false);
         }
-        // 緊急停止フラグ
         if(data.emergency === true) triggerEmergency();
         else                        releaseEmergency();
     });
 }
-
 function triggerEmergency(){
     document.getElementById("emergency-overlay").classList.add("active");
     gameRunning = true;
@@ -388,11 +513,9 @@ function triggerEmergency(){
 function releaseEmergency(){
     document.getElementById("emergency-overlay").classList.remove("active");
     if(!gameRunning){
-        if(currentBet>0&&coins>0) document.getElementById("start-btn").disabled=false;
+        if(currentBet>0&&coins>0&&turnsLeft>0) document.getElementById("start-btn").disabled=false;
     }
 }
-
-// コインをFirebaseへ書き込む (syncOnly=trueなら表示更新なし)
 function syncCoinsToFb(){
     if(!myDeviceId) return;
     update(ref(fbDb, `devices/${myDeviceId}`), { coins: coins }).catch(()=>{});
@@ -536,8 +659,65 @@ let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIn
 let Atsu=0, gameRunning=false, totalStartCount=0;
 let earlyReachUsed=false, consecutiveAnyLose=0;
 let kakuhenActive=false, kakuhenWinRound=0, kakuhenReachCount=0;
-const initialCoins=10000;
+let initialCoins=10000;
 let _rainbowLoopInterval=null;
+
+// ターン管理
+let turnsLeft=0, totalTurns=0;
+
+// ============================================================
+//  セットアップ計算 (グローバル公開)
+// ============================================================
+window.updateSetupCalc = function(){
+    const tc = parseInt(document.getElementById('ticket-count').value)||0;
+    const tp = parseInt(document.getElementById('turns-per-ticket').value)||0;
+    const rm = parseInt(document.getElementById('real-money').value)||0;
+    document.getElementById('calc-total-turns').textContent = (tc*tp).toLocaleString();
+    document.getElementById('calc-coins').textContent = (rm*100).toLocaleString();
+};
+
+window.beginGame = function(){
+    ensureCtx();
+    const tc = parseInt(document.getElementById('ticket-count').value)||1;
+    const tp = parseInt(document.getElementById('turns-per-ticket').value)||20;
+    const rm = parseInt(document.getElementById('real-money').value)||100;
+    totalTurns = tc * tp;
+    turnsLeft  = totalTurns;
+    coins      = rm * 100;
+    initialCoins = coins;
+
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display  = 'flex';
+    updateCoinDisplay(false);
+    updateTurnsDisplay();
+    rebuildReels();
+    if(myDeviceId){ showDeviceNameBadge(myDeviceName); startDeviceListener(); }
+};
+
+function updateTurnsDisplay(){
+    document.getElementById('turns-left').textContent = turnsLeft.toLocaleString();
+    document.getElementById('turns-total-show').textContent = ' / ' + totalTurns.toLocaleString();
+    const pct = totalTurns > 0 ? (turnsLeft / totalTurns) * 100 : 0;
+    document.getElementById('turns-bar-inner').style.width = pct + '%';
+    // 残り0なら終了チェック
+    if(turnsLeft <= 0) triggerGameOver();
+}
+
+function triggerGameOver(){
+    // ゲーム停止
+    gameRunning = true;
+    document.getElementById('start-btn').disabled = true;
+    [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
+    setRainbow(false);
+    setTimeout(()=>{
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('gameover-screen').style.display = 'flex';
+        const finalCoins = coins;
+        const finalMoney = Math.floor(finalCoins / 100);
+        document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
+        document.getElementById('go-result').textContent = finalMoney.toLocaleString();
+    }, 3200);
+}
 
 function startRainbowSound(){
     stopRainbowSound();
@@ -580,29 +760,28 @@ function getComboMultiplier(r1,r2,r3){
 function getMultiplier(idx){ if(idx===SEVEN) return 15; if(ODD_SET.includes(idx)) return 10; if(EVEN_SET.includes(idx)) return 5; return 0; }
 
 function init(){
-    updateCoinDisplay(false);
-    rebuildReels();
-    if(myDeviceId){ showDeviceNameBadge(myDeviceName); startDeviceListener(); }
+    updateSetupCalc();
+    if(myDeviceId) showDeviceNameBadge(myDeviceName);
 }
 
-// writeFb=true(default)のとき同期、falseは表示のみ
 function updateCoinDisplay(writeFb=true){
     document.getElementById("coinshow").innerText=coins.toLocaleString();
     if(writeFb) syncCoinsToFb();
 }
 
-function selectBet(amount,btn){
+window.selectBet = function(amount,btn){
     document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected'); document.getElementById('custom-bet').value='';
     currentBet=amount; updateBetDisplay();
-}
-function onCustomBetInput(input){
+};
+window.onCustomBetInput = function(input){
     document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
     const v=parseInt(input.value); currentBet=(!isNaN(v)&&v>0)?v:0; updateBetDisplay();
-}
+};
 function updateBetDisplay(){
     const txt=document.getElementById('bet-val-text'), btn=document.getElementById('start-btn');
-    if(currentBet>0){txt.innerText=currentBet.toLocaleString()+' G';btn.disabled=gameRunning;}
+    if(currentBet>0&&turnsLeft>0){txt.innerText=currentBet.toLocaleString()+' G';btn.disabled=gameRunning;}
+    else if(turnsLeft<=0){txt.innerText='未選択';btn.disabled=true;}
     else{txt.innerText='未選択';btn.disabled=true;}
 }
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -645,16 +824,19 @@ function setBetLocked(locked){
 }
 let noOddReach=false;
 
-function startGame(){
+window.startGame = function(){
     if(currentBet<=0) return;
+    if(turnsLeft<=0) return;
     if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
     ensureCtx();
     const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
     if(shouldKakuhen){ (async()=>{await triggerKakuhen();_doStartGame();})(); return; }
     _doStartGame();
-}
+};
 function _doStartGame(){
-    coins-=currentBet; updateCoinDisplay(); totalStartCount++;
+    coins-=currentBet; updateCoinDisplay();
+    turnsLeft--; updateTurnsDisplay();
+    totalStartCount++;
     gameRunning=true; stoppedCount=0;
     firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
     noOddReach=(coins>=initialCoins*2.5);
@@ -699,7 +881,7 @@ async function triggerKakuhen(){
     kakuhenWinRound=coins<=initialCoins*0.5?Math.floor(Math.random()*2)+1:Math.floor(Math.random()*4)+1;
     kakuhenReachCount=0; consecutiveAnyLose=0;
 }
-async function stopReel(reelId,btn){
+window.stopReel = async function(reelId,btn){
     const reel=document.getElementById(reelId);
     if(btn.disabled) return;
     btn.disabled=true; stoppedCount++;
@@ -821,10 +1003,15 @@ async function stopReel(reelId,btn){
             stoppedCount=0; Atsu=0; gameRunning=false;
             [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
             if(!kakuhenActive) setBetLocked(false);
-            if(currentBet>0&&coins>0) document.getElementById('start-btn').disabled=false;
+            if(turnsLeft<=0){
+                // 残り0なら終了
+                triggerGameOver();
+            } else if(currentBet>0&&coins>0){
+                document.getElementById('start-btn').disabled=false;
+            }
         },3000);
     }
-}
+};
 
 // ============================================================
 //  A + S + L 同時押し → モーダル表示
@@ -855,11 +1042,11 @@ function fbModalOpen(){
     document.getElementById("fb-modal-overlay").classList.add("active");
     setTimeout(()=>document.getElementById("fb-pass-input").focus(),100);
 }
-function fbModalClose(){
+window.fbModalClose = function(){
     document.getElementById("fb-modal-overlay").classList.remove("active");
     if(_adminListenerRef){off(_adminListenerRef);_adminListenerRef=null;}
-}
-function fbCheckPass(){
+};
+window.fbCheckPass = function(){
     const pass=document.getElementById("fb-pass-input").value.trim();
     if(pass===PASS_REGISTER){
         document.getElementById("fb-step-pass").style.display="none";
@@ -875,8 +1062,8 @@ function fbCheckPass(){
     } else {
         document.getElementById("fb-pass-msg").textContent="パスワードが違います";
     }
-}
-async function fbRegisterDevice(){
+};
+window.fbRegisterDevice = async function(){
     const name=document.getElementById("fb-device-name-input").value.trim();
     const msgEl=document.getElementById("fb-register-msg");
     if(!name){msgEl.textContent="名前を入力してください";msgEl.className="fb-msg error";return;}
@@ -887,7 +1074,7 @@ async function fbRegisterDevice(){
     showDeviceNameBadge(name);
     startDeviceListener();
     setTimeout(fbModalClose,1200);
-}
+};
 function loadDeviceList(){
     const listEl=document.getElementById("device-list");
     listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">読み込み中...</div>';
@@ -923,48 +1110,34 @@ function openAdminDetail(id,dev){
     document.getElementById("admin-coin-input").value=dev.coins||0;
     document.getElementById("admin-action-msg").textContent="";
 }
-function adminBackToList(){
+window.adminBackToList = function(){
     _selectedDeviceId=null;
     document.getElementById("admin-device-detail").style.display="none";
     document.getElementById("device-list").style.display="block";
-}
-async function adminSetCoins(){
+};
+window.adminSetCoins = async function(){
     if(!_selectedDeviceId) return;
     const val=parseInt(document.getElementById("admin-coin-input").value);
     const msgEl=document.getElementById("admin-action-msg");
     if(isNaN(val)||val<0){msgEl.textContent="正しい金額を入力";msgEl.className="fb-msg error";return;}
     await update(ref(fbDb,`devices/${_selectedDeviceId}`),{coins:val});
     msgEl.textContent="✅ 更新しました"; msgEl.className="fb-msg ok";
-}
-async function adminEmergencyStop(){
+};
+window.adminEmergencyStop = async function(){
     if(!_selectedDeviceId) return;
     await update(ref(fbDb,`devices/${_selectedDeviceId}`),{emergency:true});
     const msgEl=document.getElementById("admin-action-msg");
     msgEl.textContent="⛔ 緊急停止しました"; msgEl.className="fb-msg error";
-}
-async function adminEmergencyRelease(){
+};
+window.adminEmergencyRelease = async function(){
     if(!_selectedDeviceId) return;
     await update(ref(fbDb,`devices/${_selectedDeviceId}`),{emergency:false});
     const msgEl=document.getElementById("admin-action-msg");
     msgEl.textContent="✅ 停止解除しました"; msgEl.className="fb-msg ok";
-}
+};
 
-// Enterキー対応
 document.getElementById("fb-pass-input").addEventListener("keydown",e=>{if(e.key==="Enter")fbCheckPass();});
 document.getElementById("fb-device-name-input").addEventListener("keydown",e=>{if(e.key==="Enter")fbRegisterDevice();});
-
-// グローバル公開 (HTML onclick 属性用)
-window.fbModalClose=fbModalClose;
-window.fbCheckPass=fbCheckPass;
-window.fbRegisterDevice=fbRegisterDevice;
-window.adminBackToList=adminBackToList;
-window.adminSetCoins=adminSetCoins;
-window.adminEmergencyStop=adminEmergencyStop;
-window.adminEmergencyRelease=adminEmergencyRelease;
-window.selectBet=selectBet;
-window.onCustomBetInput=onCustomBetInput;
-window.startGame=startGame;
-window.stopReel=stopReel;
 
 window.onload=init;
 </script>
