@@ -84,6 +84,15 @@
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
 
+        /* ゲームを辞めるボタン (ゲーム画面) */
+        #quit-btn {
+            margin-top: 8px; width: 100%; max-width: 480px; padding: 9px;
+            background: #1a1a1a; color: #666; border: 1px solid #444;
+            border-radius: 8px; font-size: 13px; font-weight: bold; font-family: 'Courier New',monospace;
+            letter-spacing: 2px; cursor: pointer; transition: all 0.15s;
+        }
+        #quit-btn:hover { background: #2a1010; color: #ff6666; border-color: #883333; }
+
         /* 残り回数バー */
         #turns-display {
             margin-top: 10px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
@@ -219,6 +228,12 @@
         }
         .go-result-unit { font-size: 14px; color: #c0a000; }
 
+        /* ゲームを辞めるボタン（終了画面） */
+        #go-quit-note {
+            margin-top: 16px; font-size: 11px; color: #555; text-align: center;
+            letter-spacing: 2px;
+        }
+
         /* ============ Firebase モーダル ============ */
         #fb-modal-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
@@ -227,7 +242,7 @@
         #fb-modal-overlay.active { display:flex; }
         #fb-modal {
             background:#1a1a1a; border:2px solid #444; border-radius:14px;
-            padding:28px 32px; min-width:320px; max-width:420px; width:90%;
+            padding:28px 32px; min-width:320px; max-width:460px; width:92%;
             font-family:'Courier New',monospace; position:relative;
         }
         #fb-modal h2 { color:#ffd700; font-size:14px; letter-spacing:3px; text-align:center; margin:0 0 18px; }
@@ -258,27 +273,54 @@
         #fb-modal-close:hover { color:#fff; }
         #admin-panel { display:none; }
         #admin-panel h2 { color:#ffd700; font-size:13px; letter-spacing:3px; text-align:center; margin:0 0 14px; }
-        #device-list { max-height:280px; overflow-y:auto; margin-bottom:12px; }
-        .device-item {
-            background:#2a2a2a; border:1px solid #444; border-radius:7px;
-            padding:10px 14px; margin-bottom:8px; cursor:pointer; transition:background 0.15s;
-            display:flex; align-items:center; justify-content:space-between;
+
+        /* ── 管理者一覧テーブル ── */
+        #device-list { max-height:340px; overflow-y:auto; margin-bottom:12px; }
+        .device-row {
+            background:#1e1e1e; border:1px solid #383838; border-radius:8px;
+            padding:10px 12px; margin-bottom:8px; transition:background 0.15s;
         }
-        .device-item:hover { background:#333; border-color:#c0a000; }
-        .device-item .dev-name { color:#ffd700; font-size:13px; }
-        .device-item .dev-meta { color:#666; font-size:11px; }
-        #admin-device-detail { display:none; }
-        #admin-device-detail h3 { color:#ffd700; font-size:12px; letter-spacing:2px; margin:0 0 14px; }
-        .admin-coin-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
-        .admin-coin-row label { color:#888; font-size:12px; white-space:nowrap; }
-        .admin-coin-row input { flex:1; background:#111; color:#ffd700; border:1px solid #555; border-radius:6px; padding:8px 10px; font-size:13px; font-family:'Courier New',monospace; }
-        .admin-coin-row input:focus { outline:none; border-color:#ffd700; }
-        .fb-btn-danger { background:linear-gradient(135deg,#880000,#550000) !important; color:#ff8888 !important; }
-        .fb-btn-danger:hover { background:linear-gradient(135deg,#aa0000,#770000) !important; }
-        .fb-btn-back { background:#2a2a2a !important; color:#aaa !important; border:1px solid #444 !important; }
+        .device-row-header {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:6px;
+        }
+        .device-row-name { color:#ffd700; font-size:13px; font-weight:bold; }
+        .device-row-actions { display:flex; gap:6px; align-items:center; }
+        .device-row-stats {
+            display:grid; grid-template-columns:1fr 1fr; gap:4px 10px;
+            font-size:11px;
+        }
+        .device-row-stat { color:#666; }
+        .device-row-stat .sv { color:#ccc; font-weight:bold; }
+
+        /* コイン変更インライン */
+        .inline-coin-row {
+            display:flex; gap:6px; align-items:center; margin-top:8px;
+            padding-top:8px; border-top:1px solid #2a2a2a;
+        }
+        .inline-coin-row input {
+            flex:1; background:#111; color:#ffd700; border:1px solid #555;
+            border-radius:5px; padding:6px 8px; font-size:12px;
+            font-family:'Courier New',monospace;
+        }
+        .inline-coin-row input:focus { outline:none; border-color:#ffd700; }
+        .btn-sm {
+            padding:5px 10px; border:none; border-radius:5px;
+            font-size:11px; font-weight:bold; font-family:'Courier New',monospace;
+            cursor:pointer; white-space:nowrap;
+        }
+        .btn-sm-gold { background:#c0a000; color:#000; }
+        .btn-sm-gold:hover { background:#e0c000; }
+        .btn-sm-red { background:#800000; color:#ffaaaa; }
+        .btn-sm-red:hover { background:#aa0000; }
+        .btn-sm-green { background:#005500; color:#aaffaa; }
+        .btn-sm-green:hover { background:#007700; }
+        .row-msg { font-size:11px; margin-top:4px; min-height:14px; text-align:right; }
+        .row-msg.ok { color:#00ff88; } .row-msg.error { color:#ff4444; }
+
         .device-status-badge {
             display:inline-block; font-size:10px; padding:2px 7px; border-radius:4px;
-            font-weight:bold; margin-left:8px;
+            font-weight:bold; margin-left:6px;
         }
         .badge-ok { background:#1a4a1a; color:#00ff88; }
         .badge-stop { background:#4a1a1a; color:#ff4444; }
@@ -301,6 +343,30 @@
         }
         #emergency-overlay .em-sub { color:#888; font-size:13px; margin-top:16px; font-family:'Courier New',monospace; }
         @keyframes emergencyPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        /* 確認ダイアログ */
+        #confirm-overlay {
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
+            z-index:19000; align-items:center; justify-content:center;
+        }
+        #confirm-overlay.active { display:flex; }
+        #confirm-box {
+            background:#1a1a1a; border:2px solid #883333; border-radius:14px;
+            padding:28px 32px; max-width:360px; width:88%; text-align:center;
+            font-family:'Courier New',monospace;
+        }
+        #confirm-box .cf-title { color:#ff6666; font-size:16px; font-weight:bold; letter-spacing:3px; margin-bottom:12px; }
+        #confirm-box .cf-body { color:#aaa; font-size:13px; margin-bottom:22px; line-height:1.6; }
+        #confirm-box .cf-btns { display:flex; gap:10px; justify-content:center; }
+        #confirm-box .cf-btns button {
+            flex:1; padding:10px; border:none; border-radius:7px;
+            font-size:13px; font-weight:bold; font-family:'Courier New',monospace;
+            letter-spacing:2px; cursor:pointer;
+        }
+        #cf-yes { background:linear-gradient(135deg,#c00000,#800000); color:#fff; }
+        #cf-yes:hover { background:linear-gradient(135deg,#e00000,#a00000); }
+        #cf-no  { background:#2a2a2a; color:#888; border:1px solid #444; }
+        #cf-no:hover  { background:#333; color:#aaa; }
     </style>
 </head>
 <body class="dark">
@@ -345,6 +411,9 @@
             <div class="label">所持コイン</div>
             <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
         </div>
+
+        <!-- ゲームを辞めるボタン（ゲーム画面） -->
+        <button id="quit-btn" onclick="confirmQuit()">⏹ ゲームを辞める</button>
 
         <div id="turns-display">
             <div class="t-label">残りプレイ回数</div>
@@ -411,6 +480,7 @@
             <div class="go-result-val" id="go-result">0</div>
             <div class="go-result-unit">円</div>
         </div>
+        <div id="go-quit-note">— 途中終了 or 回数終了 —</div>
     </div>
 
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
@@ -419,6 +489,18 @@
     <div id="emergency-overlay">
         <div class="em-title">⛔ EMERGENCY STOP ⛔</div>
         <div class="em-sub">管理者によって停止されています</div>
+    </div>
+
+    <!-- 確認ダイアログ -->
+    <div id="confirm-overlay">
+        <div id="confirm-box">
+            <div class="cf-title">⚠ QUIT GAME</div>
+            <div class="cf-body" id="cf-body-text">本当にゲームを辞めますか？<br>残り回数が残っていても終了します。</div>
+            <div class="cf-btns">
+                <button id="cf-yes" onclick="doQuit()">やめる</button>
+                <button id="cf-no"  onclick="cancelQuit()">続ける</button>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase モーダル -->
@@ -442,18 +524,6 @@
             <div id="admin-panel">
                 <h2>🛠 ADMIN PANEL</h2>
                 <div id="device-list"></div>
-                <div id="admin-device-detail">
-                    <h3 id="admin-detail-title">▶ デバイス詳細</h3>
-                    <div class="admin-coin-row">
-                        <label>所持金変更:</label>
-                        <input type="number" id="admin-coin-input" placeholder="新しい金額" min="0">
-                    </div>
-                    <div class="fb-msg" id="admin-action-msg"></div>
-                    <button class="fb-btn fb-btn-primary" onclick="adminSetCoins()">💰 所持金を更新</button>
-                    <button class="fb-btn fb-btn-danger" onclick="adminEmergencyStop()">⛔ 緊急停止</button>
-                    <button class="fb-btn fb-btn-danger" onclick="adminEmergencyRelease()" style="margin-top:2px;">✅ 緊急停止解除</button>
-                    <button class="fb-btn fb-btn-back" onclick="adminBackToList()" style="margin-top:6px;">← 戻る</button>
-                </div>
                 <button class="fb-btn fb-btn-cancel" onclick="fbModalClose()">閉じる</button>
             </div>
         </div>
@@ -519,6 +589,11 @@ function releaseEmergency(){
 function syncCoinsToFb(){
     if(!myDeviceId) return;
     update(ref(fbDb, `devices/${myDeviceId}`), { coins: coins }).catch(()=>{});
+}
+// 残り回数もFirebaseへ同期
+function syncTurnsToFb(){
+    if(!myDeviceId) return;
+    update(ref(fbDb, `devices/${myDeviceId}`), { turnsLeft: turnsLeft, totalTurns: totalTurns }).catch(()=>{});
 }
 
 // ============================================================
@@ -666,7 +741,7 @@ let _rainbowLoopInterval=null;
 let turnsLeft=0, totalTurns=0;
 
 // ============================================================
-//  セットアップ計算 (グローバル公開)
+//  セットアップ計算
 // ============================================================
 window.updateSetupCalc = function(){
     const tc = parseInt(document.getElementById('ticket-count').value)||0;
@@ -699,12 +774,11 @@ function updateTurnsDisplay(){
     document.getElementById('turns-total-show').textContent = ' / ' + totalTurns.toLocaleString();
     const pct = totalTurns > 0 ? (turnsLeft / totalTurns) * 100 : 0;
     document.getElementById('turns-bar-inner').style.width = pct + '%';
-    // 残り0なら終了チェック
+    syncTurnsToFb();
     if(turnsLeft <= 0) triggerGameOver();
 }
 
 function triggerGameOver(){
-    // ゲーム停止
     gameRunning = true;
     document.getElementById('start-btn').disabled = true;
     [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
@@ -716,8 +790,42 @@ function triggerGameOver(){
         const finalMoney = Math.floor(finalCoins / 100);
         document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
         document.getElementById('go-result').textContent = finalMoney.toLocaleString();
+        // Firebase最終同期
+        syncCoinsToFb();
+        syncTurnsToFb();
     }, 3200);
 }
+
+// ============================================================
+//  ゲームを辞める (確認ダイアログ)
+// ============================================================
+window.confirmQuit = function(){
+    // スピン中は止める
+    document.getElementById('confirm-overlay').classList.add('active');
+};
+window.cancelQuit = function(){
+    document.getElementById('confirm-overlay').classList.remove('active');
+};
+window.doQuit = function(){
+    document.getElementById('confirm-overlay').classList.remove('active');
+    // ゲームを強制停止
+    sfxReelStop();
+    setRainbow(false);
+    gameRunning = false;
+    stoppedCount = 0;
+    document.getElementById('start-btn').disabled = true;
+    [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
+    // 即座に終了画面へ
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('gameover-screen').style.display = 'flex';
+    const finalCoins = coins;
+    const finalMoney = Math.floor(finalCoins / 100);
+    document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
+    document.getElementById('go-result').textContent = finalMoney.toLocaleString();
+    document.getElementById('go-quit-note').textContent = '— 途中終了（残り ' + turnsLeft + ' 回）—';
+    syncCoinsToFb();
+    syncTurnsToFb();
+};
 
 function startRainbowSound(){
     stopRainbowSound();
@@ -1004,7 +1112,6 @@ window.stopReel = async function(reelId,btn){
             [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
             if(!kakuhenActive) setBetLocked(false);
             if(turnsLeft<=0){
-                // 残り0なら終了
                 triggerGameOver();
             } else if(currentBet>0&&coins>0){
                 document.getElementById('start-btn').disabled=false;
@@ -1031,7 +1138,6 @@ document.addEventListener("keyup",e=>_pressedKeys.delete(e.key.toLowerCase()));
 const PASS_REGISTER="1161";
 const PASS_ADMIN="2272";
 let _adminListenerRef=null;
-let _selectedDeviceId=null;
 
 function fbModalOpen(){
     document.getElementById("fb-step-pass").style.display="block";
@@ -1057,7 +1163,6 @@ window.fbCheckPass = function(){
     } else if(pass===PASS_ADMIN){
         document.getElementById("fb-step-pass").style.display="none";
         document.getElementById("admin-panel").style.display="block";
-        document.getElementById("admin-device-detail").style.display="none";
         loadDeviceList();
     } else {
         document.getElementById("fb-pass-msg").textContent="パスワードが違います";
@@ -1069,71 +1174,91 @@ window.fbRegisterDevice = async function(){
     if(!name){msgEl.textContent="名前を入力してください";msgEl.className="fb-msg error";return;}
     if(!myDeviceId){myDeviceId=genDeviceId();localStorage.setItem("slotDeviceId",myDeviceId);}
     myDeviceName=name; localStorage.setItem("slotDeviceName",name);
-    await set(ref(fbDb,`devices/${myDeviceId}`),{name,coins,emergency:false,lastSeen:Date.now()});
+    await set(ref(fbDb,`devices/${myDeviceId}`),{name,coins,turnsLeft,totalTurns,emergency:false,lastSeen:Date.now()});
     msgEl.textContent="✅ 登録しました！"; msgEl.className="fb-msg ok";
     showDeviceNameBadge(name);
     startDeviceListener();
     setTimeout(fbModalClose,1200);
 };
+
+// ============================================================
+//  管理者パネル：デバイス一覧（インライン操作）
+// ============================================================
 function loadDeviceList(){
     const listEl=document.getElementById("device-list");
     listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">読み込み中...</div>';
-    _adminListenerRef=ref(fbDb,"devices");
-    onValue(_adminListenerRef,snap=>{
+    const devicesRef=ref(fbDb,"devices");
+    _adminListenerRef=devicesRef;
+    onValue(devicesRef, snap=>{
         const data=snap.val()||{};
         const keys=Object.keys(data);
-        if(keys.length===0){listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">デバイスなし</div>';return;}
+        if(keys.length===0){
+            listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">デバイスなし</div>';
+            return;
+        }
         listEl.innerHTML="";
         keys.forEach(id=>{
             const dev=data[id];
-            const item=document.createElement("div");
-            item.className="device-item";
             const badge=dev.emergency
                 ?'<span class="device-status-badge badge-stop">STOP</span>'
                 :'<span class="device-status-badge badge-ok">OK</span>';
-            item.innerHTML=`
-                <div>
-                    <div class="dev-name">${dev.name||id}${badge}</div>
-                    <div class="dev-meta">💰 ${(dev.coins||0).toLocaleString()} G</div>
+            const turnsInfo = (typeof dev.turnsLeft === 'number' && typeof dev.totalTurns === 'number')
+                ? `${dev.turnsLeft} / ${dev.totalTurns} 回`
+                : '–';
+            const coinsVal = typeof dev.coins === 'number' ? dev.coins : 0;
+            const realMoney = Math.floor(coinsVal / 100);
+
+            const row = document.createElement("div");
+            row.className = "device-row";
+            row.id = `dev-row-${id}`;
+            row.innerHTML = `
+                <div class="device-row-header">
+                    <div class="device-row-name">${dev.name||id}${badge}</div>
+                    <div class="device-row-actions">
+                        <button class="btn-sm btn-sm-red"  onclick="adminRowStop('${id}',this)">⛔ 停止</button>
+                        <button class="btn-sm btn-sm-green" onclick="adminRowRelease('${id}',this)">✅ 解除</button>
+                    </div>
                 </div>
-                <div style="color:#555;font-size:16px;">›</div>`;
-            item.onclick=()=>openAdminDetail(id,dev);
-            listEl.appendChild(item);
+                <div class="device-row-stats">
+                    <div class="device-row-stat">💰 コイン: <span class="sv">${coinsVal.toLocaleString()} G</span></div>
+                    <div class="device-row-stat">💴 所持金: <span class="sv">${realMoney.toLocaleString()} 円</span></div>
+                    <div class="device-row-stat">🎰 残り回数: <span class="sv">${turnsInfo}</span></div>
+                    <div class="device-row-stat">🆔 ID: <span class="sv" style="font-size:10px;">${id.slice(0,12)}…</span></div>
+                </div>
+                <div class="inline-coin-row">
+                    <span style="color:#666;font-size:11px;white-space:nowrap;">コイン変更:</span>
+                    <input type="number" id="coin-input-${id}" value="${coinsVal}" min="0" placeholder="新しい金額">
+                    <button class="btn-sm btn-sm-gold" onclick="adminRowSetCoins('${id}')">更新</button>
+                </div>
+                <div class="row-msg" id="row-msg-${id}"></div>
+            `;
+            listEl.appendChild(row);
         });
     });
 }
-function openAdminDetail(id,dev){
-    _selectedDeviceId=id;
-    document.getElementById("device-list").style.display="none";
-    document.getElementById("admin-device-detail").style.display="block";
-    document.getElementById("admin-detail-title").textContent=`▶ ${dev.name||id}`;
-    document.getElementById("admin-coin-input").value=dev.coins||0;
-    document.getElementById("admin-action-msg").textContent="";
-}
-window.adminBackToList = function(){
-    _selectedDeviceId=null;
-    document.getElementById("admin-device-detail").style.display="none";
-    document.getElementById("device-list").style.display="block";
+
+window.adminRowStop = async function(id, btn){
+    btn.disabled=true;
+    await update(ref(fbDb,`devices/${id}`),{emergency:true});
+    const msg=document.getElementById(`row-msg-${id}`);
+    if(msg){msg.textContent="⛔ 停止しました";msg.className="row-msg error";}
+    btn.disabled=false;
 };
-window.adminSetCoins = async function(){
-    if(!_selectedDeviceId) return;
-    const val=parseInt(document.getElementById("admin-coin-input").value);
-    const msgEl=document.getElementById("admin-action-msg");
-    if(isNaN(val)||val<0){msgEl.textContent="正しい金額を入力";msgEl.className="fb-msg error";return;}
-    await update(ref(fbDb,`devices/${_selectedDeviceId}`),{coins:val});
-    msgEl.textContent="✅ 更新しました"; msgEl.className="fb-msg ok";
+window.adminRowRelease = async function(id, btn){
+    btn.disabled=true;
+    await update(ref(fbDb,`devices/${id}`),{emergency:false});
+    const msg=document.getElementById(`row-msg-${id}`);
+    if(msg){msg.textContent="✅ 解除しました";msg.className="row-msg ok";}
+    btn.disabled=false;
 };
-window.adminEmergencyStop = async function(){
-    if(!_selectedDeviceId) return;
-    await update(ref(fbDb,`devices/${_selectedDeviceId}`),{emergency:true});
-    const msgEl=document.getElementById("admin-action-msg");
-    msgEl.textContent="⛔ 緊急停止しました"; msgEl.className="fb-msg error";
-};
-window.adminEmergencyRelease = async function(){
-    if(!_selectedDeviceId) return;
-    await update(ref(fbDb,`devices/${_selectedDeviceId}`),{emergency:false});
-    const msgEl=document.getElementById("admin-action-msg");
-    msgEl.textContent="✅ 停止解除しました"; msgEl.className="fb-msg ok";
+window.adminRowSetCoins = async function(id){
+    const input=document.getElementById(`coin-input-${id}`);
+    const val=parseInt(input.value);
+    const msg=document.getElementById(`row-msg-${id}`);
+    if(isNaN(val)||val<0){if(msg){msg.textContent="正しい金額を入力";msg.className="row-msg error";}return;}
+    await update(ref(fbDb,`devices/${id}`),{coins:val});
+    if(msg){msg.textContent="✅ 更新しました";msg.className="row-msg ok";}
+    setTimeout(()=>{if(msg) msg.textContent="";},2500);
 };
 
 document.getElementById("fb-pass-input").addEventListener("keydown",e=>{if(e.key==="Enter")fbCheckPass();});
