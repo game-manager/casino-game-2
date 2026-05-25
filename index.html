@@ -84,7 +84,6 @@
         #coin-display .amount { color:#ffd700; font-size:28px; font-weight:bold; text-shadow:0 0 10px #ffd70066; }
         #coin-display .coin-unit { color:#c0a000; font-size:13px; margin-left:4px; }
 
-        /* ゲームを辞めるボタン (ゲーム画面) */
         #quit-btn {
             margin-top: 8px; width: 100%; max-width: 480px; padding: 9px;
             background: #1a1a1a; color: #666; border: 1px solid #444;
@@ -93,7 +92,6 @@
         }
         #quit-btn:hover { background: #2a1010; color: #ff6666; border-color: #883333; }
 
-        /* 残り回数バー */
         #turns-display {
             margin-top: 10px; background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
             border: 2px solid #444; border-radius: 12px; padding: 10px 20px;
@@ -227,8 +225,6 @@
             text-shadow: 0 0 20px #ffd70066; margin-bottom: 4px;
         }
         .go-result-unit { font-size: 14px; color: #c0a000; }
-
-        /* ゲームを辞めるボタン（終了画面） */
         #go-quit-note {
             margin-top: 16px; font-size: 11px; color: #555; text-align: center;
             letter-spacing: 2px;
@@ -274,7 +270,6 @@
         #admin-panel { display:none; }
         #admin-panel h2 { color:#ffd700; font-size:13px; letter-spacing:3px; text-align:center; margin:0 0 14px; }
 
-        /* ── 管理者一覧テーブル ── */
         #device-list { max-height:340px; overflow-y:auto; margin-bottom:12px; }
         .device-row {
             background:#1e1e1e; border:1px solid #383838; border-radius:8px;
@@ -293,7 +288,6 @@
         .device-row-stat { color:#666; }
         .device-row-stat .sv { color:#ccc; font-weight:bold; }
 
-        /* コイン変更インライン */
         .inline-coin-row {
             display:flex; gap:6px; align-items:center; margin-top:8px;
             padding-top:8px; border-top:1px solid #2a2a2a;
@@ -367,6 +361,39 @@
         #cf-yes:hover { background:linear-gradient(135deg,#e00000,#a00000); }
         #cf-no  { background:#2a2a2a; color:#888; border:1px solid #444; }
         #cf-no:hover  { background:#333; color:#aaa; }
+
+        /* ============ スタートパスワードモーダル ============ */
+        #start-pass-overlay {
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
+            z-index:18000; align-items:center; justify-content:center;
+        }
+        #start-pass-overlay.active { display:flex; }
+        #start-pass-box {
+            background:#1a1a1a; border:2px solid #c0a000; border-radius:14px;
+            padding:28px 32px; max-width:340px; width:88%; text-align:center;
+            font-family:'Courier New',monospace;
+        }
+        #start-pass-box .sp-title {
+            color:#ffd700; font-size:15px; font-weight:bold; letter-spacing:3px;
+            margin-bottom:18px; text-shadow:0 0 10px #ffd70066;
+        }
+        #start-pass-input {
+            width:100%; background:#111; color:#ffd700; border:1px solid #555;
+            border-radius:6px; padding:12px 14px; font-size:20px; letter-spacing:6px;
+            font-family:'Courier New',monospace; text-align:center; margin-bottom:10px;
+        }
+        #start-pass-input:focus { outline:none; border-color:#ffd700; }
+        #start-pass-msg { font-size:12px; min-height:18px; margin-bottom:10px; color:#ff4444; }
+        #start-pass-box .sp-btns { display:flex; gap:10px; }
+        #start-pass-box .sp-btns button {
+            flex:1; padding:11px; border:none; border-radius:7px;
+            font-size:13px; font-weight:bold; font-family:'Courier New',monospace;
+            letter-spacing:2px; cursor:pointer;
+        }
+        #sp-ok  { background:linear-gradient(135deg,#c00000,#800000); color:#fff; }
+        #sp-ok:hover  { background:linear-gradient(135deg,#e00000,#a00000); }
+        #sp-cancel { background:#2a2a2a; color:#888; border:1px solid #444; }
+        #sp-cancel:hover { background:#333; color:#aaa; }
     </style>
 </head>
 <body class="dark">
@@ -412,7 +439,6 @@
             <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
         </div>
 
-        <!-- ゲームを辞めるボタン（ゲーム画面） -->
         <button id="quit-btn" onclick="confirmQuit()">⏹ ゲームを辞める</button>
 
         <div id="turns-display">
@@ -438,11 +464,11 @@
             </div>
             <div id="current-bet-display">掛け金: <span class="bet-val" id="bet-val-text">未選択</span></div>
             <div class="payout-hint">
-                <div class="payout-item"><span>2・4・6 揃い</span>×5</div>
-                <div class="payout-item"><span>1・3・5 揃い</span>×10</div>
+                <div class="payout-item"><span>2・4・6 揃い</span>×3</div>
+                <div class="payout-item"><span>1・3・5 揃い</span>×5</div>
                 <div class="payout-item"><span>7 揃い</span>×15</div>
-                <div class="payout-item"><span>1・2・3 順不同</span>×8</div>
-                <div class="payout-item"><span>4・5・6 順不同</span>×6</div>
+                <div class="payout-item"><span>1・2・3 順不同</span>×5</div>
+                <div class="payout-item"><span>4・5・6 順不同</span>×4</div>
             </div>
         </div>
 
@@ -503,6 +529,19 @@
         </div>
     </div>
 
+    <!-- ============ スタートパスワードモーダル ============ -->
+    <div id="start-pass-overlay">
+        <div id="start-pass-box">
+            <div class="sp-title">🔑 パスワードを入力</div>
+            <input type="password" id="start-pass-input" placeholder="****" maxlength="10" autocomplete="off">
+            <div id="start-pass-msg"></div>
+            <div class="sp-btns">
+                <button id="sp-ok" onclick="checkStartPass()">確認</button>
+                <button id="sp-cancel" onclick="closeStartPass()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase モーダル -->
     <div id="fb-modal-overlay">
         <div id="fb-modal">
@@ -551,6 +590,55 @@ let myDeviceId   = localStorage.getItem("slotDeviceId")   || null;
 let myDeviceName = localStorage.getItem("slotDeviceName") || null;
 let _deviceListenerUnsubscribe = null;
 
+// ============================================================
+//  スタートパスワード認証 (Firebase pass3 と照合)
+// ============================================================
+let _startPassCallback = null;
+
+function openStartPass(callback) {
+    _startPassCallback = callback;
+    const overlay = document.getElementById('start-pass-overlay');
+    const input = document.getElementById('start-pass-input');
+    const msg = document.getElementById('start-pass-msg');
+    input.value = '';
+    msg.textContent = '';
+    overlay.classList.add('active');
+    setTimeout(() => input.focus(), 100);
+}
+window.closeStartPass = function() {
+    document.getElementById('start-pass-overlay').classList.remove('active');
+    _startPassCallback = null;
+};
+window.checkStartPass = async function() {
+    const input = document.getElementById('start-pass-input');
+    const msg = document.getElementById('start-pass-msg');
+    const entered = input.value.trim();
+    if (!entered) { msg.textContent = 'パスワードを入力してください'; return; }
+    msg.textContent = '確認中...';
+    msg.style.color = '#888';
+    try {
+        const snap = await get(ref(fbDb, 'pass3'));
+        const correctPass = String(snap.val());
+        if (entered === correctPass) {
+            document.getElementById('start-pass-overlay').classList.remove('active');
+            if (_startPassCallback) { _startPassCallback(); _startPassCallback = null; }
+        } else {
+            msg.textContent = 'パスワードが違います';
+            msg.style.color = '#ff4444';
+            input.value = '';
+            input.focus();
+        }
+    } catch(e) {
+        msg.textContent = '通信エラー。再度お試しください';
+        msg.style.color = '#ff4444';
+    }
+};
+document.getElementById('start-pass-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.checkStartPass();
+});
+
+// ============================================================
+
 function genDeviceId(){
     return "dev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,7);
 }
@@ -590,7 +678,6 @@ function syncCoinsToFb(){
     if(!myDeviceId) return;
     update(ref(fbDb, `devices/${myDeviceId}`), { coins: coins }).catch(()=>{});
 }
-// 残り回数もFirebaseへ同期
 function syncTurnsToFb(){
     if(!myDeviceId) return;
     update(ref(fbDb, `devices/${myDeviceId}`), { turnsLeft: turnsLeft, totalTurns: totalTurns }).catch(()=>{});
@@ -737,7 +824,6 @@ let kakuhenActive=false, kakuhenWinRound=0, kakuhenReachCount=0;
 let initialCoins=10000;
 let _rainbowLoopInterval=null;
 
-// ターン管理
 let turnsLeft=0, totalTurns=0;
 
 // ============================================================
@@ -790,17 +876,15 @@ function triggerGameOver(){
         const finalMoney = Math.floor(finalCoins / 100);
         document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
         document.getElementById('go-result').textContent = finalMoney.toLocaleString();
-        // Firebase最終同期
         syncCoinsToFb();
         syncTurnsToFb();
     }, 3200);
 }
 
 // ============================================================
-//  ゲームを辞める (確認ダイアログ)
+//  ゲームを辞める
 // ============================================================
 window.confirmQuit = function(){
-    // スピン中は止める
     document.getElementById('confirm-overlay').classList.add('active');
 };
 window.cancelQuit = function(){
@@ -808,14 +892,12 @@ window.cancelQuit = function(){
 };
 window.doQuit = function(){
     document.getElementById('confirm-overlay').classList.remove('active');
-    // ゲームを強制停止
     sfxReelStop();
     setRainbow(false);
     gameRunning = false;
     stoppedCount = 0;
     document.getElementById('start-btn').disabled = true;
     [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
-    // 即座に終了画面へ
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('gameover-screen').style.display = 'flex';
     const finalCoins = coins;
@@ -859,13 +941,27 @@ function rebuildReels(){
     });
 }
 function setKakuhenMode(on){ kakuhenActive=on; IMG_DATA_CURRENT[SEVEN]=on?IMG_7_KAKUHEN:IMG_7_NORMAL; }
+
+// ============================================================
+//  倍率設定（変更箇所）
+//  2・4・6 揃い → ×3
+//  1・3・5 揃い → ×5
+//  7 揃い       → ×15 (変更なし)
+//  1・2・3 順不同 → ×5
+//  4・5・6 順不同 → ×4
+// ============================================================
 function getComboMultiplier(r1,r2,r3){
     const vals=[r1,r2,r3].sort((a,b)=>a-b);
-    if(vals[0]===0&&vals[1]===1&&vals[2]===2) return 8;
-    if(vals[0]===3&&vals[1]===4&&vals[2]===5) return 6;
+    if(vals[0]===0&&vals[1]===1&&vals[2]===2) return 5;  // 1・2・3 → ×5
+    if(vals[0]===3&&vals[1]===4&&vals[2]===5) return 4;  // 4・5・6 → ×4
     return 0;
 }
-function getMultiplier(idx){ if(idx===SEVEN) return 15; if(ODD_SET.includes(idx)) return 10; if(EVEN_SET.includes(idx)) return 5; return 0; }
+function getMultiplier(idx){
+    if(idx===SEVEN)              return 15; // 7揃い → ×15
+    if(ODD_SET.includes(idx))   return 5;  // 1・3・5 揃い → ×5
+    if(EVEN_SET.includes(idx))  return 3;  // 2・4・6 揃い → ×3
+    return 0;
+}
 
 function init(){
     updateSetupCalc();
@@ -932,15 +1028,20 @@ function setBetLocked(locked){
 }
 let noOddReach=false;
 
+// STARTボタン → パスワード認証 → ゲーム開始
 window.startGame = function(){
     if(currentBet<=0) return;
     if(turnsLeft<=0) return;
     if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
     ensureCtx();
-    const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
-    if(shouldKakuhen){ (async()=>{await triggerKakuhen();_doStartGame();})(); return; }
-    _doStartGame();
+    // パスワード認証を挟む
+    openStartPass(() => {
+        const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
+        if(shouldKakuhen){ (async()=>{await triggerKakuhen();_doStartGame();})(); return; }
+        _doStartGame();
+    });
 };
+
 function _doStartGame(){
     coins-=currentBet; updateCoinDisplay();
     turnsLeft--; updateTurnsDisplay();
@@ -1182,7 +1283,7 @@ window.fbRegisterDevice = async function(){
 };
 
 // ============================================================
-//  管理者パネル：デバイス一覧（インライン操作）
+//  管理者パネル
 // ============================================================
 function loadDeviceList(){
     const listEl=document.getElementById("device-list");
