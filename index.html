@@ -30,7 +30,6 @@
             transition: none;
         }
 
-        /* ============ セットアップ画面 ============ */
         #setup-screen {
             display: flex; flex-direction: column; align-items: center;
             justify-content: center; min-height: 80vh; width: 100%; max-width: 480px;
@@ -72,7 +71,6 @@
         #setup-start-btn:hover { background: linear-gradient(135deg,#e00000,#a00000); }
         #setup-start-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* ============ ゲーム本体 ============ */
         #game-screen { display: none; width: 100%; flex-direction: column; align-items: center; }
 
         #coin-display {
@@ -197,7 +195,6 @@
         .egg-size-3{transform:scale(2.0);} .chance-large{transform:scale(1.8);}
         .spacer{height:20px;}
 
-        /* ============ ゲーム終了画面 ============ */
         #gameover-screen {
             display: none; flex-direction: column; align-items: center;
             justify-content: center; min-height: 80vh; width: 100%; max-width: 480px;
@@ -230,7 +227,6 @@
             letter-spacing: 2px;
         }
 
-        /* ============ Firebase モーダル ============ */
         #fb-modal-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
             z-index:9000; align-items:center; justify-content:center;
@@ -338,7 +334,6 @@
         #emergency-overlay .em-sub { color:#888; font-size:13px; margin-top:16px; font-family:'Courier New',monospace; }
         @keyframes emergencyPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 
-        /* 確認ダイアログ */
         #confirm-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
             z-index:19000; align-items:center; justify-content:center;
@@ -362,7 +357,6 @@
         #cf-no  { background:#2a2a2a; color:#888; border:1px solid #444; }
         #cf-no:hover  { background:#333; color:#aaa; }
 
-        /* ============ スタートパスワードモーダル ============ */
         #start-pass-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
             z-index:18000; align-items:center; justify-content:center;
@@ -400,7 +394,6 @@
     <div id="left-bar" class="side-bar"></div>
     <div id="right-bar" class="side-bar"></div>
 
-    <!-- ============ セットアップ画面 ============ -->
     <div id="setup-screen">
         <div class="setup-title">⚙ GAME SETUP</div>
         <div class="setup-card">
@@ -432,7 +425,6 @@
         <button id="setup-start-btn" onclick="beginGame()">▶ GAME START</button>
     </div>
 
-    <!-- ============ ゲーム本体 ============ -->
     <div id="game-screen">
         <div id="coin-display">
             <div class="label">所持コイン</div>
@@ -493,7 +485,6 @@
         <div class="spacer"></div>
     </div>
 
-    <!-- ============ ゲーム終了画面 ============ -->
     <div id="gameover-screen">
         <div class="go-title">GAME OVER</div>
         <div class="gameover-card">
@@ -510,14 +501,13 @@
     </div>
 
     <div id="effect-overlay"><img id="effect-img" src="" alt="演出"></div>
-
     <div id="device-name-badge"></div>
+
     <div id="emergency-overlay">
         <div class="em-title">⛔ EMERGENCY STOP ⛔</div>
         <div class="em-sub">管理者によって停止されています</div>
     </div>
 
-    <!-- 確認ダイアログ -->
     <div id="confirm-overlay">
         <div id="confirm-box">
             <div class="cf-title">⚠ QUIT GAME</div>
@@ -529,7 +519,6 @@
         </div>
     </div>
 
-    <!-- ============ スタートパスワードモーダル ============ -->
     <div id="start-pass-overlay">
         <div id="start-pass-box">
             <div class="sp-title">🔑 パスワードを入力</div>
@@ -542,7 +531,6 @@
         </div>
     </div>
 
-    <!-- Firebase モーダル -->
     <div id="fb-modal-overlay">
         <div id="fb-modal">
             <button id="fb-modal-close" onclick="fbModalClose()">✕</button>
@@ -598,8 +586,8 @@ let _startPassCallback = null;
 function openStartPass(callback) {
     _startPassCallback = callback;
     const overlay = document.getElementById('start-pass-overlay');
-    const input = document.getElementById('start-pass-input');
-    const msg = document.getElementById('start-pass-msg');
+    const input   = document.getElementById('start-pass-input');
+    const msg     = document.getElementById('start-pass-msg');
     input.value = '';
     msg.textContent = '';
     overlay.classList.add('active');
@@ -610,8 +598,8 @@ window.closeStartPass = function() {
     _startPassCallback = null;
 };
 window.checkStartPass = async function() {
-    const input = document.getElementById('start-pass-input');
-    const msg = document.getElementById('start-pass-msg');
+    const input   = document.getElementById('start-pass-input');
+    const msg     = document.getElementById('start-pass-msg');
     const entered = input.value.trim();
     if (!entered) { msg.textContent = 'パスワードを入力してください'; return; }
     msg.textContent = '確認中...';
@@ -638,49 +626,51 @@ document.getElementById('start-pass-input').addEventListener('keydown', e => {
 });
 
 // ============================================================
-
-function genDeviceId(){
+//  デバイス管理
+// ============================================================
+function genDeviceId() {
     return "dev_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,7);
 }
-function showDeviceNameBadge(name){
+function showDeviceNameBadge(name) {
     const el = document.getElementById("device-name-badge");
-    if(name){ el.textContent = "📱 " + name; el.style.display = "block"; }
-    else     { el.style.display = "none"; }
+    if (name) { el.textContent = "📱 " + name; el.style.display = "block"; }
+    else       { el.style.display = "none"; }
 }
-function startDeviceListener(){
-    if(!myDeviceId) return;
-    if(_deviceListenerUnsubscribe){ _deviceListenerUnsubscribe(); _deviceListenerUnsubscribe=null; }
+function startDeviceListener() {
+    if (!myDeviceId) return;
+    if (_deviceListenerUnsubscribe) { _deviceListenerUnsubscribe(); _deviceListenerUnsubscribe = null; }
     const devRef = ref(fbDb, `devices/${myDeviceId}`);
     _deviceListenerUnsubscribe = onValue(devRef, snap => {
         const data = snap.val();
-        if(!data) return;
-        if(typeof data.coins === "number" && data.coins !== coins){
+        if (!data) return;
+        if (typeof data.coins === "number" && data.coins !== coins) {
             coins = data.coins;
             updateCoinDisplay(false);
         }
-        if(data.emergency === true) triggerEmergency();
-        else                        releaseEmergency();
+        if (data.emergency === true) triggerEmergency();
+        else                         releaseEmergency();
     });
 }
-function triggerEmergency(){
+function triggerEmergency() {
     document.getElementById("emergency-overlay").classList.add("active");
     gameRunning = true;
     document.getElementById("start-btn").disabled = true;
-    [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
+    [1,2,3].forEach(n => document.getElementById(`stopbtn${n}`).disabled = true);
 }
-function releaseEmergency(){
+function releaseEmergency() {
     document.getElementById("emergency-overlay").classList.remove("active");
-    if(!gameRunning){
-        if(currentBet>0&&coins>0&&turnsLeft>0) document.getElementById("start-btn").disabled=false;
+    if (!gameRunning) {
+        if (currentBet > 0 && coins > 0 && turnsLeft > 0)
+            document.getElementById("start-btn").disabled = false;
     }
 }
-function syncCoinsToFb(){
-    if(!myDeviceId) return;
-    update(ref(fbDb, `devices/${myDeviceId}`), { coins: coins }).catch(()=>{});
+function syncCoinsToFb() {
+    if (!myDeviceId) return;
+    update(ref(fbDb, `devices/${myDeviceId}`), { coins }).catch(() => {});
 }
-function syncTurnsToFb(){
-    if(!myDeviceId) return;
-    update(ref(fbDb, `devices/${myDeviceId}`), { turnsLeft: turnsLeft, totalTurns: totalTurns }).catch(()=>{});
+function syncTurnsToFb() {
+    if (!myDeviceId) return;
+    update(ref(fbDb, `devices/${myDeviceId}`), { turnsLeft, totalTurns }).catch(() => {});
 }
 
 // ============================================================
@@ -688,35 +678,35 @@ function syncTurnsToFb(){
 // ============================================================
 const ACtxClass = window.AudioContext || window.webkitAudioContext;
 let _ctx=null, _master=null, _comp=null, _rainbowGain=null;
-function ensureCtx(){
-    if(_ctx){ if(_ctx.state==='suspended') _ctx.resume(); return; }
-    _ctx=new ACtxClass();
-    _comp=_ctx.createDynamicsCompressor();
+function ensureCtx() {
+    if (_ctx) { if (_ctx.state === 'suspended') _ctx.resume(); return; }
+    _ctx = new ACtxClass();
+    _comp = _ctx.createDynamicsCompressor();
     _comp.threshold.value=-3; _comp.knee.value=6; _comp.ratio.value=6;
     _comp.attack.value=0.001; _comp.release.value=0.08;
-    _master=_ctx.createGain(); _master.gain.value=1.0;
-    _rainbowGain=_ctx.createGain(); _rainbowGain.gain.value=1.0;
+    _master = _ctx.createGain(); _master.gain.value = 1.0;
+    _rainbowGain = _ctx.createGain(); _rainbowGain.gain.value = 1.0;
     _master.connect(_rainbowGain); _rainbowGain.connect(_comp); _comp.connect(_ctx.destination);
 }
-const VOL=4.5;
-function out(){ return _master; }
-function now(){ return _ctx.currentTime+0.001; }
-function tone(freq,type,dur,vol,off=0){
+const VOL = 4.5;
+function out() { return _master; }
+function now() { return _ctx.currentTime + 0.001; }
+function tone(freq, type, dur, vol, off=0) {
     const t=now()+off, osc=_ctx.createOscillator(), g=_ctx.createGain();
     osc.connect(g); g.connect(out()); osc.type=type; osc.frequency.setValueAtTime(freq,t);
     g.gain.setValueAtTime(vol*VOL,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     osc.start(t); osc.stop(t+dur+0.01);
 }
-function noise(dur,vol=0.1,off=0){
+function noise(dur, vol=0.1, off=0) {
     const t=now()+off, sr=_ctx.sampleRate, n=Math.floor(sr*dur);
     const buf=_ctx.createBuffer(1,n,sr), d=buf.getChannelData(0);
-    for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+    for (let i=0;i<n;i++) d[i]=Math.random()*2-1;
     const src=_ctx.createBufferSource(), g=_ctx.createGain();
     src.buffer=buf; src.connect(g); g.connect(out());
     g.gain.setValueAtTime(vol*VOL,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     src.start(t); src.stop(t+dur+0.01);
 }
-function glide(f0,f1,type,dur,vol,off=0){
+function glide(f0, f1, type, dur, vol, off=0) {
     const t=now()+off, osc=_ctx.createOscillator(), g=_ctx.createGain();
     osc.connect(g); g.connect(out()); osc.type=type;
     osc.frequency.setValueAtTime(f0,t); osc.frequency.exponentialRampToValueAtTime(f1,t+dur);
@@ -725,12 +715,12 @@ function glide(f0,f1,type,dur,vol,off=0){
 }
 
 let _reelNodes=[], _reelAlertInterval=null, _alertStep=0;
-const ALERT_PITCHES=[[1047,784],[880,659],[1047,784],[1175,880]];
+const ALERT_PITCHES = [[1047,784],[880,659],[1047,784],[1175,880]];
 
-function sfxReelStart(){
+function sfxReelStart() {
     sfxReelStop(); ensureCtx(); _alertStep=0;
-    function fireAlert(){
-        if(!_ctx||!_reelNodes.length) return;
+    function fireAlert() {
+        if (!_ctx || !_reelNodes.length) return;
         const t=_ctx.currentTime+0.001, pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length]; _alertStep++;
         const o1=_ctx.createOscillator(),g1=_ctx.createGain();
         o1.connect(g1); g1.connect(out()); o1.type='square'; o1.frequency.setValueAtTime(pair[0],t);
@@ -748,17 +738,19 @@ function sfxReelStart(){
     fireAlert(); _reelAlertInterval=setInterval(fireAlert,320);
     _reelNodes=[{stop:()=>{},disconnect:()=>{}}];
 }
-function _stopAlertInterval(){ if(_reelAlertInterval!==null){clearInterval(_reelAlertInterval);_reelAlertInterval=null;} }
-function sfxReelStop(){
+function _stopAlertInterval() {
+    if (_reelAlertInterval !== null) { clearInterval(_reelAlertInterval); _reelAlertInterval=null; }
+}
+function sfxReelStop() {
     _stopAlertInterval();
-    _reelNodes.forEach(n=>{try{if(n.stop)n.stop();}catch(e){} try{n.disconnect();}catch(e){}});
+    _reelNodes.forEach(n=>{ try{if(n.stop)n.stop();}catch(e){} try{n.disconnect();}catch(e){} });
     _reelNodes=[];
 }
-function sfxReelFade(level){
-    _stopAlertInterval(); if(_reelNodes.length===0) return;
-    const interval=level>0.5?320:level>0.1?600:900;
-    function fireF(){
-        if(!_ctx||!_reelNodes.length) return;
+function sfxReelFade(level) {
+    _stopAlertInterval(); if (_reelNodes.length===0) return;
+    const interval = level>0.5?320:level>0.1?600:900;
+    function fireF() {
+        if (!_ctx || !_reelNodes.length) return;
         const t=_ctx.currentTime+0.001, pair=ALERT_PITCHES[_alertStep%ALERT_PITCHES.length]; _alertStep++;
         const v=level*0.042;
         const o1=_ctx.createOscillator(),g1=_ctx.createGain();
@@ -770,33 +762,35 @@ function sfxReelFade(level){
     }
     _reelAlertInterval=setInterval(fireF,interval);
 }
-function sfxStart(){ tone(880,'sine',0.07,0.28); tone(1100,'sine',0.09,0.28,0.08); }
-function sfxStop(){ noise(0.05,0.22); tone(180,'square',0.07,0.14); }
-function sfxReach(){
+function sfxStart()  { tone(880,'sine',0.07,0.28); tone(1100,'sine',0.09,0.28,0.08); }
+function sfxStop()   { noise(0.05,0.22); tone(180,'square',0.07,0.14); }
+function sfxReach()  {
     const s=[330,392,494,587,698,880]; s.forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
     [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
 }
-function sfxChance(isBig){
-    if(isBig){[523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.33,i*0.08));tone(1568,'sine',0.45,0.38,0.48);}
-    else{[440,554,659].forEach((f,i)=>tone(f,'sine',0.15,0.26,i*0.12));tone(880,'sine',0.28,0.28,0.42);}
+function sfxChance(isBig) {
+    if (isBig) { [523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.33,i*0.08)); tone(1568,'sine',0.45,0.38,0.48); }
+    else        { [440,554,659].forEach((f,i)=>tone(f,'sine',0.15,0.26,i*0.12)); tone(880,'sine',0.28,0.28,0.42); }
 }
-function sfxFlash(){ tone(700,'square',0.04,0.20); tone(900,'square',0.04,0.20,0.05); tone(1100,'square',0.04,0.20,0.10); }
-function sfxEgg(stage){ const ff=[[300,450],[400,600],[550,820]]; tone(ff[stage][0],'sine',0.20,0.28); tone(ff[stage][1],'sine',0.16,0.18,0.10); }
-function sfxKira(){
+function sfxFlash()  { tone(700,'square',0.04,0.20); tone(900,'square',0.04,0.20,0.05); tone(1100,'square',0.04,0.20,0.10); }
+function sfxEgg(stage) { const ff=[[300,450],[400,600],[550,820]]; tone(ff[stage][0],'sine',0.20,0.28); tone(ff[stage][1],'sine',0.16,0.18,0.10); }
+function sfxKira() {
     [1047,1319,1568,2093,1568,2093,2637].forEach((f,i)=>tone(f,'sine',0.20,0.36,i*0.09));
-    setTimeout(()=>{ensureCtx();[1568,1976,2637].forEach((f,i)=>tone(f,'triangle',0.14,0.26,i*0.06));},720);
+    setTimeout(()=>{ ensureCtx(); [1568,1976,2637].forEach((f,i)=>tone(f,'triangle',0.14,0.26,i*0.06)); },720);
 }
-function sfxWin(mult){
-    if(mult>=50){
+function sfxWin(mult) {
+    if (mult>=50) {
         [523,523,659,784,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'square',0.15,0.42,i*0.08));
-        setTimeout(()=>{ensureCtx();[1047,1319,1568,2093].forEach((f,i)=>tone(f,'sine',0.26,0.38,i*0.06));},780);
-        setTimeout(()=>{ensureCtx();noise(0.28,0.14);},1100);
-    } else if(mult>=10){
+        setTimeout(()=>{ ensureCtx(); [1047,1319,1568,2093].forEach((f,i)=>tone(f,'sine',0.26,0.38,i*0.06)); },780);
+        setTimeout(()=>{ ensureCtx(); noise(0.28,0.14); },1100);
+    } else if (mult>=10) {
         [523,659,784,1047,1319].forEach((f,i)=>tone(f,'square',0.13,0.38,i*0.09)); tone(1568,'sine',0.28,0.33,0.50);
-    } else { [523,659,784].forEach((f,i)=>tone(f,'sine',0.13,0.33,i*0.12)); tone(1047,'sine',0.23,0.28,0.40); }
+    } else {
+        [523,659,784].forEach((f,i)=>tone(f,'sine',0.13,0.33,i*0.12)); tone(1047,'sine',0.23,0.28,0.40);
+    }
 }
-function sfxLose(){ tone(220,'sawtooth',0.24,0.28); tone(165,'sawtooth',0.28,0.22,0.18); tone(110,'sawtooth',0.24,0.18,0.42); noise(0.10,0.08); }
-function sfxReachMiss(){
+function sfxLose() { tone(220,'sawtooth',0.24,0.28); tone(165,'sawtooth',0.28,0.22,0.18); tone(110,'sawtooth',0.24,0.18,0.42); noise(0.10,0.08); }
+function sfxReachMiss() {
     [523,659,784].forEach((f,i)=>tone(f,'square',0.09,0.50,i*0.07));
     glide(400,40,'sawtooth',0.75,0.70,0.24); glide(300,50,'square',0.65,0.52,0.26);
     noise(0.45,0.55,0.26); noise(0.28,0.38,0.50);
@@ -806,14 +800,14 @@ function sfxReachMiss(){
 // ============================================================
 //  GAME LOGIC
 // ============================================================
-let IMG_DATA_CURRENT=[
+let IMG_DATA_CURRENT = [
     "gyanb/gyanb1_transparent.png","gyanb/gyanb2_transparent.png",
     "gyanb/gyanb3_transparent.png","gyanb/gyanb4_tr.png",
     "gyanb/gyanb5_transparent.png","gyanb/gyanb6_transparent.png",
     "gyanb/gyanb7n-transparent.png"
 ];
-const IMG_7_NORMAL="gyanb/gyanb7n-transparent.png";
-const IMG_7_KAKUHEN="gyanb/gyanb7_transparent.png";
+const IMG_7_NORMAL  = "gyanb/gyanb7n-transparent.png";
+const IMG_7_KAKUHEN = "gyanb/gyanb7_transparent.png";
 const ODD_SET=[0,2,4], EVEN_SET=[1,3,5], SEVEN=6;
 
 let coins=10000, currentBet=0;
@@ -823,59 +817,63 @@ let earlyReachUsed=false, consecutiveAnyLose=0;
 let kakuhenActive=false, kakuhenWinRound=0, kakuhenReachCount=0;
 let initialCoins=10000;
 let _rainbowLoopInterval=null;
-
 let turnsLeft=0, totalTurns=0;
 
 // ============================================================
 //  セットアップ計算
 // ============================================================
-window.updateSetupCalc = function(){
-    const tc = parseInt(document.getElementById('ticket-count').value)||0;
-    const tp = parseInt(document.getElementById('turns-per-ticket').value)||0;
-    const rm = parseInt(document.getElementById('real-money').value)||0;
+window.updateSetupCalc = function() {
+    const tc = parseInt(document.getElementById('ticket-count').value)  || 0;
+    const tp = parseInt(document.getElementById('turns-per-ticket').value) || 0;
+    const rm = parseInt(document.getElementById('real-money').value)    || 0;
     document.getElementById('calc-total-turns').textContent = (tc*tp).toLocaleString();
-    document.getElementById('calc-coins').textContent = (rm*100).toLocaleString();
+    document.getElementById('calc-coins').textContent       = (rm*100).toLocaleString();
 };
 
-window.beginGame = function(){
+// ============================================================
+//  GAME START (セットアップ画面) ← パスワード認証はここで行う
+// ============================================================
+window.beginGame = function() {
     ensureCtx();
-    const tc = parseInt(document.getElementById('ticket-count').value)||1;
-    const tp = parseInt(document.getElementById('turns-per-ticket').value)||20;
-    const rm = parseInt(document.getElementById('real-money').value)||100;
-    totalTurns = tc * tp;
-    turnsLeft  = totalTurns;
-    coins      = rm * 100;
-    initialCoins = coins;
+    openStartPass(() => {
+        const tc = parseInt(document.getElementById('ticket-count').value)    || 1;
+        const tp = parseInt(document.getElementById('turns-per-ticket').value) || 20;
+        const rm = parseInt(document.getElementById('real-money').value)      || 100;
+        totalTurns   = tc * tp;
+        turnsLeft    = totalTurns;
+        coins        = rm * 100;
+        initialCoins = coins;
 
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display  = 'flex';
-    updateCoinDisplay(false);
-    updateTurnsDisplay();
-    rebuildReels();
-    if(myDeviceId){ showDeviceNameBadge(myDeviceName); startDeviceListener(); }
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display  = 'flex';
+        updateCoinDisplay(false);
+        updateTurnsDisplay();
+        rebuildReels();
+        if (myDeviceId) { showDeviceNameBadge(myDeviceName); startDeviceListener(); }
+    });
 };
 
-function updateTurnsDisplay(){
-    document.getElementById('turns-left').textContent = turnsLeft.toLocaleString();
+function updateTurnsDisplay() {
+    document.getElementById('turns-left').textContent       = turnsLeft.toLocaleString();
     document.getElementById('turns-total-show').textContent = ' / ' + totalTurns.toLocaleString();
     const pct = totalTurns > 0 ? (turnsLeft / totalTurns) * 100 : 0;
     document.getElementById('turns-bar-inner').style.width = pct + '%';
     syncTurnsToFb();
-    if(turnsLeft <= 0) triggerGameOver();
+    if (turnsLeft <= 0) triggerGameOver();
 }
 
-function triggerGameOver(){
+function triggerGameOver() {
     gameRunning = true;
     document.getElementById('start-btn').disabled = true;
-    [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
+    [1,2,3].forEach(n => document.getElementById(`stopbtn${n}`).disabled = true);
     setRainbow(false);
-    setTimeout(()=>{
-        document.getElementById('game-screen').style.display = 'none';
+    setTimeout(() => {
+        document.getElementById('game-screen').style.display    = 'none';
         document.getElementById('gameover-screen').style.display = 'flex';
         const finalCoins = coins;
         const finalMoney = Math.floor(finalCoins / 100);
         document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
-        document.getElementById('go-result').textContent = finalMoney.toLocaleString();
+        document.getElementById('go-result').textContent      = finalMoney.toLocaleString();
         syncCoinsToFb();
         syncTurnsToFb();
     }, 3200);
@@ -884,119 +882,107 @@ function triggerGameOver(){
 // ============================================================
 //  ゲームを辞める
 // ============================================================
-window.confirmQuit = function(){
-    document.getElementById('confirm-overlay').classList.add('active');
-};
-window.cancelQuit = function(){
+window.confirmQuit = function() { document.getElementById('confirm-overlay').classList.add('active'); };
+window.cancelQuit  = function() { document.getElementById('confirm-overlay').classList.remove('active'); };
+window.doQuit = function() {
     document.getElementById('confirm-overlay').classList.remove('active');
-};
-window.doQuit = function(){
-    document.getElementById('confirm-overlay').classList.remove('active');
-    sfxReelStop();
-    setRainbow(false);
-    gameRunning = false;
-    stoppedCount = 0;
+    sfxReelStop(); setRainbow(false);
+    gameRunning = false; stoppedCount = 0;
     document.getElementById('start-btn').disabled = true;
-    [1,2,3].forEach(n=>document.getElementById(`stopbtn${n}`).disabled=true);
-    document.getElementById('game-screen').style.display = 'none';
+    [1,2,3].forEach(n => document.getElementById(`stopbtn${n}`).disabled = true);
+    document.getElementById('game-screen').style.display    = 'none';
     document.getElementById('gameover-screen').style.display = 'flex';
     const finalCoins = coins;
     const finalMoney = Math.floor(finalCoins / 100);
     document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
-    document.getElementById('go-result').textContent = finalMoney.toLocaleString();
-    document.getElementById('go-quit-note').textContent = '— 途中終了（残り ' + turnsLeft + ' 回）—';
-    syncCoinsToFb();
-    syncTurnsToFb();
+    document.getElementById('go-result').textContent      = finalMoney.toLocaleString();
+    document.getElementById('go-quit-note').textContent   = '— 途中終了（残り ' + turnsLeft + ' 回）—';
+    syncCoinsToFb(); syncTurnsToFb();
 };
 
-function startRainbowSound(){
+function startRainbowSound() {
     stopRainbowSound();
-    function fireRainbow(){
-        if(!_ctx) return;
-        [330,392,494,587,698,880].forEach((f,i)=>tone(f,'sine',0.13,0.26,i*0.10));
-        [0,0.20,0.40,0.60].forEach(d=>noise(0.05,0.15,d));
+    function fireRainbow() {
+        if (!_ctx) return;
+        [330,392,494,587,698,880].forEach((f,i) => tone(f,'sine',0.13,0.26,i*0.10));
+        [0,0.20,0.40,0.60].forEach(d => noise(0.05,0.15,d));
     }
     fireRainbow(); _rainbowLoopInterval=setInterval(fireRainbow,1400);
 }
-function stopRainbowSound(){ if(_rainbowLoopInterval!==null){clearInterval(_rainbowLoopInterval);_rainbowLoopInterval=null;} }
-function setRainbow(on){
-    const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    if(on){
+function stopRainbowSound() {
+    if (_rainbowLoopInterval !== null) { clearInterval(_rainbowLoopInterval); _rainbowLoopInterval=null; }
+}
+function setRainbow(on) {
+    const L=document.getElementById("left-bar"), R=document.getElementById("right-bar");
+    if (on) {
         L.classList.add('rainbow'); R.classList.add('rainbow');
-        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(0.8,_ctx.currentTime);}
-        if(_rainbowLoopInterval===null) startRainbowSound();
+        if (_rainbowGain) { _rainbowGain.gain.cancelScheduledValues(_ctx.currentTime); _rainbowGain.gain.setValueAtTime(0.8,_ctx.currentTime); }
+        if (_rainbowLoopInterval===null) startRainbowSound();
     } else {
         L.classList.remove('rainbow'); R.classList.remove('rainbow');
         L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
-        if(_rainbowGain){_rainbowGain.gain.cancelScheduledValues(_ctx.currentTime);_rainbowGain.gain.setValueAtTime(1.0,_ctx.currentTime);}
+        if (_rainbowGain) { _rainbowGain.gain.cancelScheduledValues(_ctx.currentTime); _rainbowGain.gain.setValueAtTime(1.0,_ctx.currentTime); }
         stopRainbowSound();
     }
 }
-function rebuildReels(){
-    [1,2,3].forEach(n=>{
+function rebuildReels() {
+    [1,2,3].forEach(n => {
         const s=document.getElementById(`reel${n}`);
-        const wasSpinning=s.style.animation&&s.style.animation.includes('spin');
-        s.innerHTML=[...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT].map(src=>`<img src="${src}">`).join('');
-        if(!wasSpinning){s.style.animation='none';s.style.transition='';s.style.transform='translateY(0)';}
+        const wasSpinning = s.style.animation && s.style.animation.includes('spin');
+        s.innerHTML=[...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT,...IMG_DATA_CURRENT]
+            .map(src=>`<img src="${src}">`).join('');
+        if (!wasSpinning) { s.style.animation='none'; s.style.transition=''; s.style.transform='translateY(0)'; }
     });
 }
-function setKakuhenMode(on){ kakuhenActive=on; IMG_DATA_CURRENT[SEVEN]=on?IMG_7_KAKUHEN:IMG_7_NORMAL; }
+function setKakuhenMode(on) { kakuhenActive=on; IMG_DATA_CURRENT[SEVEN]=on?IMG_7_KAKUHEN:IMG_7_NORMAL; }
 
-// ============================================================
-//  倍率設定（変更箇所）
-//  2・4・6 揃い → ×3
-//  1・3・5 揃い → ×5
-//  7 揃い       → ×15 (変更なし)
-//  1・2・3 順不同 → ×5
-//  4・5・6 順不同 → ×4
-// ============================================================
-function getComboMultiplier(r1,r2,r3){
+function getComboMultiplier(r1,r2,r3) {
     const vals=[r1,r2,r3].sort((a,b)=>a-b);
-    if(vals[0]===0&&vals[1]===1&&vals[2]===2) return 5;  // 1・2・3 → ×5
-    if(vals[0]===3&&vals[1]===4&&vals[2]===5) return 4;  // 4・5・6 → ×4
+    if (vals[0]===0&&vals[1]===1&&vals[2]===2) return 5;  // 1・2・3 → ×5
+    if (vals[0]===3&&vals[1]===4&&vals[2]===5) return 4;  // 4・5・6 → ×4
     return 0;
 }
-function getMultiplier(idx){
-    if(idx===SEVEN)              return 15; // 7揃い → ×15
-    if(ODD_SET.includes(idx))   return 5;  // 1・3・5 揃い → ×5
-    if(EVEN_SET.includes(idx))  return 3;  // 2・4・6 揃い → ×3
+function getMultiplier(idx) {
+    if (idx===SEVEN)            return 15; // 7 揃い → ×15
+    if (ODD_SET.includes(idx)) return 5;  // 1・3・5 揃い → ×5
+    if (EVEN_SET.includes(idx)) return 3;  // 2・4・6 揃い → ×3
     return 0;
 }
 
-function init(){
+function init() {
     updateSetupCalc();
-    if(myDeviceId) showDeviceNameBadge(myDeviceName);
+    if (myDeviceId) showDeviceNameBadge(myDeviceName);
+}
+function updateCoinDisplay(writeFb=true) {
+    document.getElementById("coinshow").innerText = coins.toLocaleString();
+    if (writeFb) syncCoinsToFb();
 }
 
-function updateCoinDisplay(writeFb=true){
-    document.getElementById("coinshow").innerText=coins.toLocaleString();
-    if(writeFb) syncCoinsToFb();
-}
-
-window.selectBet = function(amount,btn){
-    document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
+window.selectBet = function(amount, btn) {
+    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected'); document.getElementById('custom-bet').value='';
     currentBet=amount; updateBetDisplay();
 };
-window.onCustomBetInput = function(input){
-    document.querySelectorAll('.bet-btn').forEach(b=>b.classList.remove('selected'));
+window.onCustomBetInput = function(input) {
+    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
     const v=parseInt(input.value); currentBet=(!isNaN(v)&&v>0)?v:0; updateBetDisplay();
 };
-function updateBetDisplay(){
+function updateBetDisplay() {
     const txt=document.getElementById('bet-val-text'), btn=document.getElementById('start-btn');
-    if(currentBet>0&&turnsLeft>0){txt.innerText=currentBet.toLocaleString()+' G';btn.disabled=gameRunning;}
-    else if(turnsLeft<=0){txt.innerText='未選択';btn.disabled=true;}
-    else{txt.innerText='未選択';btn.disabled=true;}
+    if (currentBet>0&&turnsLeft>0) { txt.innerText=currentBet.toLocaleString()+' G'; btn.disabled=gameRunning; }
+    else if (turnsLeft<=0)          { txt.innerText='未選択'; btn.disabled=true; }
+    else                            { txt.innerText='未選択'; btn.disabled=true; }
 }
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function showEffectImage(src,duration,cls=''){
-    const ov=document.getElementById("effect-overlay"),im=document.getElementById("effect-img");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function showEffectImage(src, duration, cls='') {
+    const ov=document.getElementById("effect-overlay"), im=document.getElementById("effect-img");
     im.src=src; im.className=cls; ov.style.display="block";
     await sleep(duration); ov.style.display="none"; im.className='';
 }
-async function showKiraEffect(count=20){
+async function showKiraEffect(count=20) {
     sfxKira();
-    for(let i=0;i<count;i++){
+    for (let i=0;i<count;i++) {
         const k=document.createElement("img");
         k.src="gyanb/kira_transparent.png"; k.className="kira-particle";
         k.style.top=`${30+Math.random()*40}%`; k.style.left=`${30+Math.random()*40}%`;
@@ -1004,157 +990,163 @@ async function showKiraEffect(count=20){
     }
     await sleep(1000);
 }
-async function flashSides(times){
+async function flashSides(times) {
     const cols=['#ff0000','#ffff00','#00ff00','#0000ff','#ff00ff','#00ffff'];
-    const L=document.getElementById("left-bar"),R=document.getElementById("right-bar");
-    for(let i=0;i<times;i++) for(let c of cols){ sfxFlash(); L.style.backgroundColor=c; R.style.backgroundColor=c; await sleep(250); }
+    const L=document.getElementById("left-bar"), R=document.getElementById("right-bar");
+    for (let i=0;i<times;i++) for (let c of cols) { sfxFlash(); L.style.backgroundColor=c; R.style.backgroundColor=c; await sleep(250); }
     L.style.backgroundColor='#000'; R.style.backgroundColor='#000';
 }
-function getNextFromSet(cur,set){
+function getNextFromSet(cur, set) {
     const cn=cur+1; let nx=null;
-    for(let v of set.map(i=>i+1).sort((a,b)=>a-b)) if(v>cn){nx=v;break;}
-    if(nx===null) nx=set[0]+1; return nx-1;
+    for (let v of set.map(i=>i+1).sort((a,b)=>a-b)) if (v>cn) { nx=v; break; }
+    if (nx===null) nx=set[0]+1; return nx-1;
 }
-function showResultBanner(msg,cls){ const b=document.getElementById('result-banner'); b.innerText=msg; b.className=cls||''; }
-function triggerReachEffect(){
+function showResultBanner(msg, cls) { const b=document.getElementById('result-banner'); b.innerText=msg; b.className=cls||''; }
+function triggerReachEffect() {
     sfxReach();
-    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.add('reach-flash'));
-    setTimeout(()=>[1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
+    [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.add('reach-flash'));
+    setTimeout(()=>[1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash')),3500);
 }
-function setBetLocked(locked){
-    document.querySelectorAll('.bet-btn').forEach(b=>{b.disabled=locked; b.style.opacity=locked?'0.4':'1';});
-    document.getElementById('custom-bet').disabled=locked;
-    document.getElementById('custom-bet').style.opacity=locked?'0.4':'1';
+function setBetLocked(locked) {
+    document.querySelectorAll('.bet-btn').forEach(b => { b.disabled=locked; b.style.opacity=locked?'0.4':'1'; });
+    document.getElementById('custom-bet').disabled    = locked;
+    document.getElementById('custom-bet').style.opacity = locked?'0.4':'1';
 }
 let noOddReach=false;
 
-// STARTボタン → パスワード認証 → ゲーム開始
-window.startGame = function(){
-    if(currentBet<=0) return;
-    if(turnsLeft<=0) return;
-    if(currentBet>coins){showResultBanner("コインが足りません！","lose");sfxLose();return;}
+// ============================================================
+//  STARTボタン ← パスワード認証なし、直接ゲーム開始
+// ============================================================
+window.startGame = function() {
+    if (currentBet<=0) return;
+    if (turnsLeft<=0)  return;
+    if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
-    // パスワード認証を挟む
-    openStartPass(() => {
-        const shouldKakuhen=!kakuhenActive&&consecutiveAnyLose>=5&&coins<=initialCoins*1.5;
-        if(shouldKakuhen){ (async()=>{await triggerKakuhen();_doStartGame();})(); return; }
-        _doStartGame();
-    });
+    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5;
+    if (shouldKakuhen) { (async()=>{ await triggerKakuhen(); _doStartGame(); })(); return; }
+    _doStartGame();
 };
 
-function _doStartGame(){
-    coins-=currentBet; updateCoinDisplay();
+function _doStartGame() {
+    coins -= currentBet; updateCoinDisplay();
     turnsLeft--; updateTurnsDisplay();
     totalStartCount++;
     gameRunning=true; stoppedCount=0;
     firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
-    noOddReach=(coins>=initialCoins*2.5);
+    noOddReach = (coins >= initialCoins*2.5);
     setBetLocked(true);
-    document.getElementById('start-btn').disabled=true;
-    document.getElementById('result-banner').innerText='';
-    document.getElementById('result-banner').className='';
-    [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-    if(kakuhenActive){setRainbow(true);} else {setRainbow(false);}
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('result-banner').innerText   = '';
+    document.getElementById('result-banner').className   = '';
+    [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
+    if (kakuhenActive) { setRainbow(true); } else { setRainbow(false); }
     rebuildReels();
-    [1,2,3].forEach(n=>{
+    [1,2,3].forEach(n => {
         const s=document.getElementById(`reel${n}`);
         s.style.transition=''; s.style.transform='translateY(0)';
         s.style.animation='spin 0.75s linear infinite';
         document.getElementById(`stopbtn${n}`).disabled=false;
     });
     sfxStart();
-    setTimeout(()=>{ensureCtx();sfxReelStart();},150);
+    setTimeout(() => { ensureCtx(); sfxReelStart(); }, 150);
 }
-function decideReach(currentIndex){
-    if(kakuhenActive) return firstResultIndex;
-    if(noOddReach&&ODD_SET.includes(firstResultIndex)) return pickNonMatchRandom(currentIndex,firstResultIndex);
-    const ruleA=(totalStartCount<=3&&!earlyReachUsed);
-    if(ruleA&&Math.random()<0.70) return firstResultIndex;
+
+function decideReach(currentIndex) {
+    if (kakuhenActive) return firstResultIndex;
+    if (noOddReach && ODD_SET.includes(firstResultIndex)) return pickNonMatchRandom(currentIndex, firstResultIndex);
+    const ruleA = (totalStartCount<=3 && !earlyReachUsed);
+    if (ruleA && Math.random()<0.70) return firstResultIndex;
     return pickRandom(currentIndex);
 }
-function pickRandom(currentIndex){
+function pickRandom(currentIndex) {
     const r=Math.random();
-    if(r<0.6) return getNextFromSet(currentIndex,EVEN_SET);
-    else if(r<0.9) return getNextFromSet(currentIndex,ODD_SET);
-    else return currentIndex===SEVEN?SEVEN:getNextFromSet(currentIndex,EVEN_SET);
+    if (r<0.6)       return getNextFromSet(currentIndex, EVEN_SET);
+    else if (r<0.9)  return getNextFromSet(currentIndex, ODD_SET);
+    else             return currentIndex===SEVEN ? SEVEN : getNextFromSet(currentIndex, EVEN_SET);
 }
-function pickNonMatchRandom(currentIndex,exclude){
+function pickNonMatchRandom(currentIndex, exclude) {
     let idx; let tries=0;
-    do{idx=pickRandom(currentIndex);tries++;}while(idx===exclude&&tries<20);
+    do { idx=pickRandom(currentIndex); tries++; } while (idx===exclude && tries<20);
     return idx;
 }
-async function triggerKakuhen(){
+async function triggerKakuhen() {
     setBetLocked(true); setRainbow(true); sfxFlash(); sfxFlash(); await sleep(400);
     await showEffectImage("gyanb/kakuhen_transparent.png",1800,"chance-large");
     setRainbow(true); setKakuhenMode(true); rebuildReels();
-    kakuhenWinRound=coins<=initialCoins*0.5?Math.floor(Math.random()*2)+1:Math.floor(Math.random()*4)+1;
-    kakuhenReachCount=0; consecutiveAnyLose=0;
+    kakuhenWinRound   = coins<=initialCoins*0.5 ? Math.floor(Math.random()*2)+1 : Math.floor(Math.random()*4)+1;
+    kakuhenReachCount = 0; consecutiveAnyLose=0;
 }
-window.stopReel = async function(reelId,btn){
+
+window.stopReel = async function(reelId, btn) {
     const reel=document.getElementById(reelId);
-    if(btn.disabled) return;
+    if (btn.disabled) return;
     btn.disabled=true; stoppedCount++;
     sfxStop();
-    if(stoppedCount===1) sfxReelFade(0.35);
-    else if(stoppedCount===2) sfxReelFade(0.12);
-    else sfxReelStop();
+    if      (stoppedCount===1) sfxReelFade(0.35);
+    else if (stoppedCount===2) sfxReelFade(0.12);
+    else                       sfxReelStop();
     const st=window.getComputedStyle(reel);
     let currentY=0;
-    try{const m=new WebKitCSSMatrix(st.transform);currentY=m.m42;}catch(e){}
+    try { const m=new WebKitCSSMatrix(st.transform); currentY=m.m42; } catch(e) {}
     const currentIndex=((Math.abs(Math.round(currentY/110))%7)+7)%7;
     let targetIndex;
 
-    if(stoppedCount===1){
-        if(kakuhenActive){
-            targetIndex=coins<=initialCoins*0.5?SEVEN:(Math.random()<0.5?SEVEN:ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
-        } else { targetIndex=pickRandom(currentIndex); }
+    if (stoppedCount===1) {
+        if (kakuhenActive) {
+            targetIndex = coins<=initialCoins*0.5 ? SEVEN :
+                (Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
+        } else {
+            targetIndex = pickRandom(currentIndex);
+        }
         firstResultIndex=targetIndex;
-    } else if(stoppedCount===2){
+
+    } else if (stoppedCount===2) {
         targetIndex=decideReach(currentIndex);
         secondResultIndex=targetIndex;
-        if(firstResultIndex===secondResultIndex){
-            if(!earlyReachUsed) earlyReachUsed=true;
-            if(kakuhenActive) kakuhenReachCount++;
+        if (firstResultIndex===secondResultIndex) {
+            if (!earlyReachUsed) earlyReachUsed=true;
+            if (kakuhenActive) kakuhenReachCount++;
             setTimeout(()=>triggerReachEffect(),350);
         }
+
     } else {
-        if(firstResultIndex===secondResultIndex){
+        if (firstResultIndex===secondResultIndex) {
             Atsu=0;
-            if(kakuhenActive){
+            if (kakuhenActive) {
                 const isWinRound=(kakuhenReachCount===kakuhenWinRound);
-                if(isWinRound){
+                if (isWinRound) {
                     sfxChance(true);
                     await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
                     Atsu+=70; await flashSides(2); Atsu+=80; Atsu+=70;
-                    sfxEgg(0);await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1);await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2);await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
+                    sfxEgg(0); await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
+                    sfxEgg(1); await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
+                    sfxEgg(2); await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
                 } else {
                     sfxChance(false);
                     await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
                     Atsu+=30;
-                    sfxEgg(0);await showEffectImage("gyanb/egg_1_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1);await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2);await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
+                    sfxEgg(0); await showEffectImage("gyanb/egg_1_transparent.png",1400,"egg-size-1");
+                    sfxEgg(1); await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
+                    sfxEgg(2); await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
                 }
-                if(isWinRound){
-                    const richBlock=coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex);
-                    if(richBlock){
+                if (isWinRound) {
+                    const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
+                    if (richBlock) {
                         targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                        setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                        setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                     } else {
                         await showKiraEffect(20); targetIndex=firstResultIndex;
                         setKakuhenMode(false); setRainbow(false); setBetLocked(false);
                         kakuhenWinRound=0; kakuhenReachCount=0; consecutiveAnyLose=0;
                         setTimeout(()=>{
-                            const mult=getMultiplier(targetIndex),payout=currentBet*mult;
+                            const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                             coins+=payout; updateCoinDisplay(); sfxWin(mult);
                             showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
                         },500);
                     }
                 } else {
                     targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                 }
             } else {
                 const isBig=Math.random()>=0.7;
@@ -1162,59 +1154,61 @@ window.stopReel = async function(reelId,btn){
                 await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
                 Atsu+=isBig?70:30;
                 const sr2=Math.random();
-                if(sr2<0.3){await flashSides(1);Atsu+=70;} else if(sr2<0.5){await flashSides(2);Atsu+=80;}
+                if      (sr2<0.3) { await flashSides(1); Atsu+=70; }
+                else if (sr2<0.5) { await flashSides(2); Atsu+=80; }
                 const eggType=Math.random()<0.7?"1":"2";
                 Atsu+=(eggType==="1"?30:70);
-                sfxEgg(0);await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
-                sfxEgg(1);await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
-                sfxEgg(2);await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                let winProb=Atsu*0.454; if(winProb<30) winProb=0;
+                sfxEgg(0); await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
+                sfxEgg(1); await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
+                sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
+                let winProb=Atsu*0.454; if (winProb<30) winProb=0;
                 let isWin=Math.random()*100<winProb;
-                if(isWin&&coins>=initialCoins*3.5&&EVEN_SET.includes(firstResultIndex)) isWin=false;
-                if(isWin){
+                if (isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
+                if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
                     setTimeout(()=>{
-                        const mult=getMultiplier(targetIndex),payout=currentBet*mult;
+                        const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                         coins+=payout; updateCoinDisplay(); sfxWin(mult);
                         showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
                     },500);
                 } else {
                     targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                    setTimeout(()=>{sfxReachMiss();showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                 }
             }
         } else {
             thirdResultIndex=currentIndex;
             const combo=getComboMultiplier(firstResultIndex,secondResultIndex,thirdResultIndex);
-            if(combo>0){
+            if (combo>0) {
                 targetIndex=currentIndex;
                 const payout=currentBet*combo;
                 coins+=payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
-                setTimeout(()=>{showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win");},500);
+                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
             } else {
                 consecutiveAnyLose++; targetIndex=(currentIndex+1)%7;
-                setTimeout(()=>{sfxLose();showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose");},500);
+                setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
             }
         }
     }
 
     let diff=targetIndex-currentIndex;
-    if(diff===0){
+    if (diff===0) {
         reel.style.animation='none'; reel.style.transform=`translateY(${currentY}px)`;
     } else {
-        if(diff<0) diff+=7;
+        if (diff<0) diff+=7;
         const finalY=(Math.round(currentY/110)-diff)*110;
         reel.style.animation='none'; reel.style.transform=`translateY(${currentY}px)`;
-        setTimeout(()=>{reel.style.transition='transform 0.4s ease-out';reel.style.transform=`translateY(${finalY}px)`;},10);
+        setTimeout(()=>{ reel.style.transition='transform 0.4s ease-out'; reel.style.transform=`translateY(${finalY}px)`; },10);
     }
-    if(stoppedCount===3){
+
+    if (stoppedCount===3) {
         setTimeout(()=>{
             stoppedCount=0; Atsu=0; gameRunning=false;
-            [1,2,3].forEach(n=>document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            if(!kakuhenActive) setBetLocked(false);
-            if(turnsLeft<=0){
+            [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
+            if (!kakuhenActive) setBetLocked(false);
+            if (turnsLeft<=0) {
                 triggerGameOver();
-            } else if(currentBet>0&&coins>0){
+            } else if (currentBet>0 && coins>0) {
                 document.getElementById('start-btn').disabled=false;
             }
         },3000);
@@ -1222,25 +1216,25 @@ window.stopReel = async function(reelId,btn){
 };
 
 // ============================================================
-//  A + S + L 同時押し → モーダル表示
+//  A + S + L 同時押し → 管理者モーダル
 // ============================================================
 const _pressedKeys=new Set();
-document.addEventListener("keydown",e=>{
+document.addEventListener("keydown", e => {
     _pressedKeys.add(e.key.toLowerCase());
-    if(_pressedKeys.has('a')&&_pressedKeys.has('s')&&_pressedKeys.has('l')){
+    if (_pressedKeys.has('a') && _pressedKeys.has('s') && _pressedKeys.has('l')) {
         _pressedKeys.clear(); fbModalOpen();
     }
 });
-document.addEventListener("keyup",e=>_pressedKeys.delete(e.key.toLowerCase()));
+document.addEventListener("keyup", e => _pressedKeys.delete(e.key.toLowerCase()));
 
 // ============================================================
-//  FIREBASE MODAL LOGIC
+//  FIREBASE MODAL
 // ============================================================
 const PASS_REGISTER="1161";
 const PASS_ADMIN="2272";
 let _adminListenerRef=null;
 
-function fbModalOpen(){
+function fbModalOpen() {
     document.getElementById("fb-step-pass").style.display="block";
     document.getElementById("fb-step-register").style.display="none";
     document.getElementById("admin-panel").style.display="none";
@@ -1249,19 +1243,19 @@ function fbModalOpen(){
     document.getElementById("fb-modal-overlay").classList.add("active");
     setTimeout(()=>document.getElementById("fb-pass-input").focus(),100);
 }
-window.fbModalClose = function(){
+window.fbModalClose = function() {
     document.getElementById("fb-modal-overlay").classList.remove("active");
-    if(_adminListenerRef){off(_adminListenerRef);_adminListenerRef=null;}
+    if (_adminListenerRef) { off(_adminListenerRef); _adminListenerRef=null; }
 };
-window.fbCheckPass = function(){
+window.fbCheckPass = function() {
     const pass=document.getElementById("fb-pass-input").value.trim();
-    if(pass===PASS_REGISTER){
+    if (pass===PASS_REGISTER) {
         document.getElementById("fb-step-pass").style.display="none";
         document.getElementById("fb-step-register").style.display="block";
         document.getElementById("fb-device-name-input").value=myDeviceName||"";
         document.getElementById("fb-register-msg").textContent="";
         setTimeout(()=>document.getElementById("fb-device-name-input").focus(),100);
-    } else if(pass===PASS_ADMIN){
+    } else if (pass===PASS_ADMIN) {
         document.getElementById("fb-step-pass").style.display="none";
         document.getElementById("admin-panel").style.display="block";
         loadDeviceList();
@@ -1269,54 +1263,47 @@ window.fbCheckPass = function(){
         document.getElementById("fb-pass-msg").textContent="パスワードが違います";
     }
 };
-window.fbRegisterDevice = async function(){
+window.fbRegisterDevice = async function() {
     const name=document.getElementById("fb-device-name-input").value.trim();
     const msgEl=document.getElementById("fb-register-msg");
-    if(!name){msgEl.textContent="名前を入力してください";msgEl.className="fb-msg error";return;}
-    if(!myDeviceId){myDeviceId=genDeviceId();localStorage.setItem("slotDeviceId",myDeviceId);}
+    if (!name) { msgEl.textContent="名前を入力してください"; msgEl.className="fb-msg error"; return; }
+    if (!myDeviceId) { myDeviceId=genDeviceId(); localStorage.setItem("slotDeviceId",myDeviceId); }
     myDeviceName=name; localStorage.setItem("slotDeviceName",name);
     await set(ref(fbDb,`devices/${myDeviceId}`),{name,coins,turnsLeft,totalTurns,emergency:false,lastSeen:Date.now()});
     msgEl.textContent="✅ 登録しました！"; msgEl.className="fb-msg ok";
-    showDeviceNameBadge(name);
-    startDeviceListener();
+    showDeviceNameBadge(name); startDeviceListener();
     setTimeout(fbModalClose,1200);
 };
 
-// ============================================================
-//  管理者パネル
-// ============================================================
-function loadDeviceList(){
+function loadDeviceList() {
     const listEl=document.getElementById("device-list");
     listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">読み込み中...</div>';
     const devicesRef=ref(fbDb,"devices");
     _adminListenerRef=devicesRef;
-    onValue(devicesRef, snap=>{
+    onValue(devicesRef, snap => {
         const data=snap.val()||{};
         const keys=Object.keys(data);
-        if(keys.length===0){
+        if (keys.length===0) {
             listEl.innerHTML='<div style="color:#666;font-size:12px;text-align:center;padding:10px;">デバイスなし</div>';
             return;
         }
         listEl.innerHTML="";
-        keys.forEach(id=>{
+        keys.forEach(id => {
             const dev=data[id];
             const badge=dev.emergency
                 ?'<span class="device-status-badge badge-stop">STOP</span>'
                 :'<span class="device-status-badge badge-ok">OK</span>';
-            const turnsInfo = (typeof dev.turnsLeft === 'number' && typeof dev.totalTurns === 'number')
-                ? `${dev.turnsLeft} / ${dev.totalTurns} 回`
-                : '–';
-            const coinsVal = typeof dev.coins === 'number' ? dev.coins : 0;
-            const realMoney = Math.floor(coinsVal / 100);
-
-            const row = document.createElement("div");
-            row.className = "device-row";
-            row.id = `dev-row-${id}`;
-            row.innerHTML = `
+            const turnsInfo=(typeof dev.turnsLeft==='number'&&typeof dev.totalTurns==='number')
+                ?`${dev.turnsLeft} / ${dev.totalTurns} 回`:'–';
+            const coinsVal=typeof dev.coins==='number'?dev.coins:0;
+            const realMoney=Math.floor(coinsVal/100);
+            const row=document.createElement("div");
+            row.className="device-row"; row.id=`dev-row-${id}`;
+            row.innerHTML=`
                 <div class="device-row-header">
                     <div class="device-row-name">${dev.name||id}${badge}</div>
                     <div class="device-row-actions">
-                        <button class="btn-sm btn-sm-red"  onclick="adminRowStop('${id}',this)">⛔ 停止</button>
+                        <button class="btn-sm btn-sm-red"   onclick="adminRowStop('${id}',this)">⛔ 停止</button>
                         <button class="btn-sm btn-sm-green" onclick="adminRowRelease('${id}',this)">✅ 解除</button>
                     </div>
                 </div>
@@ -1338,32 +1325,32 @@ function loadDeviceList(){
     });
 }
 
-window.adminRowStop = async function(id, btn){
+window.adminRowStop = async function(id, btn) {
     btn.disabled=true;
     await update(ref(fbDb,`devices/${id}`),{emergency:true});
     const msg=document.getElementById(`row-msg-${id}`);
-    if(msg){msg.textContent="⛔ 停止しました";msg.className="row-msg error";}
+    if (msg) { msg.textContent="⛔ 停止しました"; msg.className="row-msg error"; }
     btn.disabled=false;
 };
-window.adminRowRelease = async function(id, btn){
+window.adminRowRelease = async function(id, btn) {
     btn.disabled=true;
     await update(ref(fbDb,`devices/${id}`),{emergency:false});
     const msg=document.getElementById(`row-msg-${id}`);
-    if(msg){msg.textContent="✅ 解除しました";msg.className="row-msg ok";}
+    if (msg) { msg.textContent="✅ 解除しました"; msg.className="row-msg ok"; }
     btn.disabled=false;
 };
-window.adminRowSetCoins = async function(id){
+window.adminRowSetCoins = async function(id) {
     const input=document.getElementById(`coin-input-${id}`);
     const val=parseInt(input.value);
     const msg=document.getElementById(`row-msg-${id}`);
-    if(isNaN(val)||val<0){if(msg){msg.textContent="正しい金額を入力";msg.className="row-msg error";}return;}
+    if (isNaN(val)||val<0) { if (msg) { msg.textContent="正しい金額を入力"; msg.className="row-msg error"; } return; }
     await update(ref(fbDb,`devices/${id}`),{coins:val});
-    if(msg){msg.textContent="✅ 更新しました";msg.className="row-msg ok";}
-    setTimeout(()=>{if(msg) msg.textContent="";},2500);
+    if (msg) { msg.textContent="✅ 更新しました"; msg.className="row-msg ok"; }
+    setTimeout(()=>{ if (msg) msg.textContent=""; },2500);
 };
 
-document.getElementById("fb-pass-input").addEventListener("keydown",e=>{if(e.key==="Enter")fbCheckPass();});
-document.getElementById("fb-device-name-input").addEventListener("keydown",e=>{if(e.key==="Enter")fbRegisterDevice();});
+document.getElementById("fb-pass-input").addEventListener("keydown",       e=>{ if(e.key==="Enter") fbCheckPass(); });
+document.getElementById("fb-device-name-input").addEventListener("keydown", e=>{ if(e.key==="Enter") fbRegisterDevice(); });
 
 window.onload=init;
 </script>
