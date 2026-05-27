@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Game Admin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #202020;
+            color: #ddd;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 24px 60px;
+        }
+        .side-bar {
+            position: fixed;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            background: #000;
+            z-index: 0;
+        }
+        #left-bar { left: 0; }
+        #right-bar { right: 0; }
+        main {
+            position: relative;
+            z-index: 1;
+            width: min(920px, 100%);
+            margin: 0 auto;
+        }
+        .page-title {
+            color: #ffd700;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+            margin: 8px 0 24px;
+            text-shadow: 0 0 12px #ffd70066;
+        }
+        .panel {
+            background: linear-gradient(135deg,#1a1a1a,#2a2a2a);
+            border: 2px solid #444;
+            border-radius: 14px;
+            padding: 24px 28px;
+        }
+        #login-panel {
+            max-width: 420px;
+            margin: 12vh auto 0;
+        }
+        .panel h2 {
+            color: #ffd700;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 0 0 18px;
+        }
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            background: #111;
+            color: #ffd700;
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        input:focus { outline: none; border-color: #ffd700; }
+        .btn {
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            margin-top: 12px;
+            background: linear-gradient(135deg,#c00000,#800000);
+            color: #fff;
+        }
+        .btn-primary:hover { background: linear-gradient(135deg,#e00000,#a00000); }
+        .btn-muted {
+            background: #2a2a2a;
+            color: #aaa;
+            border: 1px solid #444;
+            padding: 9px 12px;
+        }
+        .btn-muted:hover { background: #333; color: #ddd; }
+        .btn-sm {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-sm-gold { background: #c0a000; color: #000; }
+        .btn-sm-gold:hover { background: #e0c000; }
+        .btn-sm-red { background: #800000; color: #ffaaaa; }
+        .btn-sm-red:hover { background: #aa0000; }
+        .btn-sm-green { background: #005500; color: #aaffaa; }
+        .btn-sm-green:hover { background: #007700; }
+        .msg {
+            text-align: center;
+            font-size: 12px;
+            min-height: 18px;
+            margin-top: 10px;
+        }
+        .msg.error { color: #ff4444; }
+        .msg.ok { color: #00ff88; }
+        #admin-panel { display: none; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .summary {
+            color: #888;
+            font-size: 12px;
+        }
+        .summary strong {
+            color: #ffd700;
+            font-size: 16px;
+        }
+        #device-list {
+            max-height: calc(100vh - 190px);
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .device-row {
+            background: #1e1e1e;
+            border: 1px solid #383838;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .device-row-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .device-row-name {
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+        .device-row-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .device-row-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 5px 12px;
+            font-size: 11px;
+        }
+        .device-row-stat { color: #777; overflow-wrap: anywhere; }
+        .device-row-stat .sv { color: #ccc; font-weight: bold; }
+        .inline-coin-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #2a2a2a;
+        }
+        .inline-coin-row label {
+            color: #777;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .row-msg {
+            font-size: 11px;
+            margin-top: 5px;
+            min-height: 14px;
+            text-align: right;
+        }
+        .row-msg.ok { color: #00ff88; }
+        .row-msg.error { color: #ff4444; }
+        .device-status-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+        .badge-ok { background: #1a4a1a; color: #00ff88; }
+        .badge-stop { background: #4a1a1a; color: #ff4444; }
+        .empty-state {
+            color: #777;
+            text-align: center;
+            padding: 18px 10px;
+            font-size: 12px;
+        }
+        @media (max-width: 680px) {
+            body { padding: 16px 18px; }
+            .side-bar { display: none; }
+            .panel { padding: 20px 16px; }
+            .toolbar,
+            .device-row-header,
+            .inline-coin-row { align-items: stretch; flex-direction: column; }
+            .device-row-actions { justify-content: stretch; }
+            .device-row-actions .btn-sm,
+            .inline-coin-row .btn-sm { width: 100%; }
+            .device-row-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="left-bar" class="side-bar"></div>
+    <div id="right-bar" class="side-bar"></div>
+
+    <main>
+        <section id="login-panel" class="panel">
+            <h2>🔐 ADMIN ACCESS</h2>
+            <input type="password" id="admin-pass-input" placeholder="パスワードを入力" autocomplete="off">
+            <button class="btn btn-primary" onclick="adminLogin()">確認</button>
+            <div class="msg error" id="admin-pass-msg"></div>
+        </section>
+
+        <section id="admin-panel">
+            <div class="page-title">🛠 ADMIN PANEL</div>
+            <div class="panel">
+                <div class="toolbar">
+                    <div class="summary">登録デバイス: <strong id="device-count">0</strong></div>
+                    <button class="btn btn-muted" onclick="adminLogout()">ログアウト</button>
+                </div>
+                <div id="device-list">
+                    <div class="empty-state">読み込み中...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, update, onValue }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBc0Aa8WKsI75em5mScjm49TEwbcXCknKU",
+    authDomain: "new-slot-93d80.firebaseapp.com",
+    databaseURL: "https://new-slot-93d80-default-rtdb.firebaseio.com",
+    projectId: "new-slot-93d80",
+    storageBucket: "new-slot-93d80.firebasestorage.app",
+    messagingSenderId: "803072299978",
+    appId: "1:803072299978:web:fd43f4561dd2419b8c7533",
+    measurementId: "G-89PMT15R7W"
+};
+
+const PASS_ADMIN = "2272";
+const fbApp = initializeApp(firebaseConfig);
+const fbDb = getDatabase(fbApp);
+let stopDeviceListener = null;
+
+function setAdminMessage(text, className="error") {
+    const msg = document.getElementById("admin-pass-msg");
+    msg.textContent = text;
+    msg.className = `msg ${className}`;
+}
+
+window.adminLogin = function() {
+    const input = document.getElementById("admin-pass-input");
+    const pass = input.value.trim();
+    if (pass !== PASS_ADMIN) {
+        setAdminMessage("パスワードが違います", "error");
+        input.value = "";
+        input.focus();
+        return;
+    }
+    document.getElementById("login-panel").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+    setAdminMessage("");
+    loadDeviceList();
+};
+
+window.adminLogout = function() {
+    if (stopDeviceListener) {
+        stopDeviceListener();
+        stopDeviceListener = null;
+    }
+    document.getElementById("admin-panel").style.display = "none";
+    document.getElementById("login-panel").style.display = "block";
+    document.getElementById("admin-pass-input").value = "";
+    document.getElementById("admin-pass-input").focus();
+};
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatLastSeen(value) {
+    if (typeof value !== "number") return "–";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "–";
+    return date.toLocaleString("ja-JP");
+}
+
+function loadDeviceList() {
+    const listEl = document.getElementById("device-list");
+    const countEl = document.getElementById("device-count");
+    listEl.innerHTML = '<div class="empty-state">読み込み中...</div>';
+    if (stopDeviceListener) stopDeviceListener();
+
+    stopDeviceListener = onValue(ref(fbDb, "devices"), snap => {
+        const data = snap.val() || {};
+        const keys = Object.keys(data).sort((a, b) => {
+            const an = String(data[a]?.name || a);
+            const bn = String(data[b]?.name || b);
+            return an.localeCompare(bn, "ja");
+        });
+
+        countEl.textContent = String(keys.length);
+        if (keys.length === 0) {
+            listEl.innerHTML = '<div class="empty-state">デバイスなし</div>';
+            return;
+        }
+
+        listEl.innerHTML = keys.map(id => {
+            const dev = data[id] || {};
+            const name = escapeHtml(dev.name || id);
+            const badge = dev.emergency
+                ? '<span class="device-status-badge badge-stop">STOP</span>'
+                : '<span class="device-status-badge badge-ok">OK</span>';
+            const turnsInfo = (typeof dev.turnsLeft === "number" && typeof dev.totalTurns === "number")
+                ? `${dev.turnsLeft} / ${dev.totalTurns} 回`
+                : "–";
+            const coinsVal = typeof dev.coins === "number" ? dev.coins : 0;
+            const realMoney = Math.floor(coinsVal / 100);
+            const safeId = escapeHtml(id);
+
+            return `
+                <div class="device-row" id="dev-row-${safeId}">
+                    <div class="device-row-header">
+                        <div class="device-row-name">${name}${badge}</div>
+                        <div class="device-row-actions">
+                            <button class="btn-sm btn-sm-red" onclick="adminRowStop('${safeId}',this)">⛔ 停止</button>
+                            <button class="btn-sm btn-sm-green" onclick="adminRowRelease('${safeId}',this)">✅ 解除</button>
+                        </div>
+                    </div>
+                    <div class="device-row-stats">
+                        <div class="device-row-stat">💰 コイン: <span class="sv">${coinsVal.toLocaleString()} G</span></div>
+                        <div class="device-row-stat">💴 所持金: <span class="sv">${realMoney.toLocaleString()} 円</span></div>
+                        <div class="device-row-stat">🎰 残り回数: <span class="sv">${turnsInfo}</span></div>
+                        <div class="device-row-stat">🕒 最終更新: <span class="sv">${formatLastSeen(dev.lastSeen)}</span></div>
+                        <div class="device-row-stat">🆔 ID: <span class="sv">${safeId}</span></div>
+                    </div>
+                    <div class="inline-coin-row">
+                        <label for="coin-input-${safeId}">コイン変更:</label>
+                        <input type="number" id="coin-input-${safeId}" value="${coinsVal}" min="0" placeholder="新しい金額">
+                        <button class="btn-sm btn-sm-gold" onclick="adminRowSetCoins('${safeId}')">更新</button>
+                    </div>
+                    <div class="row-msg" id="row-msg-${safeId}"></div>
+                </div>
+            `;
+        }).join("");
+    }, error => {
+        listEl.innerHTML = `<div class="empty-state">読み込みエラー: ${escapeHtml(error.message)}</div>`;
+    });
+}
+
+function rowMessage(id, text, className) {
+    const msg = document.getElementById(`row-msg-${id}`);
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = `row-msg ${className}`;
+}
+
+window.adminRowStop = async function(id, btn) {
+    btn.disabled = true;
+    try {
+        await update(ref(fbDb, `devices/${id}`), { emergency: true });
+        rowMessage(id, "⛔ 停止しました", "error");
+    } finally {
+        btn.disabled = false;
+    }
+};
+
+window.adminRowRelease = async function(id, btn) {
+    btn.disabled = true;
+    try {
+        await update(ref(fbDb, `devices/${id}`), { emergency: false });
+        rowMessage(id, "✅ 解除しました", "ok");
+    } finally {
+        btn.disabled = false;
+    }
+};
+
+window.adminRowSetCoins = async function(id) {
+    const input = document.getElementById(`coin-input-${id}`);
+    const val = parseInt(input.value, 10);
+    if (Number.isNaN(val) || val < 0) {
+        rowMessage(id, "正しい金額を入力", "error");
+        return;
+    }
+    await update(ref(fbDb, `devices/${id}`), { coins: val });
+    rowMessage(id, "✅ 更新しました", "ok");
+    setTimeout(() => rowMessage(id, "", ""), 2500);
+};
+
+document.getElementById("admin-pass-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") adminLogin();
+});
+document.getElementById("admin-pass-input").focus();
+</script>
+</body>
+</html>
