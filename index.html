@@ -790,10 +790,20 @@ window.beginGame = function() {
 
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display  = 'flex';
+        // 変更後
         updateCoinDisplay(false);
         updateTurnsDisplay();
         rebuildReels();
-        if (myDeviceId) { showDeviceNameBadge(myDeviceName); startDeviceListener(); }
+        if (myDeviceId) {
+            showDeviceNameBadge(myDeviceName);
+            update(ref(fbDb, `devices/${myDeviceId}`), {
+                coins,
+                turnsLeft,
+                totalTurns,
+                lastSeen: Date.now()
+            }).catch(() => {});
+            startDeviceListener();
+        }
     });
 };
 
