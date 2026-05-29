@@ -33,28 +33,6 @@
             border-radius: 8px;
             padding: 22px;
         }
-        #login-panel {
-            max-width: 420px;
-            margin: 16vh auto 0;
-        }
-        h2 {
-            color: #ffd700;
-            font-size: 15px;
-            letter-spacing: 3px;
-            text-align: center;
-            margin: 0 0 18px;
-        }
-        input {
-            width: 100%;
-            background: #101215;
-            color: #ffd700;
-            border: 1px solid #555d69;
-            border-radius: 6px;
-            padding: 11px 12px;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-        }
-        input:focus { outline: none; border-color: #ffd700; }
         button {
             border: none;
             border-radius: 6px;
@@ -67,15 +45,6 @@
             cursor: wait;
             opacity: 0.65;
         }
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            margin-top: 12px;
-            background: #b30d18;
-            color: #fff;
-            letter-spacing: 2px;
-        }
-        .btn-primary:hover { background: #d11622; }
         .btn-muted {
             background: #303743;
             color: #d6d6d6;
@@ -93,15 +62,6 @@
         .btn-release:hover { background: #16783b; }
         .btn-delete { background: #2c3038; color: #ffb3b3; border: 1px solid #5b3238; }
         .btn-delete:hover { background: #3a2026; }
-        .msg {
-            text-align: center;
-            font-size: 12px;
-            min-height: 18px;
-            margin-top: 10px;
-        }
-        .msg.error { color: #ff5c66; }
-        .msg.ok { color: #22d67b; }
-        #admin-panel { display: none; }
         .toolbar {
             display: flex;
             justify-content: space-between;
@@ -198,19 +158,12 @@
 </head>
 <body>
     <main>
-        <section id="login-panel" class="panel">
-            <h2>管理者画面</h2>
-            <input type="password" id="admin-pass-input" placeholder="パスワードを入力" autocomplete="off">
-            <button class="btn-primary" onclick="adminLogin()">確認</button>
-            <div class="msg error" id="admin-pass-msg"></div>
-        </section>
-
         <section id="admin-panel">
             <div class="page-title">DEVICE ADMIN</div>
             <div class="panel">
                 <div class="toolbar">
                     <div class="summary">登録デバイス: <strong id="device-count">0</strong></div>
-                    <button class="btn-muted" onclick="adminLogout()">ログアウト</button>
+                    <button class="btn-muted" onclick="backToGame()">ゲームへ戻る</button>
                 </div>
                 <div id="device-list">
                     <div class="empty-state">読み込み中...</div>
@@ -235,43 +188,18 @@ const firebaseConfig = {
     measurementId: "G-D40KG11HLS"
 };
 
-const PASS_ADMIN = "2272";
 const fbApp = initializeApp(firebaseConfig);
 const fbDb = getDatabase(fbApp);
 let stopDeviceListener = null;
 let latestDevices = {};
 
-function setAdminMessage(text, className = "error") {
-    const msg = document.getElementById("admin-pass-msg");
-    msg.textContent = text;
-    msg.className = `msg ${className}`;
-}
-
-window.adminLogin = function() {
-    const input = document.getElementById("admin-pass-input");
-    const pass = input.value.trim();
-    if (pass !== PASS_ADMIN) {
-        setAdminMessage("パスワードが違います", "error");
-        input.value = "";
-        input.focus();
-        return;
-    }
-    document.getElementById("login-panel").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    setAdminMessage("");
-    loadDeviceList();
-};
-
-window.adminLogout = function() {
+window.backToGame = function() {
     if (stopDeviceListener) {
         stopDeviceListener();
         stopDeviceListener = null;
     }
     latestDevices = {};
-    document.getElementById("admin-panel").style.display = "none";
-    document.getElementById("login-panel").style.display = "block";
-    document.getElementById("admin-pass-input").value = "";
-    document.getElementById("admin-pass-input").focus();
+    window.location.href = "index.html";
 };
 
 function escapeHtml(value) {
@@ -398,10 +326,7 @@ document.getElementById("device-list").addEventListener("click", event => {
     if (button.dataset.action === "delete") deleteDevice(id, button);
 });
 
-document.getElementById("admin-pass-input").addEventListener("keydown", event => {
-    if (event.key === "Enter") adminLogin();
-});
-document.getElementById("admin-pass-input").focus();
+loadDeviceList();
 </script>
 </body>
 </html>
