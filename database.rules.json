@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "devices": {
+      ".read": true,
+      ".write": true
+    },
+    "pass3": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}

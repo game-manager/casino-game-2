@@ -351,7 +351,10 @@ function loadDeviceList() {
             `;
         }).join("");
     }, error => {
-        listEl.innerHTML = `<div class="empty-state">読み込みエラー: ${escapeHtml(error.message)}</div>`;
+        const rulesHint = error.code === "PERMISSION_DENIED"
+            ? "<br>Firebase Realtime Database の Rules で /devices の読み取りが許可されていません。"
+            : "";
+        listEl.innerHTML = `<div class="empty-state">読み込みエラー: ${escapeHtml(error.message)}${rulesHint}</div>`;
     });
 }
 
