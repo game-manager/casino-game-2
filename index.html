@@ -586,7 +586,14 @@ function startDeviceListener() {
     const devRef = ref(fbDb, `devices/${myDeviceId}`);
     _deviceListenerUnsubscribe = onValue(devRef, snap => {
         const data = snap.val();
-        if (!data) return;
+        if (!data) {
+            localStorage.removeItem("slotDeviceId");
+            localStorage.removeItem("slotDeviceName");
+            myDeviceId = null;
+            myDeviceName = null;
+            showDeviceNameBadge(null);
+            return;
+        }
         if (typeof data.coins === "number" && data.coins !== coins) {
             coins = data.coins;
             updateCoinDisplay(false);
