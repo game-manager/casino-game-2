@@ -1192,6 +1192,7 @@ document.addEventListener("keyup", e => _pressedKeys.delete(e.key.toLowerCase())
 //  FIREBASE MODAL
 // ============================================================
 const PASS_REGISTER="1161";
+const PASS_ADMIN="2272";
 
 function fbModalOpen() {
     document.getElementById("fb-step-pass").style.display="block";
@@ -1206,7 +1207,9 @@ window.fbModalClose = function() {
 };
 window.fbCheckPass = function() {
     const pass=document.getElementById("fb-pass-input").value.trim();
-    if (pass===PASS_REGISTER) {
+    if (pass===PASS_ADMIN) {
+        window.location.href = "admin.html";
+    } else if (pass===PASS_REGISTER) {
         document.getElementById("fb-step-pass").style.display="none";
         document.getElementById("fb-step-register").style.display="block";
         document.getElementById("fb-device-name-input").value=myDeviceName||"";
