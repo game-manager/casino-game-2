@@ -523,8 +523,9 @@ let myDeviceName = localStorage.getItem("slotDeviceName") || null;
 let _deviceListenerUnsubscribe = null;
 
 // ============================================================
-//  スタートパスワード認証 (Firebase pass3 と照合)
+//  スタートパスワード認証
 // ============================================================
+const START_PASS = "3383";
 let _startPassCallback = null;
 
 function openStartPass(callback) {
@@ -549,9 +550,7 @@ window.checkStartPass = async function() {
     msg.textContent = '確認中...';
     msg.style.color = '#888';
     try {
-        const snap = await get(ref(fbDb, 'pass3'));
-        const correctPass = String(snap.val());
-        if (entered === correctPass) {
+        if (entered === START_PASS) {
             document.getElementById('start-pass-overlay').classList.remove('active');
             if (_startPassCallback) { _startPassCallback(); _startPassCallback = null; }
         } else {
