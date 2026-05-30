@@ -1072,7 +1072,7 @@ window.stopReel = async function(reelId, btn) {
             const payout = currentBet * mult;
             coins += payout;
             // 特別ボーナス：目標値（1500〜2500Gのランダム100の倍数）になるよう不足分を補填
-            const bonusSteps = Math.floor(Math.random() * 11); // 0〜10
+            const bonusSteps = Math.floor(Math.random() * 6); // 0〜5
             const target = 1500 + bonusSteps * 100;
             const bonus = Math.max(0, target - coins);
             coins += bonus;
