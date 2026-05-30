@@ -1072,8 +1072,8 @@ window.stopReel = async function(reelId, btn) {
             const payout = currentBet * mult;
             coins += payout;
             // 特別ボーナス：目標値（1500〜2500Gのランダム100の倍数）になるよう不足分を補填
-            const bonusSteps = Math.floor(Math.random() * 6); // 0〜5
-            const target = 1500 + bonusSteps * 100;
+            const bonusSteps = Math.floor(Math.random() * 10); // 0〜9
+            const target = 1100 + bonusSteps * 100;
             const bonus = Math.max(0, target - coins);
             coins += bonus;
             updateCoinDisplay();
@@ -1189,7 +1189,7 @@ window.stopReel = async function(reelId, btn) {
             [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
             if (!kakuhenActive) setBetLocked(false);
             if (turnsLeft<=0) {
-                if (coins<=1500) {
+                if (coins<=1000) {
                     triggerLastKakuhen();
                 } else {
                     triggerGameOver();
