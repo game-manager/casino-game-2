@@ -1071,13 +1071,14 @@ window.stopReel = async function(reelId, btn) {
             const mult = getMultiplier(targetIndex);
             const payout = currentBet * mult;
             coins += payout;
-            // 特別ボーナス：1500〜2500Gのランダム（100の倍数）
+            // 特別ボーナス：目標値（1500〜2500Gのランダム100の倍数）になるよう不足分を補填
             const bonusSteps = Math.floor(Math.random() * 11); // 0〜10
-            const bonus = 1500 + bonusSteps * 100;
+            const target = 1500 + bonusSteps * 100;
+            const bonus = Math.max(0, target - coins);
             coins += bonus;
             updateCoinDisplay();
             sfxWin(mult);
-            setTimeout(()=>{ showResultBanner(`🎉 ラスト確変当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G`,"win"); },500);
+            setTimeout(()=>{ showResultBanner(`🎉 ラスト確変当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G → 合計 ${target.toLocaleString()} G`,"win"); },500);
             setTimeout(()=>{ triggerGameOver(); }, 5000);
             return;
         }
