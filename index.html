@@ -1103,7 +1103,8 @@ window.stopReel = async function(reelId, btn) {
                 }
                 if (isWinRound) {
                     const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
-                    if (richBlock) {
+                    const turnBlock = turnsLeft<=6 && coins>=2000;
+                    if (richBlock || turnBlock) {
                         targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
                         setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                     } else {
@@ -1144,6 +1145,7 @@ window.stopReel = async function(reelId, btn) {
                 let winProb=Atsu*0.454; if (winProb<30) winProb=0;
                 let isWin=Math.random()*100<winProb;
                 if (isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
+                if (isWin && turnsLeft<=6 && coins>=2000) isWin=false;
                 if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
                     setTimeout(()=>{
