@@ -1083,7 +1083,7 @@ window.stopReel = async function(reelId, btn) {
                             const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                             coins+=payout; updateCoinDisplay(); sfxWin(mult);
                             // 特別ボーナス：当選ペイアウト後、所持コインが150000G（1500円）未満なら補填
-                            const BONUS_TARGET = 150000;
+                            const BONUS_TARGET = 1500;
                             const bonus = coins < BONUS_TARGET ? BONUS_TARGET - coins : 0;
                             if (bonus > 0) {
                                 coins += bonus; updateCoinDisplay();
