@@ -968,7 +968,7 @@ window.startGame = function() {
     if (turnsLeft<=0)  return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
-    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5;
+    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5 && coins<=2000;
     if (shouldKakuhen) { (async()=>{ await triggerKakuhen(); _doStartGame(); })(); return; }
     _doStartGame();
 };
@@ -1102,7 +1102,7 @@ window.stopReel = async function(reelId, btn) {
                     sfxEgg(2); await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
                 }
                 if (isWinRound) {
-                    const richBlock = coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex);
+                    const richBlock = coins > 2000;
                     const turnBlock = turnsLeft<=6 && coins>=2000;
                     if (richBlock || turnBlock) {
                         targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
@@ -1145,7 +1145,7 @@ window.stopReel = async function(reelId, btn) {
                 sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
                 let winProb=Atsu*0.454; if (winProb<30) winProb=0;
                 let isWin=Math.random()*100<winProb;
-                if (isWin && coins>=initialCoins*3.5 && EVEN_SET.includes(firstResultIndex)) isWin=false;
+                if (isWin && coins > 2000) isWin=false;
                 if (isWin && turnsLeft<=6 && coins>=2000) isWin=false;
                 if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
