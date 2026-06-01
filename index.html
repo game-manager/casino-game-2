@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>竜一附属中２年 - スロット</title>
+    <title>竜一附属中２年(2026) - スロット</title>
     <style>
         * { box-sizing: border-box; }
         body.dark {
@@ -968,6 +968,7 @@ window.startGame = function() {
     if (turnsLeft<=0)  return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
+    // ===== 変更点3: 2000G超えていたら確変も起こさない =====
     const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5 && coins<=2000;
     if (shouldKakuhen) { (async()=>{ await triggerKakuhen(); _doStartGame(); })(); return; }
     _doStartGame();
@@ -997,8 +998,21 @@ function _doStartGame() {
     setTimeout(() => { ensureCtx(); sfxReelStart(); }, 150);
 }
 
+function couldBeCombo(r1, r2) {
+    // r1とr2の2つがあるとき、3つ目次第で123コンボ or 456コンボになる可能性があるか
+    const combos = [[0,1,2],[3,4,5]];
+    for (const trio of combos) {
+        if (trio.includes(r1) && trio.includes(r2) && r1 !== r2) return true;
+    }
+    return false;
+}
+
 function decideReach(currentIndex) {
     if (kakuhenActive) return firstResultIndex;
+    // ===== 500G以下: リーチ確定（firstResultIndexに揃える）=====
+    if (coins <= 500) return firstResultIndex;
+    // コンボになりうる組み合わせの場合はリーチに揃えない
+    if (couldBeCombo(firstResultIndex, currentIndex)) return currentIndex;
     if (noOddReach && ODD_SET.includes(firstResultIndex)) return pickNonMatchRandom(currentIndex, firstResultIndex);
     const ruleA = (totalStartCount<=3 && !earlyReachUsed);
     if (ruleA && Math.random()<0.70) return firstResultIndex;
@@ -1043,6 +1057,9 @@ window.stopReel = async function(reelId, btn) {
         } else if (kakuhenActive) {
             targetIndex = coins<=initialCoins*0.5 ? SEVEN :
                 (Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
+        } else if (coins <= 500) {
+            // 500G以下: リーチ→確定当たりのため奇数セット(×5)を優先
+            targetIndex = ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
         } else {
             targetIndex = pickRandom(currentIndex);
         }
@@ -1102,8 +1119,9 @@ window.stopReel = async function(reelId, btn) {
                     sfxEgg(2); await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
                 }
                 if (isWinRound) {
-                    const richBlock = coins > 2000;
-                    const turnBlock = turnsLeft<=6 && coins>=2000;
+                    // ===== 変更点1: 2000G超えで確変中当たりも不可（500G以下は例外）=====
+                    const richBlock = coins > 500 && coins > 2000;
+                    const turnBlock = coins > 500 && turnsLeft<=6 && coins>=2000;
                     if (richBlock || turnBlock) {
                         targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
                         setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
@@ -1145,8 +1163,11 @@ window.stopReel = async function(reelId, btn) {
                 sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
                 let winProb=Atsu*0.454; if (winProb<30) winProb=0;
                 let isWin=Math.random()*100<winProb;
-                if (isWin && coins > 2000) isWin=false;
-                if (isWin && turnsLeft<=6 && coins>=2000) isWin=false;
+                // ===== 500G以下: 当たり確定 =====
+                if (coins <= 500) isWin=true;
+                // ===== 変更点2: 2000G超えで通常リーチも当たらない（500G以下の確定を上書きしない）=====
+                if (coins > 500 && isWin && coins > 2000) isWin=false;
+                if (coins > 500 && isWin && turnsLeft<=6 && coins>=2000) isWin=false;
                 if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
                     setTimeout(()=>{
@@ -1203,7 +1224,7 @@ window.stopReel = async function(reelId, btn) {
 };
 
 // ============================================================
-//  ラスト確変（回数0 & 所持金1500G以下）
+//  ラスト確変（回数0 & 所持金1000G以下）
 // ============================================================
 let lastKakuhenActive = false;
 let _lastKakuhenTargetIdx = null;
