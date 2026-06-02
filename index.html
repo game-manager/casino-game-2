@@ -769,7 +769,7 @@ window.updateSetupCalc = function() {
 };
 
 // ============================================================
-//  GAME START (セットアップ画面) ← パスワード認証はここで行う
+//  GAME START (セットアップ画面)
 // ============================================================
 window.beginGame = function() {
     ensureCtx();
@@ -959,16 +959,12 @@ function setBetLocked(locked) {
 }
 let noOddReach=false;
 
-// ============================================================
-//  STARTボタン ← パスワード認証なし、直接ゲーム開始
-// ============================================================
 window.startGame = function() {
     if (lastKakuhenActive) { ensureCtx(); (async()=>{ await runLastKakuhenSpin(); })(); return; }
     if (currentBet<=0) return;
     if (turnsLeft<=0)  return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
-    // ===== 変更点3: 2000G超えていたら確変も起こさない =====
     const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5 && coins<=2000;
     if (shouldKakuhen) { (async()=>{ await triggerKakuhen(); _doStartGame(); })(); return; }
     _doStartGame();
@@ -999,7 +995,6 @@ function _doStartGame() {
 }
 
 function couldBeCombo(r1, r2) {
-    // r1とr2の2つがあるとき、3つ目次第で123コンボ or 456コンボになる可能性があるか
     const combos = [[0,1,2],[3,4,5]];
     for (const trio of combos) {
         if (trio.includes(r1) && trio.includes(r2) && r1 !== r2) return true;
@@ -1009,9 +1004,7 @@ function couldBeCombo(r1, r2) {
 
 function decideReach(currentIndex) {
     if (kakuhenActive) return firstResultIndex;
-    // ===== 500G以下: リーチ確定（firstResultIndexに揃える）=====
     if (coins <= 500) return firstResultIndex;
-    // コンボになりうる組み合わせの場合はリーチに揃えない
     if (couldBeCombo(firstResultIndex, currentIndex)) return currentIndex;
     if (noOddReach && ODD_SET.includes(firstResultIndex)) return pickNonMatchRandom(currentIndex, firstResultIndex);
     const ruleA = (totalStartCount<=3 && !earlyReachUsed);
@@ -1058,7 +1051,6 @@ window.stopReel = async function(reelId, btn) {
             targetIndex = coins<=initialCoins*0.5 ? SEVEN :
                 (Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
         } else if (coins <= 500) {
-            // 500G以下: リーチ→確定当たりのため奇数セット(×5)を優先
             targetIndex = ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
         } else {
             targetIndex = pickRandom(currentIndex);
@@ -1087,8 +1079,13 @@ window.stopReel = async function(reelId, btn) {
             setKakuhenMode(false); setRainbow(false); setBetLocked(false);
             const mult = getMultiplier(targetIndex);
             const payout = currentBet * mult;
+            // ============================================================
+            // [修正] ラスト確変: ベットはすでに _doStartGame で引いていないので
+            //        coins はベット引き後の値。ここでペイアウトのみ加算。
+            //        特別ボーナスで目標値（1500〜2500G）に調整。
+            // ============================================================
+            const coinsBeforePayout = coins; // ベット済み残高
             coins += payout;
-            // 特別ボーナス：目標値（1500〜2500Gのランダム100の倍数）になるよう不足分を補填
             const bonusSteps = Math.floor(Math.random() * 10); // 0〜9
             const target = 1100 + bonusSteps * 100;
             const bonus = Math.max(0, target - coins);
@@ -1119,8 +1116,12 @@ window.stopReel = async function(reelId, btn) {
                     sfxEgg(2); await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
                 }
                 if (isWinRound) {
-                    // ===== 変更点1: 2000G超えで確変中当たりも不可（500G以下は例外）=====
-                    const richBlock = coins > 500 && coins > 2000;
+                    // ============================================================
+                    // [変更1] 当たり時、ペイアウト後に2000G超えるなら強制外れ
+                    // ============================================================
+                    const mult = getMultiplier(firstResultIndex);
+                    const payout = currentBet * mult;
+                    const richBlock = coins > 500 && (coins + payout) > 2000;
                     const turnBlock = coins > 500 && turnsLeft<=6 && coins>=2000;
                     if (richBlock || turnBlock) {
                         targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
@@ -1130,7 +1131,6 @@ window.stopReel = async function(reelId, btn) {
                         setKakuhenMode(false); setRainbow(false); setBetLocked(false);
                         kakuhenWinRound=0; kakuhenReachCount=0; consecutiveAnyLose=0;
                         setTimeout(()=>{
-                            const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                             coins+=payout; updateCoinDisplay(); sfxWin(mult);
                             // 特別ボーナス：1100〜2000Gのランダム（100の倍数）になるよう不足分を補填
                             const bonusSteps = Math.floor(Math.random() * 10); // 0〜9
@@ -1163,10 +1163,17 @@ window.stopReel = async function(reelId, btn) {
                 sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
                 let winProb=Atsu*0.454; if (winProb<30) winProb=0;
                 let isWin=Math.random()*100<winProb;
-                // ===== 500G以下: 当たり確定 =====
+                // 500G以下: 当たり確定
                 if (coins <= 500) isWin=true;
-                // ===== 変更点2: 2000G超えで通常リーチも当たらない（500G以下の確定を上書きしない）=====
-                if (coins > 500 && isWin && coins > 2000) isWin=false;
+                // ============================================================
+                // [変更1] 当たり時、ペイアウト後に2000G超えるなら強制外れ
+                //         （500G以下の確定は維持するため coins>500 のときのみ適用）
+                // ============================================================
+                if (isWin && coins > 500) {
+                    const mult = getMultiplier(firstResultIndex);
+                    const payout = currentBet * mult;
+                    if ((coins + payout) > 2000) isWin = false;
+                }
                 if (coins > 500 && isWin && turnsLeft<=6 && coins>=2000) isWin=false;
                 if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
@@ -1241,6 +1248,10 @@ async function triggerLastKakuhen() {
     document.getElementById('start-btn').disabled = false;
 }
 
+// ============================================================
+// [変更2] ラスト確変スピン: ベットを消費せず、7揃い確定で当たり
+// [変更3] マイナス防止: ベット引かないのでcoinsはそのまま
+// ============================================================
 async function runLastKakuhenSpin() {
     lastKakuhenActive = false;
     gameRunning = true;
@@ -1252,6 +1263,8 @@ async function runLastKakuhenSpin() {
     [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
     setRainbow(true);
     rebuildReels();
+    // ラスト確変はベットを消費しない（マイナス防止）
+    // coins -= currentBet はしない
     [1,2,3].forEach(n => {
         const s = document.getElementById(`reel${n}`);
         s.style.transition = ''; s.style.transform = 'translateY(0)';
