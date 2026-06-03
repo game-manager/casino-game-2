@@ -356,7 +356,7 @@
             <div class="setup-row">
                 <span class="setup-label">本所持金</span>
                 <input type="number" class="setup-input" id="real-money" value="10" min="1" oninput="updateSetupCalc()">
-                <span class="setup-unit">円</span>
+                <span class="setup-unit">チップ</span>
             </div>
             <div class="setup-calc">
                 ゲーム内コイン：<span class="calc-val" id="calc-coins">1000</span> G
@@ -432,7 +432,7 @@
             </div>
             <div class="go-result-label">最終的な所持金</div>
             <div class="go-result-val" id="go-result">0</div>
-            <div class="go-result-unit">円</div>
+            <div class="go-result-unit">チップ</div>
         </div>
         <div id="go-quit-note">— 途中終了 or 回数終了 —</div>
     </div>
@@ -1079,6 +1079,23 @@ window.stopReel = async function(reelId, btn) {
         if (_lastKakuhenTargetIdx !== null) {
             targetIndex = _lastKakuhenTargetIdx;
             _lastKakuhenTargetIdx = null;
+            // 3リール目を正しいコマに止める（アニメーション停止）
+            {
+                let diff = targetIndex - currentIndex;
+                if (diff === 0) {
+                    reel.style.animation = 'none';
+                    reel.style.transform = `translateY(${currentY}px)`;
+                } else {
+                    if (diff < 0) diff += 7;
+                    const finalY = (Math.round(currentY / 110) - diff) * 110;
+                    reel.style.animation = 'none';
+                    reel.style.transform = `translateY(${currentY}px)`;
+                    await new Promise(r => setTimeout(r, 10));
+                    reel.style.transition = 'transform 0.4s ease-out';
+                    reel.style.transform = `translateY(${finalY}px)`;
+                    await new Promise(r => setTimeout(r, 450));
+                }
+            }
             // ===== ラスト確変: 通常リーチと同じ演出を全部入れた上で100%当たり =====
             // BIG CHANCEチャンス演出
             sfxChance(true);
