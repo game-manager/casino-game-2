@@ -1083,20 +1083,15 @@ window.stopReel = async function(reelId, btn) {
             setKakuhenMode(false); setRainbow(false); setBetLocked(false);
             const mult = getMultiplier(targetIndex);
             const payout = currentBet * mult;
-            // ============================================================
-            // [修正] ラスト確変: ベットはすでに _doStartGame で引いていないので
-            //        coins はベット引き後の値。ここでペイアウトのみ加算。
-            //        特別ボーナスで目標値（1500〜2500G）に調整。
-            // ============================================================
-            const coinsBeforePayout = coins; // ベット済み残高
+            // ボーナス：1000〜2000の100の倍数のランダム値 − 現在の所持金
+            const bonusSteps = Math.floor(Math.random() * 11); // 0〜10
+            const target = 1000 + bonusSteps * 100; // 1000〜2000
             coins += payout;
-            const bonusSteps = Math.floor(Math.random() * 10); // 0〜9
-            const target = 1100 + bonusSteps * 100;
             const bonus = Math.max(0, target - coins);
             coins += bonus;
             updateCoinDisplay();
             sfxWin(mult);
-            setTimeout(()=>{ showResultBanner(`🎉 ラスト確変当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G → 合計 ${target.toLocaleString()} G`,"win"); },500);
+            setTimeout(()=>{ showResultBanner(`🎉 ラスト確変当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G → 合計 ${(coins).toLocaleString()} G`,"win"); },500);
             setTimeout(()=>{ triggerGameOver(); }, 5000);
             return;
         }
@@ -1265,9 +1260,10 @@ window.stopReel = async function(reelId, btn) {
 // ============================================================
 //  ラスト確変（回数0 & 所持金1000G以下）
 // ============================================================
+// ラスト確変のターゲットインデックス（null=通常, 数値=ラスト確変中）
 let _lastKakuhenTargetIdx = null;
 
-// ラスト確変: 演出→自動スピン→7揃い確定当たり
+// ラスト確変: 演出→スピン→自分でSTOP→リーチ演出→222/444/666確定当たり
 async function runLastKakuhenSpin() {
     gameRunning = true;
     document.getElementById('start-btn').disabled = true;
@@ -1275,33 +1271,24 @@ async function runLastKakuhenSpin() {
     // 演出
     setRainbow(true); sfxFlash(); sfxFlash(); await sleep(400);
     await showEffectImage("gyanb/kakuhen_transparent.png", 1800, "chance-large");
-    setKakuhenMode(true);
+    // ターゲットを 222(1)・444(3)・666(5) からランダム決定
+    const lastTargets = [1, 3, 5];
+    _lastKakuhenTargetIdx = lastTargets[Math.floor(Math.random() * 3)];
     stoppedCount = 0;
-    // 開始時点でSEVEN確定をセット
-    _lastKakuhenTargetIdx = SEVEN;
     document.getElementById('result-banner').innerText = '';
     document.getElementById('result-banner').className = '';
     [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
     setRainbow(true);
     rebuildReels();
-    // ラスト確変はベットを消費しない（マイナス防止）
+    // ラスト確変はベットを消費しない
     [1,2,3].forEach(n => {
         const s = document.getElementById(`reel${n}`);
         s.style.transition = ''; s.style.transform = 'translateY(0)';
         s.style.animation = 'spin 0.75s linear infinite';
-        document.getElementById(`stopbtn${n}`).disabled = true;
+        document.getElementById(`stopbtn${n}`).disabled = false;
     });
     sfxStart();
     setTimeout(() => { ensureCtx(); sfxReelStart(); }, 150);
-    // 全リールを自動停止（7揃い確定）
-    await sleep(1200);
-    for (let n = 1; n <= 3; n++) {
-        await sleep(700);
-        _lastKakuhenTargetIdx = SEVEN;
-        const btn = document.getElementById(`stopbtn${n}`);
-        btn.disabled = false;
-        btn.click();
-    }
 }
 
 // ============================================================
