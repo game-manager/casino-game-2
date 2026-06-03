@@ -1172,7 +1172,7 @@ window.stopReel = async function(reelId, btn) {
                 if (isWin && coins > 500) {
                     const mult = getMultiplier(firstResultIndex);
                     const payout = currentBet * mult;
-                    if ((coins + payout) > 1500) isWin = false;
+                    if ((coins + payout) > 1000) isWin = false;
                 }
                 if (coins > 500 && isWin && turnsLeft<=6 && coins>=2000) isWin=false;
                 if (isWin) {
