@@ -1188,16 +1188,37 @@ window.stopReel = async function(reelId, btn) {
                 }
             }
         } else {
-            thirdResultIndex=currentIndex;
-            const combo=getComboMultiplier(firstResultIndex,secondResultIndex,thirdResultIndex);
-            if (combo>0) {
-                targetIndex=currentIndex;
-                const payout=currentBet*combo;
-                coins+=payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
+            // コンボ完成に必要な3枚目のインデックスを探す
+            function findComboThird(r1, r2) {
+                const combos = [[0,1,2],[3,4,5]];
+                for (const trio of combos) {
+                    if (trio.includes(r1) && trio.includes(r2) && r1 !== r2) {
+                        return trio.find(v => v !== r1 && v !== r2);
+                    }
+                }
+                return null;
+            }
+            const comboThird = findComboThird(firstResultIndex, secondResultIndex);
+            if (comboThird !== null) {
+                // コンボ成立：3リール目を正しいコマに誘導
+                targetIndex = comboThird;
+                thirdResultIndex = comboThird;
+                const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
+                const payout = currentBet * combo;
+                coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
                 setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
             } else {
-                consecutiveAnyLose++; targetIndex=(currentIndex+1)%7;
-                setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                thirdResultIndex = currentIndex;
+                const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
+                if (combo > 0) {
+                    targetIndex = currentIndex;
+                    const payout = currentBet * combo;
+                    coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
+                    setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                } else {
+                    consecutiveAnyLose++; targetIndex=(currentIndex+1)%7;
+                    setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                }
             }
         }
     }
