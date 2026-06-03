@@ -1079,7 +1079,19 @@ window.stopReel = async function(reelId, btn) {
         if (_lastKakuhenTargetIdx !== null) {
             targetIndex = _lastKakuhenTargetIdx;
             _lastKakuhenTargetIdx = null;
-            // 3リール目を正しいコマに止める（アニメーション停止）
+            // ===== ラスト確変: 演出→キラエフェクト後にリール停止 =====
+            // BIG CHANCEチャンス演出
+            sfxChance(true);
+            await showEffectImage("gyanb/big_chance_transparent.png", 1800, "chance-large");
+            // サイドフラッシュ（2回）
+            await flashSides(2);
+            // 卵演出（BIGパターン）
+            sfxEgg(0); await showEffectImage("gyanb/egg_2_transparent.png",  1400, "egg-size-1");
+            sfxEgg(1); await showEffectImage("gyanb/egg_2-2_transparent.png", 1400, "egg-size-2");
+            sfxEgg(2); await showEffectImage("gyanb/egg_2-3_transparent.png", 1400, "egg-size-3");
+            // キラエフェクト
+            await showKiraEffect(20);
+            // キラエフェクト後に3リール目を正しいコマに止める
             {
                 let diff = targetIndex - currentIndex;
                 if (diff === 0) {
@@ -1096,18 +1108,6 @@ window.stopReel = async function(reelId, btn) {
                     await new Promise(r => setTimeout(r, 450));
                 }
             }
-            // ===== ラスト確変: 通常リーチと同じ演出を全部入れた上で100%当たり =====
-            // BIG CHANCEチャンス演出
-            sfxChance(true);
-            await showEffectImage("gyanb/big_chance_transparent.png", 1800, "chance-large");
-            // サイドフラッシュ（2回）
-            await flashSides(2);
-            // 卵演出（BIGパターン）
-            sfxEgg(0); await showEffectImage("gyanb/egg_2_transparent.png",  1400, "egg-size-1");
-            sfxEgg(1); await showEffectImage("gyanb/egg_2-2_transparent.png", 1400, "egg-size-2");
-            sfxEgg(2); await showEffectImage("gyanb/egg_2-3_transparent.png", 1400, "egg-size-3");
-            // キラエフェクト → 当たり確定
-            await showKiraEffect(20);
             setKakuhenMode(false); setRainbow(false); setBetLocked(false);
             const mult = getMultiplier(targetIndex);
             const payout = currentBet * mult;
