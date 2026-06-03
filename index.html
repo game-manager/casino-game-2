@@ -1200,13 +1200,24 @@ window.stopReel = async function(reelId, btn) {
             }
             const comboThird = findComboThird(firstResultIndex, secondResultIndex);
             if (comboThird !== null) {
-                // コンボ成立：3リール目を正しいコマに誘導
-                targetIndex = comboThird;
-                thirdResultIndex = comboThird;
-                const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
+                // コンボ候補：強制外れ条件チェック
+                const combo = getComboMultiplier(firstResultIndex, secondResultIndex, comboThird);
                 const payout = currentBet * combo;
-                coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
-                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                const comboBlock = coins > 500 && (coins + payout) > 1500;
+                const comboTurnBlock = coins > 500 && turnsLeft <= 6 && coins >= 2000;
+                if (comboBlock || comboTurnBlock) {
+                    // 強制外れ：3リール目をコンボにならないコマに誘導
+                    targetIndex = (comboThird + 1) % 7;
+                    thirdResultIndex = targetIndex;
+                    consecutiveAnyLose++;
+                    setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                } else {
+                    // コンボ成立：3リール目を正しいコマに誘導
+                    targetIndex = comboThird;
+                    thirdResultIndex = comboThird;
+                    coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
+                    setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                }
             } else {
                 thirdResultIndex = currentIndex;
                 const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
