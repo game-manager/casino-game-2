@@ -916,9 +916,15 @@ window.selectBet = function(amount, btn) {
 };
 function updateBetDisplay() {
     const txt=document.getElementById('bet-val-text'), btn=document.getElementById('start-btn');
-    if (currentBet>0&&turnsLeft>0) { txt.innerText=currentBet.toLocaleString()+' G'; btn.disabled=gameRunning; }
-    else if (turnsLeft<=0)          { txt.innerText='未選択'; btn.disabled=true; }
-    else                            { txt.innerText='未選択'; btn.disabled=true; }
+    if (turnsLeft<=0) {
+        // 残り0回: STARTを押すとゲームオーバー画面へ
+        txt.innerText='0 回';
+        btn.disabled=gameRunning;
+    } else if (currentBet>0) {
+        txt.innerText=currentBet.toLocaleString()+' G'; btn.disabled=gameRunning;
+    } else {
+        txt.innerText='未選択'; btn.disabled=true;
+    }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -960,8 +966,8 @@ function setBetLocked(locked) {
 let noOddReach=false;
 
 window.startGame = function() {
+    if (turnsLeft<=0) { ensureCtx(); triggerGameOver(); return; }
     if (currentBet<=0) return;
-    if (turnsLeft<=0)  return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
     // 最後の1回はラスト確変（7揃い確定）スピンにする
