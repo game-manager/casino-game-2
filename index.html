@@ -356,7 +356,7 @@
             <div class="setup-row">
                 <span class="setup-label">本所持金</span>
                 <input type="number" class="setup-input" id="real-money" value="10" min="1" oninput="updateSetupCalc()">
-                <span class="setup-unit">チップ</span>
+                <span class="setup-unit">円</span>
             </div>
             <div class="setup-calc">
                 ゲーム内コイン：<span class="calc-val" id="calc-coins">1000</span> G
@@ -432,7 +432,7 @@
             </div>
             <div class="go-result-label">最終的な所持金</div>
             <div class="go-result-val" id="go-result">0</div>
-            <div class="go-result-unit">チップ</div>
+            <div class="go-result-unit">円</div>
         </div>
         <div id="go-quit-note">— 途中終了 or 回数終了 —</div>
     </div>
@@ -1172,8 +1172,20 @@ window.stopReel = async function(reelId, btn) {
                         },500);
                     }
                 } else {
-                    targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    // 500G以下なら確変外れラウンドでも当たり
+                    if (coins <= 500) {
+                        await showKiraEffect(20); targetIndex=firstResultIndex;
+                        setKakuhenMode(false); setRainbow(false); setBetLocked(false);
+                        kakuhenWinRound=0; kakuhenReachCount=0; consecutiveAnyLose=0;
+                        setTimeout(()=>{
+                            const mult=getMultiplier(targetIndex), payout=currentBet*mult;
+                            coins+=payout; updateCoinDisplay(); sfxWin(mult);
+                            showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
+                        },500);
+                    } else {
+                        targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
+                        setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    }
                 }
             } else {
                 const isBig=Math.random()>=0.7;
@@ -1275,7 +1287,7 @@ window.stopReel = async function(reelId, btn) {
         setTimeout(()=>{
             stoppedCount=0; Atsu=0; gameRunning=false;
             [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
-            if (!kakuhenActive) setBetLocked(false);
+            setBetLocked(false);
             if (turnsLeft<=0) {
                 triggerGameOver();
             } else if (currentBet>0 && coins>0) {
