@@ -806,7 +806,6 @@ function updateTurnsDisplay() {
     const pct = totalTurns > 0 ? (turnsLeft / totalTurns) * 100 : 0;
     document.getElementById('turns-bar-inner').style.width = pct + '%';
     syncTurnsToFb();
-    if (turnsLeft <= 0) triggerGameOver();
 }
 
 function triggerGameOver() {
