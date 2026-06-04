@@ -419,6 +419,7 @@
         </div>
 
         <div id="result-banner"></div>
+        <button id="finish-btn" onclick="doFinish()" style="display:none;margin-top:14px;width:100%;max-width:480px;padding:15px;background:linear-gradient(135deg,#c00000,#800000);color:#fff;border:none;border-radius:10px;font-size:18px;font-weight:bold;font-family:'Courier New',monospace;letter-spacing:4px;cursor:pointer;box-shadow:0 5px #500000;transition:all 0.15s;">🏁 結果を見る</button>
         <div class="spacer"></div>
     </div>
 
@@ -828,6 +829,19 @@ function triggerGameOver() {
 // ============================================================
 //  ゲームを辞める
 // ============================================================
+window.doFinish = function() {
+    sfxReelStop(); setRainbow(false);
+    document.getElementById('finish-btn').style.display = 'none';
+    document.getElementById('game-screen').style.display    = 'none';
+    document.getElementById('gameover-screen').style.display = 'flex';
+    const finalCoins = coins;
+    const finalMoney = Math.floor(finalCoins / 100);
+    document.getElementById('go-final-coins').textContent = finalCoins.toLocaleString();
+    document.getElementById('go-result').textContent      = finalMoney.toLocaleString();
+    document.getElementById('go-quit-note').textContent   = '— 回数終了 —';
+    syncCoinsToFb(); syncTurnsToFb();
+};
+
 window.confirmQuit = function() {
     openStartPass(() => {
         document.getElementById('confirm-overlay').classList.add('active');
@@ -838,6 +852,7 @@ window.doQuit = function() {
     document.getElementById('confirm-overlay').classList.remove('active');
     sfxReelStop(); setRainbow(false);
     gameRunning = false; stoppedCount = 0;
+    document.getElementById('finish-btn').style.display = 'none';
     document.getElementById('start-btn').disabled = true;
     [1,2,3].forEach(n => document.getElementById(`stopbtn${n}`).disabled = true);
     document.getElementById('game-screen').style.display    = 'none';
@@ -965,7 +980,7 @@ function setBetLocked(locked) {
 let noOddReach=false;
 
 window.startGame = function() {
-    if (turnsLeft<=0) { ensureCtx(); triggerGameOver(); return; }
+    if (turnsLeft<=0) { document.getElementById("finish-btn").style.display="block"; return; }
     if (currentBet<=0) return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
@@ -1294,7 +1309,7 @@ window.stopReel = async function(reelId, btn) {
             [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
             setBetLocked(false);
             if (turnsLeft<=0) {
-                triggerGameOver();
+                document.getElementById('finish-btn').style.display = 'block';
             } else if (currentBet>0 && coins>0) {
                 document.getElementById('start-btn').disabled=false;
             }
