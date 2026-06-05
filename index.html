@@ -751,9 +751,8 @@ const ODD_SET=[0,2,4], EVEN_SET=[1,3,5], SEVEN=6;
 
 let coins=1000, currentBet=0;
 let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIndex=null;
-let Atsu=0, gameRunning=false, totalStartCount=0;
-let earlyReachUsed=false, consecutiveAnyLose=0;
-let kakuhenActive=false, kakuhenWinRound=0, kakuhenReachCount=0;
+let gameRunning=false;
+let kakuhenActive=false;
 let initialCoins=1000;
 let _rainbowLoopInterval=null;
 let turnsLeft=0, totalTurns=0;
@@ -977,7 +976,6 @@ function triggerReachEffect() {
 function setBetLocked(locked) {
     document.querySelectorAll('.bet-btn').forEach(b => { b.disabled=locked; b.style.opacity=locked?'0.4':'1'; });
 }
-let noOddReach=false;
 
 window.startGame = function() {
     if (turnsLeft<=0) { document.getElementById("finish-btn").style.display="block"; return; }
@@ -989,18 +987,14 @@ window.startGame = function() {
         (async()=>{ await runLastKakuhenSpin(); })();
         return;
     }
-    const shouldKakuhen = !kakuhenActive && consecutiveAnyLose>=5 && coins<=initialCoins*1.5 && coins<=2000;
-    if (shouldKakuhen) { (async()=>{ await triggerKakuhen(); _doStartGame(); })(); return; }
     _doStartGame();
 };
 
 function _doStartGame() {
     coins -= currentBet; updateCoinDisplay();
     turnsLeft--; updateTurnsDisplay();
-    totalStartCount++;
     gameRunning=true; stoppedCount=0;
-    firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null; Atsu=0;
-    noOddReach = (coins >= initialCoins*2.5);
+    firstResultIndex=null; secondResultIndex=null; thirdResultIndex=null;
     setBetLocked(true);
     document.getElementById('start-btn').disabled = true;
     document.getElementById('result-banner').innerText   = '';
@@ -1029,9 +1023,6 @@ function couldBeCombo(r1, r2) {
 function decideReach(currentIndex) {
     if (kakuhenActive) return firstResultIndex;
     if (couldBeCombo(firstResultIndex, currentIndex)) return currentIndex;
-    if (noOddReach && ODD_SET.includes(firstResultIndex)) return pickNonMatchRandom(currentIndex, firstResultIndex);
-    const ruleA = (totalStartCount<=3 && !earlyReachUsed);
-    if (ruleA && Math.random()<0.70) return firstResultIndex;
     return pickRandom(currentIndex);
 }
 function pickRandom(currentIndex) {
@@ -1045,13 +1036,7 @@ function pickNonMatchRandom(currentIndex, exclude) {
     do { idx=pickRandom(currentIndex); tries++; } while (idx===exclude && tries<20);
     return idx;
 }
-async function triggerKakuhen() {
-    setBetLocked(true); setRainbow(true); sfxFlash(); sfxFlash(); await sleep(400);
-    await showEffectImage("gyanb/kakuhen_transparent.png",1800,"chance-large");
-    setRainbow(true); setKakuhenMode(true); rebuildReels();
-    kakuhenWinRound   = coins<=initialCoins*0.5 ? Math.floor(Math.random()*2)+1 : Math.floor(Math.random()*4)+1;
-    kakuhenReachCount = 0; consecutiveAnyLose=0;
-}
+
 
 window.stopReel = async function(reelId, btn) {
     const reel=document.getElementById(reelId);
@@ -1071,8 +1056,7 @@ window.stopReel = async function(reelId, btn) {
         if (_lastKakuhenTargetIdx !== null) {
             targetIndex = _lastKakuhenTargetIdx;
         } else if (kakuhenActive) {
-            targetIndex = coins<=initialCoins*0.5 ? SEVEN :
-                (Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)]);
+            targetIndex = Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
         } else {
             targetIndex = pickRandom(currentIndex);
         }
@@ -1086,8 +1070,6 @@ window.stopReel = async function(reelId, btn) {
         }
         secondResultIndex=targetIndex;
         if (firstResultIndex===secondResultIndex) {
-            if (!earlyReachUsed) earlyReachUsed=true;
-            if (kakuhenActive) kakuhenReachCount++;
             setTimeout(()=>triggerReachEffect(),350);
         }
 
@@ -1141,87 +1123,25 @@ window.stopReel = async function(reelId, btn) {
             return;
         }
         if (firstResultIndex===secondResultIndex) {
-            Atsu=0;
             if (kakuhenActive) {
-                const isWinRound=(kakuhenReachCount===kakuhenWinRound);
-                if (isWinRound) {
-                    sfxChance(true);
-                    await showEffectImage("gyanb/big_chance_transparent.png",1800,"chance-large");
-                    Atsu+=70; await flashSides(2); Atsu+=80; Atsu+=70;
-                    sfxEgg(0); await showEffectImage("gyanb/egg_2_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1); await showEffectImage("gyanb/egg_2-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2); await showEffectImage("gyanb/egg_2-3_transparent.png",1400,"egg-size-3");
-                } else {
-                    sfxChance(false);
-                    await showEffectImage("gyanb/normal_chance_transparent.png",1800,"chance-large");
-                    Atsu+=30;
-                    sfxEgg(0); await showEffectImage("gyanb/egg_1_transparent.png",1400,"egg-size-1");
-                    sfxEgg(1); await showEffectImage("gyanb/egg_1-2_transparent.png",1400,"egg-size-2");
-                    sfxEgg(2); await showEffectImage("gyanb/egg_1-3_transparent.png",1400,"egg-size-3");
-                }
-                if (isWinRound) {
-                    // ============================================================
-                    // [変更1] 当たり時、ペイアウト後に2000G超えるなら強制外れ
-                    // ============================================================
-                    const mult = getMultiplier(firstResultIndex);
-                    const payout = currentBet * mult;
-                    const richBlock = coins > 500 && (coins + payout) > 1500;
-                    const turnBlock = coins > 500 && turnsLeft<=6 && coins>=2000;
-                    if (richBlock || turnBlock) {
-                        targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                        setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                    } else {
-                        await showKiraEffect(20); targetIndex=firstResultIndex;
-                        setKakuhenMode(false); setRainbow(false); setBetLocked(false);
-                        kakuhenWinRound=0; kakuhenReachCount=0; consecutiveAnyLose=0;
-                        setTimeout(()=>{
-                            coins+=payout; updateCoinDisplay(); sfxWin(mult);
-                            // 特別ボーナス：1100〜2000Gのランダム（100の倍数）になるよう不足分を補填
-                            const bonusSteps = Math.floor(Math.random() * 10); // 0〜9
-                            const bonusTarget = 1100 + bonusSteps * 100;
-                            const bonus = Math.max(0, bonusTarget - coins);
-                            if (bonus > 0) {
-                                coins += bonus; updateCoinDisplay();
-                                showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G → 合計 ${bonusTarget.toLocaleString()} G`,"win");
-                            } else {
-                                showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                            }
-                        },500);
-                    }
-                } else {
-                    targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
-                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                }
-            } else {
-                const isBig=Math.random()>=0.7;
+                const isBig=Math.random()>=0.5;
                 sfxChance(isBig);
                 await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
-                Atsu+=isBig?70:30;
-                const sr2=Math.random();
-                if      (sr2<0.3) { await flashSides(1); Atsu+=70; }
-                else if (sr2<0.5) { await flashSides(2); Atsu+=80; }
-                const eggType=Math.random()<0.7?"1":"2";
-                Atsu+=(eggType==="1"?30:70);
+                if (isBig) { await flashSides(Math.random()<0.5?1:2); }
+                const eggType=Math.random()<0.5?"1":"2";
                 sfxEgg(0); await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
                 sfxEgg(1); await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
                 sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                let winProb=Atsu*0.454; if (winProb<30) winProb=0;
-                let isWin=Math.random()*100<winProb;
+                const isWin = Math.random() < 0.5;
                 if (isWin) {
-                    const mult = getMultiplier(firstResultIndex);
-                    const payout = currentBet * mult;
-                    if ((coins + payout) > 1500) isWin = false;
-                }
-                if (isWin && turnsLeft<=6 && coins>=2000) isWin=false;
-                if (isWin) {
-                    await showKiraEffect(20); targetIndex=firstResultIndex; consecutiveAnyLose=0;
+                    await showKiraEffect(20); targetIndex=firstResultIndex;
                     setTimeout(()=>{
                         const mult=getMultiplier(targetIndex), payout=currentBet*mult;
                         coins+=payout; updateCoinDisplay(); sfxWin(mult);
                         showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
                     },500);
                 } else {
-                    targetIndex=(firstResultIndex+1)%7; consecutiveAnyLose++;
+                    targetIndex=(firstResultIndex+1)%7;
                     setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                 }
             }
@@ -1241,31 +1161,20 @@ window.stopReel = async function(reelId, btn) {
                 // コンボ候補：強制外れ条件チェック
                 const combo = getComboMultiplier(firstResultIndex, secondResultIndex, comboThird);
                 const payout = currentBet * combo;
-                const comboBlock = coins > 500 && (coins + payout) > 1500;
-                const comboTurnBlock = coins > 500 && turnsLeft <= 6 && coins >= 2000;
-                if (comboBlock || comboTurnBlock) {
-                    // 強制外れ：3リール目をコンボにならないコマに誘導
-                    targetIndex = (comboThird + 1) % 7;
-                    thirdResultIndex = targetIndex;
-                    consecutiveAnyLose++;
-                    setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                } else {
-                    // コンボ成立：3リール目を正しいコマに誘導
-                    targetIndex = comboThird;
-                    thirdResultIndex = comboThird;
-                    coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
-                    setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
-                }
+                // コンボ成立
+                targetIndex = comboThird;
+                thirdResultIndex = comboThird;
+                coins += payout; updateCoinDisplay(); sfxWin(combo);
+                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
             } else {
                 thirdResultIndex = currentIndex;
                 const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
                 if (combo > 0) {
                     targetIndex = currentIndex;
                     const payout = currentBet * combo;
-                    coins += payout; updateCoinDisplay(); sfxWin(combo); consecutiveAnyLose=0;
-                    setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                    coins += payout; updateCoinDisplay(); sfxWin(combo);                     setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
                 } else {
-                    consecutiveAnyLose++; targetIndex=(currentIndex+1)%7;
+                    targetIndex=(currentIndex+1)%7;
                     setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
                 }
             }
@@ -1284,7 +1193,7 @@ window.stopReel = async function(reelId, btn) {
 
     if (stoppedCount===3) {
         setTimeout(()=>{
-            stoppedCount=0; Atsu=0; gameRunning=false;
+            stoppedCount=0; gameRunning=false;
             [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
             setBetLocked(false);
             if (turnsLeft<=0) {
