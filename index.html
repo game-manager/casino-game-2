@@ -1023,6 +1023,8 @@ function couldBeCombo(r1, r2) {
 function decideReach(currentIndex) {
     if (kakuhenActive) return firstResultIndex;
     if (couldBeCombo(firstResultIndex, currentIndex)) return currentIndex;
+    // 40%でリーチ
+    if (Math.random() < 0.4) return firstResultIndex;
     return pickRandom(currentIndex);
 }
 function pickRandom(currentIndex) {
@@ -1070,6 +1072,8 @@ window.stopReel = async function(reelId, btn) {
         }
         secondResultIndex=targetIndex;
         if (firstResultIndex===secondResultIndex) {
+            // リーチ時: 20%で確定当たりフラグをセット
+            _guaranteedWin = (Math.random() < 0.2);
             setTimeout(()=>triggerReachEffect(),350);
         }
 
@@ -1132,7 +1136,8 @@ window.stopReel = async function(reelId, btn) {
                 sfxEgg(0); await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
                 sfxEgg(1); await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
                 sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                const isWin = Math.random() < 0.5;
+                const isWin = _guaranteedWin || Math.random() < 0.5;
+                _guaranteedWin = false;
                 if (isWin) {
                     await showKiraEffect(20); targetIndex=firstResultIndex;
                     setTimeout(()=>{
@@ -1210,6 +1215,7 @@ window.stopReel = async function(reelId, btn) {
 // ============================================================
 // ラスト確変のターゲットインデックス（null=通常, 数値=ラスト確変中）
 let _lastKakuhenTargetIdx = null;
+let _guaranteedWin = false;
 
 // ラスト確変: 演出→スピン→自分でSTOP→リーチ演出→222/444/666確定当たり
 async function runLastKakuhenSpin() {
