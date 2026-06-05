@@ -1073,7 +1073,13 @@ window.stopReel = async function(reelId, btn) {
         if (firstResultIndex===secondResultIndex) {
             // リーチ時: 20%で確定当たりフラグをセット
             _guaranteedWin = (Math.random() < 0.2);
-            setTimeout(()=>triggerReachEffect(),350);
+            // 2リール目停止後にリーチ演出（効果音＋枠点滅＋バナー）
+            setTimeout(async () => {
+                triggerReachEffect();
+                showResultBanner("🎰 R E A C H !!", "win");
+                await sleep(2500);
+                showResultBanner("", "");
+            }, 350);
         }
 
     } else {
