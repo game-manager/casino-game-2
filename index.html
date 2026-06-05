@@ -1022,7 +1022,6 @@ function couldBeCombo(r1, r2) {
 
 function decideReach(currentIndex) {
     if (kakuhenActive) return firstResultIndex;
-    if (couldBeCombo(firstResultIndex, currentIndex)) return currentIndex;
     // 40%でリーチ
     if (Math.random() < 0.4) return firstResultIndex;
     return pickRandom(currentIndex);
