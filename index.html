@@ -121,7 +121,7 @@
         }
         .bet-btn:hover { background:#3a3a0a; border-color:#c0a000; }
         .bet-btn.selected { background:#c0a000; color:#000; border-color:#ffd700; box-shadow:0 0 8px #ffd70066; }
-        .bet-custom-row { display:flex; gap:8px; align-items:center; justify-content:center; }
+        .bet-custom-row { display:none; gap:8px; align-items:center; justify-content:center; }
         #custom-bet {
             background:#111; color:#ffd700; border:1px solid #555; border-radius:6px;
             padding:7px 12px; font-size:13px; font-family:'Courier New',monospace;
@@ -289,15 +289,18 @@
         }
         #confirm-overlay.active { display:flex; }
         #confirm-box {
-            background:#1a1a1a; border:2px solid #883333; border-radius:14px;
-            padding:28px 32px; max-width:360px; width:88%; text-align:center;
+            background:#1a1a1a; border:2px solid #c0a000; border-radius:14px;
+            padding:28px 32px; max-width:340px; width:88%; text-align:center;
             font-family:'Courier New',monospace;
         }
-        #confirm-box .cf-title { color:#ff6666; font-size:16px; font-weight:bold; letter-spacing:3px; margin-bottom:12px; }
-        #confirm-box .cf-body { color:#aaa; font-size:13px; margin-bottom:22px; line-height:1.6; }
-        #confirm-box .cf-btns { display:flex; gap:10px; justify-content:center; }
+        #confirm-box .cf-title {
+            color:#ffd700; font-size:15px; font-weight:bold; letter-spacing:3px;
+            margin-bottom:14px; text-shadow:0 0 10px #ffd70066;
+        }
+        #confirm-box .cf-body { color:#aaa; font-size:13px; line-height:1.6; margin-bottom:20px; }
+        #confirm-box .cf-btns { display:flex; gap:10px; }
         #confirm-box .cf-btns button {
-            flex:1; padding:10px; border:none; border-radius:7px;
+            flex:1; padding:11px; border:none; border-radius:7px;
             font-size:13px; font-weight:bold; font-family:'Courier New',monospace;
             letter-spacing:2px; cursor:pointer;
         }
@@ -353,21 +356,25 @@
             </div>
             <div class="setup-row">
                 <span class="setup-label">× 一回の回数</span>
-                <input type="number" class="setup-input" id="turns-per-ticket" value="20" min="1" oninput="updateSetupCalc()">
+                <select class="setup-input" id="turns-per-ticket" onchange="updateSetupCalc()">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                </select>
                 <span class="setup-unit">回</span>
             </div>
             <div class="setup-calc">
-                合計プレイ回数：<span class="calc-val" id="calc-total-turns">20</span> 回
+                合計プレイ回数：<span class="calc-val" id="calc-total-turns">10</span> 回
             </div>
         </div>
         <div class="setup-card" style="margin-bottom:16px;">
             <div class="setup-row">
                 <span class="setup-label">本所持金</span>
-                <input type="number" class="setup-input" id="real-money" value="100" min="1" oninput="updateSetupCalc()">
+                <input type="number" class="setup-input" id="real-money" value="10" min="1" oninput="updateSetupCalc()">
                 <span class="setup-unit">円</span>
             </div>
             <div class="setup-calc">
-                ゲーム内コイン：<span class="calc-val" id="calc-coins">10000</span> G
+                ゲーム内コイン：<span class="calc-val" id="calc-coins">1000</span> G
                 <span style="color:#555;font-size:11px;"> (本所持金 × 100)</span>
             </div>
         </div>
@@ -377,14 +384,14 @@
     <div id="game-screen">
         <div id="coin-display">
             <div class="label">所持コイン</div>
-            <div class="amount"><span id="coinshow">10000</span><span class="coin-unit">G</span></div>
+            <div class="amount"><span id="coinshow">1000</span><span class="coin-unit">G</span></div>
         </div>
 
         <button id="quit-btn" onclick="confirmQuit()">⏹ ゲームを辞める</button>
 
         <div id="turns-display">
             <div class="t-label">残りプレイ回数</div>
-            <div><span class="t-val" id="turns-left">20</span><span class="t-total" id="turns-total-show"> / 20</span></div>
+            <div><span class="t-val" id="turns-left">10</span><span class="t-total" id="turns-total-show"> / 10</span></div>
             <div class="turns-bar-outer">
                 <div id="turns-bar-inner" style="width:100%;"></div>
             </div>
@@ -393,11 +400,11 @@
         <div id="bet-panel">
             <div class="section-title">掛け金を選ぶ</div>
             <div class="bet-buttons">
-                <button class="bet-btn" onclick="selectBet(10,this)">10</button>
-                <button class="bet-btn" onclick="selectBet(50,this)">50</button>
                 <button class="bet-btn" onclick="selectBet(100,this)">100</button>
+                <button class="bet-btn" onclick="selectBet(200,this)">200</button>
+                <button class="bet-btn" onclick="selectBet(300,this)">300</button>
+                <button class="bet-btn" onclick="selectBet(400,this)">400</button>
                 <button class="bet-btn" onclick="selectBet(500,this)">500</button>
-                <button class="bet-btn" onclick="selectBet(1000,this)">1000</button>
             </div>
             <div class="bet-custom-row">
                 <span class="custom-label">自分で入力:</span>
@@ -754,12 +761,12 @@ const IMG_7_NORMAL  = "gyanb/gyanb7n-transparent.png";
 const IMG_7_KAKUHEN = "gyanb/gyanb7_transparent.png";
 const ODD_SET=[0,2,4], EVEN_SET=[1,3,5], SEVEN=6;
 
-let coins=10000, currentBet=0;
+let coins=1000, currentBet=0;
 let stoppedCount=0, firstResultIndex=null, secondResultIndex=null, thirdResultIndex=null;
 let Atsu=0, gameRunning=false, totalStartCount=0;
 let earlyReachUsed=false, consecutiveAnyLose=0;
 let kakuhenActive=false, kakuhenWinRound=0, kakuhenReachCount=0;
-let initialCoins=10000;
+let initialCoins=1000;
 let _rainbowLoopInterval=null;
 let turnsLeft=0, totalTurns=0;
 
@@ -781,8 +788,8 @@ window.beginGame = function() {
     ensureCtx();
     openStartPass(() => {
         const tc = parseInt(document.getElementById('ticket-count').value)    || 1;
-        const tp = parseInt(document.getElementById('turns-per-ticket').value) || 20;
-        const rm = parseInt(document.getElementById('real-money').value)      || 100;
+        const tp = parseInt(document.getElementById('turns-per-ticket').value) || 10;
+        const rm = parseInt(document.getElementById('real-money').value)      || 10;
         totalTurns   = tc * tp;
         turnsLeft    = totalTurns;
         coins        = rm * 100;
@@ -790,7 +797,6 @@ window.beginGame = function() {
 
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display  = 'flex';
-        // 変更後
         updateCoinDisplay(false);
         updateTurnsDisplay();
         rebuildReels();
@@ -812,7 +818,6 @@ function updateTurnsDisplay() {
     document.getElementById('turns-total-show').textContent = ' / ' + totalTurns.toLocaleString();
     const pct = totalTurns > 0 ? (turnsLeft / totalTurns) * 100 : 0;
     document.getElementById('turns-bar-inner').style.width = pct + '%';
-    syncTurnsToFb();
     if (turnsLeft <= 0) triggerGameOver();
 }
 
