@@ -283,21 +283,24 @@
         #confirm-overlay.active { display:flex; }
         #confirm-box {
             background:#1a1a1a; border:2px solid #883333; border-radius:14px;
-            padding:28px 32px; max-width:360px; width:88%; text-align:center;
+            padding:28px 32px; max-width:340px; width:88%; text-align:center;
             font-family:'Courier New',monospace;
         }
-        #confirm-box .cf-title { color:#ff6666; font-size:16px; font-weight:bold; letter-spacing:3px; margin-bottom:12px; }
-        #confirm-box .cf-body { color:#aaa; font-size:13px; margin-bottom:22px; line-height:1.6; }
-        #confirm-box .cf-btns { display:flex; gap:10px; justify-content:center; }
+        #confirm-box .cf-title {
+            color:#ff4444; font-size:15px; font-weight:bold; letter-spacing:3px;
+            margin-bottom:18px; text-shadow:0 0 10px #ff000066;
+        }
+        #confirm-box .cf-body { color:#aaa; font-size:13px; line-height:1.6; margin-bottom:24px; }
+        #confirm-box .cf-btns { display:flex; gap:10px; }
         #confirm-box .cf-btns button {
-            flex:1; padding:10px; border:none; border-radius:7px;
+            flex:1; padding:11px; border:none; border-radius:7px;
             font-size:13px; font-weight:bold; font-family:'Courier New',monospace;
             letter-spacing:2px; cursor:pointer;
         }
-        #cf-yes { background:linear-gradient(135deg,#c00000,#800000); color:#fff; }
-        #cf-yes:hover { background:linear-gradient(135deg,#e00000,#a00000); }
-        #cf-no  { background:#2a2a2a; color:#888; border:1px solid #444; }
-        #cf-no:hover  { background:#333; color:#aaa; }
+        #cf-yes { background:#2a2a2a; color:#888; border:1px solid #444; }
+        #cf-yes:hover { background:#333; color:#aaa; }
+        #cf-no  { background:linear-gradient(135deg,#c00000,#800000); color:#fff; }
+        #cf-no:hover  { background:linear-gradient(135deg,#e00000,#a00000); }
 
         #start-pass-overlay {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
@@ -498,7 +501,6 @@ import { getDatabase, ref, set, get, update, onValue }
 const firebaseConfig = {
     apiKey: "AIzaSyB5qi2mA-a2RylE2mc-_ChMgLyMZttEvH8",
     authDomain: "casino-game-2.firebaseapp.com",
-    databaseURL: "https://casino-game-2-default-rtdb.firebaseio.com",
     projectId: "casino-game-2",
     storageBucket: "casino-game-2.firebasestorage.app",
     messagingSenderId: "610664056062",
@@ -811,8 +813,6 @@ function updateTurnsDisplay() {
 
 function triggerGameOver() {
     gameRunning = true;
-    document.getElementById('start-btn').disabled = true;
-    [1,2,3].forEach(n => document.getElementById(`stopbtn${n}`).disabled = true);
     setRainbow(false);
     setTimeout(() => {
         document.getElementById('game-screen').style.display    = 'none';
@@ -983,11 +983,6 @@ window.startGame = function() {
     if (currentBet<=0) return;
     if (currentBet>coins) { showResultBanner("コインが足りません！","lose"); sfxLose(); return; }
     ensureCtx();
-    // 最後の1回はラスト確変（7揃い確定）スピンにする
-    if (turnsLeft === 1 && coins <= 1000) {
-        (async()=>{ await runLastKakuhenSpin(); })();
-        return;
-    }
     _doStartGame();
 };
 
@@ -1055,9 +1050,7 @@ window.stopReel = async function(reelId, btn) {
     let targetIndex;
 
     if (stoppedCount===1) {
-        if (_lastKakuhenTargetIdx !== null) {
-            targetIndex = _lastKakuhenTargetIdx;
-        } else if (kakuhenActive) {
+        if (kakuhenActive) {
             targetIndex = Math.random()<0.5 ? SEVEN : ODD_SET[Math.floor(Math.random()*ODD_SET.length)];
         } else {
             targetIndex = pickRandom(currentIndex);
@@ -1065,11 +1058,7 @@ window.stopReel = async function(reelId, btn) {
         firstResultIndex=targetIndex;
 
     } else if (stoppedCount===2) {
-        if (_lastKakuhenTargetIdx !== null) {
-            targetIndex = _lastKakuhenTargetIdx;
-        } else {
-            targetIndex=decideReach(currentIndex);
-        }
+        targetIndex=decideReach(currentIndex);
         secondResultIndex=targetIndex;
         if (firstResultIndex===secondResultIndex) {
             // リーチ時: 20%で確定当たりフラグをセット
@@ -1084,82 +1073,24 @@ window.stopReel = async function(reelId, btn) {
         }
 
     } else {
-        // ラスト確変：一発確定当選
-        if (_lastKakuhenTargetIdx !== null) {
-            targetIndex = _lastKakuhenTargetIdx;
-            _lastKakuhenTargetIdx = null;
-            // ===== ラスト確変: 演出→キラエフェクト後にリール停止 =====
-            // BIG CHANCEチャンス演出
-            sfxChance(true);
-            await showEffectImage("gyanb/big_chance_transparent.png", 1800, "chance-large");
-            // サイドフラッシュ（2回）
-            await flashSides(2);
-            // 卵演出（BIGパターン）
-            sfxEgg(0); await showEffectImage("gyanb/egg_2_transparent.png",  1400, "egg-size-1");
-            sfxEgg(1); await showEffectImage("gyanb/egg_2-2_transparent.png", 1400, "egg-size-2");
-            sfxEgg(2); await showEffectImage("gyanb/egg_2-3_transparent.png", 1400, "egg-size-3");
-            // キラエフェクト
-            await showKiraEffect(20);
-            // キラエフェクト後に3リール目を正しいコマに止める
-            {
-                let diff = targetIndex - currentIndex;
-                if (diff === 0) {
-                    reel.style.animation = 'none';
-                    reel.style.transform = `translateY(${currentY}px)`;
-                } else {
-                    if (diff < 0) diff += 7;
-                    const finalY = (Math.round(currentY / 110) - diff) * 110;
-                    reel.style.animation = 'none';
-                    reel.style.transform = `translateY(${currentY}px)`;
-                    await new Promise(r => setTimeout(r, 10));
-                    reel.style.transition = 'transform 0.4s ease-out';
-                    reel.style.transform = `translateY(${finalY}px)`;
-                    await new Promise(r => setTimeout(r, 450));
-                }
-            }
-            setKakuhenMode(false); setRainbow(false); setBetLocked(false);
-            const mult = getMultiplier(targetIndex);
-            const payout = currentBet * mult;
-            // ボーナス：1000〜2000の100の倍数のランダム値 − 現在の所持金
-            const bonusSteps = Math.floor(Math.random() * 11); // 0〜10
-            const target = 1000 + bonusSteps * 100; // 1000〜2000
-            coins += payout;
-            const bonus = Math.max(0, target - coins);
-            coins += bonus;
-            updateCoinDisplay();
-            sfxWin(mult);
-            setTimeout(()=>{ showResultBanner(`🎉 ラスト確変当たり！ ×${mult} → +${payout.toLocaleString()} G　🌟 特別ボーナス +${bonus.toLocaleString()} G → 合計 ${(coins).toLocaleString()} G`,"win"); },500);
-            setTimeout(()=>{ triggerGameOver(); }, 5000);
-            return;
-        }
-        if (firstResultIndex===secondResultIndex) {
+        if (firstResultIndex === secondResultIndex) {
             if (kakuhenActive) {
-                const isBig=Math.random()>=0.5;
-                sfxChance(isBig);
-                await showEffectImage(isBig?"gyanb/big_chance_transparent.png":"gyanb/normal_chance_transparent.png",1800,"chance-large");
-                if (isBig) { await flashSides(Math.random()<0.5?1:2); }
-                const eggType=Math.random()<0.5?"1":"2";
-                sfxEgg(0); await showEffectImage(`gyanb/egg_${eggType}_transparent.png`,1400,"egg-size-1");
-                sfxEgg(1); await showEffectImage(`gyanb/egg_${eggType}-2_transparent.png`,1400,"egg-size-2");
-                sfxEgg(2); await showEffectImage(`gyanb/egg_${eggType}-3_transparent.png`,1400,"egg-size-3");
-                const isWin = _guaranteedWin || Math.random() < 0.5;
-                _guaranteedWin = false;
-                if (isWin) {
-                    await showKiraEffect(20); targetIndex=firstResultIndex;
-                    setTimeout(()=>{
-                        const mult=getMultiplier(targetIndex), payout=currentBet*mult;
-                        coins+=payout; updateCoinDisplay(); sfxWin(mult);
-                        showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`,"win");
-                    },500);
-                } else {
-                    targetIndex=(firstResultIndex+1)%7;
-                    setTimeout(()=>{ sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
-                }
+                // 確変中はリーチ＝当たり
+                targetIndex = firstResultIndex;
+                setTimeout(() => {
+                    const mult = getMultiplier(targetIndex), payout = currentBet * mult;
+                    coins += payout; updateCoinDisplay(); sfxWin(mult);
+                    showResultBanner(`🎉 当たり！ ×${mult} → +${payout.toLocaleString()} G`, "win");
+                }, 500);
+            } else {
+                // 通常時のリーチ外れ
+                targetIndex = (firstResultIndex + 1) % 7;
+                setTimeout(() => { sfxReachMiss(); showResultBanner(`💔 リーチ外れ… 掛け金 -${currentBet.toLocaleString()} G`, "lose"); }, 500);
             }
         } else {
             // コンボ完成に必要な3枚目のインデックスを探す
             function findComboThird(r1, r2) {
-                const combos = [[0,1,2],[3,4,5]];
+                const combos = [[0, 1, 2], [3, 4, 5]];
                 for (const trio of combos) {
                     if (trio.includes(r1) && trio.includes(r2) && r1 !== r2) {
                         return trio.find(v => v !== r1 && v !== r2);
@@ -1169,24 +1100,23 @@ window.stopReel = async function(reelId, btn) {
             }
             const comboThird = findComboThird(firstResultIndex, secondResultIndex);
             if (comboThird !== null) {
-                // コンボ候補：強制外れ条件チェック
                 const combo = getComboMultiplier(firstResultIndex, secondResultIndex, comboThird);
                 const payout = currentBet * combo;
-                // コンボ成立
                 targetIndex = comboThird;
                 thirdResultIndex = comboThird;
                 coins += payout; updateCoinDisplay(); sfxWin(combo);
-                setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                setTimeout(() => { showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`, "win"); }, 500);
             } else {
                 thirdResultIndex = currentIndex;
                 const combo = getComboMultiplier(firstResultIndex, secondResultIndex, thirdResultIndex);
                 if (combo > 0) {
                     targetIndex = currentIndex;
                     const payout = currentBet * combo;
-                    coins += payout; updateCoinDisplay(); sfxWin(combo);                     setTimeout(()=>{ showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`,"win"); },500);
+                    coins += payout; updateCoinDisplay(); sfxWin(combo);
+                    setTimeout(() => { showResultBanner(`🎊 コンボ！ ×${combo} → +${payout.toLocaleString()} G`, "win"); }, 500);
                 } else {
-                    targetIndex=(currentIndex+1)%7;
-                    setTimeout(()=>{ sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`,"lose"); },500);
+                    targetIndex = (currentIndex + 1) % 7;
+                    setTimeout(() => { sfxLose(); showResultBanner(`ハズレ… 掛け金 -${currentBet.toLocaleString()} G`, "lose"); }, 500);
                 }
             }
         }
@@ -1216,40 +1146,7 @@ window.stopReel = async function(reelId, btn) {
     }
 };
 
-// ============================================================
-//  ラスト確変（回数0 & 所持金1000G以下）
-// ============================================================
-// ラスト確変のターゲットインデックス（null=通常, 数値=ラスト確変中）
-let _lastKakuhenTargetIdx = null;
 let _guaranteedWin = false;
-
-// ラスト確変: 演出→スピン→自分でSTOP→リーチ演出→222/444/666確定当たり
-async function runLastKakuhenSpin() {
-    gameRunning = true;
-    document.getElementById('start-btn').disabled = true;
-    setBetLocked(true);
-    // 演出
-    setRainbow(true); sfxFlash(); sfxFlash(); await sleep(400);
-    await showEffectImage("gyanb/kakuhen_transparent.png", 1800, "chance-large");
-    // ターゲットを 222(1)・444(3)・666(5) からランダム決定
-    const lastTargets = [1, 3, 5];
-    _lastKakuhenTargetIdx = lastTargets[Math.floor(Math.random() * 3)];
-    stoppedCount = 0;
-    document.getElementById('result-banner').innerText = '';
-    document.getElementById('result-banner').className = '';
-    [1,2,3].forEach(n => document.getElementById(`win${n}`).classList.remove('reach-flash'));
-    setRainbow(true);
-    rebuildReels();
-    // ラスト確変はベットを消費しない
-    [1,2,3].forEach(n => {
-        const s = document.getElementById(`reel${n}`);
-        s.style.transition = ''; s.style.transform = 'translateY(0)';
-        s.style.animation = 'spin 0.75s linear infinite';
-        document.getElementById(`stopbtn${n}`).disabled = false;
-    });
-    sfxStart();
-    setTimeout(() => { ensureCtx(); sfxReelStart(); }, 150);
-}
 
 // ============================================================
 //  A + S + L 同時押し → デバイス登録モーダル
